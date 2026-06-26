@@ -14,6 +14,19 @@ Tabs switch via JS (class toggle on `.tab` and `.tab-content` elements).
 
 ---
 
+## Theme: White Background, Black Text (since 2026-06-26)
+- Body: `#ffffff` background, `#222` text
+- Cards: `#f9fafb` with `#e5e7eb` borders
+- Tab bar: `#eef1f5` background
+- Positive: `#16a34a` (green)
+- Negative: `#dc2626` (red)
+- Accent: `#3b82f6` (blue)
+- Chart grid lines: `#e5e7eb`
+- Chart axis labels: `#888`
+- Password overlay: semi-transparent `rgba(0,0,0,0.6)` with white box
+
+---
+
 ## 1. Markets Tab
 
 ### Index Cards (rendered into `#indexCards`)
@@ -24,7 +37,8 @@ Six cards shown at top (2x3 grid):
 
 ### 6-Month Chart (main `#mainChart` canvas)
 - Interactive line chart
-- Latest price label rendered on the end point via `afterDraw` plugin
+- Latest price label rendered on the end point via `afterDraw` plugin — **with white background box + blue border** for visibility on chart
+- Chart data points interactively hoverable (tooltip)
 - X axis: date labels (short month + day)
 - Y axis: numeric labels — oil gets `$` prefix, large numbers get `k` suffix
 - Buttons below chart to switch ticker: HSI, S&P 500, Nasdaq, Shanghai, Oil WTI
