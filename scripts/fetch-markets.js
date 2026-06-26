@@ -5,6 +5,7 @@ const indices = [
   { symbol: '^HSI', name: 'HSI' },
   { symbol: '^GSPC', name: 'S&P 500' },
   { symbol: '^IXIC', name: 'Nasdaq' },
+  { symbol: '^DJI', name: 'Dow Jones' },
   { symbol: '000001.SS', name: 'Shanghai Comp' },
   { symbol: 'CL=F', name: 'Crude Oil WTI' }
 ];
