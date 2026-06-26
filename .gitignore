@@ -1,0 +1,8 @@
+# Local temp files
+*.txt
+!data/*.json
+!index.html
+tmp/
+temp/
+git-creds*
+*.cred
