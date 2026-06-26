@@ -219,15 +219,18 @@ const PORTFOLIO_STOCKS = [
   { ticker: "3988.HK", name: "BOC", shares: 10000, costPrice: 3.36 }
 ];
 
+let newsData = { dollarNews: [], stockNews: [] };
+
 async function loadData() {
   try {
-    // Try to load from local files first (for GitHub Pages we use embedded data)
     const mResp = await fetch('data/market-data.json?' + Date.now());
     marketData = (await mResp.json()).data;
     const pResp = await fetch('data/prices.json?' + Date.now());
     pricesData = (await pResp.json()).data;
     const reResp = await fetch('data/real-estate.json?' + Date.now());
     reDataHistory = (await reResp.json()).data || [];
+    const nResp = await fetch('data/news.json?' + Date.now());
+    newsData = (await nResp.json()) || { dollarNews: [], stockNews: [] };
   } catch(e) {
     console.log('Data load error:', e);
   }
@@ -508,12 +511,36 @@ function renderPortfolioCharts() {
 }
 
 function renderNews() {
-  // Dollar news placeholder
-  document.getElementById('dollarNews').innerHTML = '<li style="color:#667">Data loads with daily cron (8am HKT)</li>';
-  // RE news placeholder
-  document.getElementById('reNews').innerHTML = '<li style="color:#667">Data loads with daily cron (8am HKT)</li>';
+  // Dollar reserve news
+  const dollarNews = newsData.dollarNews || [];
+  if (dollarNews.length) {
+    document.getElementById('dollarNews').innerHTML = dollarNews.map(a => {
+      const link = a.url ? ` <a href="${a.url}" target="_blank" style="color:#4a7cff;font-size:11px">· source</a>` : '';
+      return `<li><span class="date">${a.date}</span> <span class="headline">${a.title}</span>${link}</li>`;
+    }).join('');
+  } else {
+    document.getElementById('dollarNews').innerHTML = '<li style="color:#667">Loading next update...</li>';
+  }
+
+  // RE news from hkej
+  if (reDataHistory && reDataHistory.length) {
+    document.getElementById('reNews').innerHTML = reDataHistory.map(a => {
+      const link = a.url ? ` <a href="${a.url}" target="_blank" style="color:#4a7cff;font-size:11px">· source</a>` : '';
+      return `<li><span class="date">${a.date}</span> <span class="headline">${a.title}</span>${link}</li>`;
+    }).join('');
+  } else {
+    document.getElementById('reNews').innerHTML = '<li style="color:#667">Loading next update...</li>';
+  }
+
   // Stock watch news
-  document.getElementById('stockNews').innerHTML = '<li style="color:#667">Data loads with daily cron (8am HKT)</li>';
+  const stockNews = newsData.stockNews || [];
+  if (stockNews.length) {
+    document.getElementById('stockNews').innerHTML = stockNews.map(a => {
+      return `<li><span class="src">${a.source || 'Yahoo'}</span> <span class="headline">${a.title}</span></li>`;
+    }).join('');
+  } else {
+    document.getElementById('stockNews').innerHTML = '<li style="color:#667">Loading next update...</li>';
+  }
 }
 
 function renderREChart() {
