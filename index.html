@@ -315,19 +315,26 @@ function renderMainChart(index) {
  plugins: [{
  afterDraw: function(chart) {
  var ctx = chart.ctx;
- var xAxis = chart.scales.x;
- var yAxis = chart.scales.y;
  var meta = chart.getDatasetMeta(0);
  if (!meta || !meta.data || !meta.data.length) return;
  var lastPoint = meta.data[meta.data.length - 1];
  if (!lastPoint) return;
+ var dataSet = chart.data.datasets[0];
+ var vals = dataSet.data;
+ var lastV = vals[vals.length - 1];
+ var label = '$' + Number(lastV).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+ if (ticker === 'CL=F') label = '$' + Number(lastV).toFixed(2);
  ctx.save();
- ctx.fillStyle = '#e0e0e0';
- ctx.font = '10px sans-serif';
+ ctx.font = 'bold 11px sans-serif';
  ctx.textAlign = 'left';
- var label = '$' + lastPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
- if (ticker === 'CL=F') label = '$' + lastPrice.toFixed(2);
- ctx.fillText(label, lastPoint.x + 5, lastPoint.y + 4);
+ var tw = ctx.measureText(label).width;
+ ctx.fillStyle = 'rgba(15,15,26,0.85)';
+ ctx.fillRect(lastPoint.x + 3, lastPoint.y - 12, tw + 8, 20);
+ ctx.strokeStyle = '#4a7cff';
+ ctx.lineWidth = 1;
+ ctx.strokeRect(lastPoint.x + 3, lastPoint.y - 12, tw + 8, 20);
+ ctx.fillStyle = '#e0e0e0';
+ ctx.fillText(label, lastPoint.x + 7, lastPoint.y + 4);
  ctx.restore();
  }
  }]
@@ -349,6 +356,9 @@ function switchChart(idx) {
  var tickers = ['^HSI','000001.SS','^DJI','^GSPC','^IXIC','CL=F'];
  chartActiveTicker = tickers[idx];
  renderMainChart(idx);
+ document.querySelectorAll('.chart-tab').forEach(function(b) { b.style.background = '#2a3a5c'; b.style.color = '#8892b0'; });
+ var btns = document.querySelectorAll('.chart-tab');
+ if (btns[idx]) { btns[idx].style.background = '#4a7cff'; btns[idx].style.color = '#fff'; }
 }
 
 function renderPortfolio() {
@@ -439,8 +449,8 @@ function renderPortfolio() {
  tooltip: { mode: 'index' }
  },
  scales: {
- x: { ticks: { maxTicksLimit: 6, color: '#8892b0', font: { size: 9 } }, grid: { color: '#e5e7eb' } },
- y: { ticks: { color: '#8892b0', font: { size: 9 }, callback: function(v) { return '$' + v.toFixed(0); } }, grid: { color: '#e5e7eb' }, beginAtZero: false }
+ x: { ticks: { maxTicksLimit: 6, color: '#8892b0', font: { size: 9 } }, grid: { color: '#1e2d3d' } },
+ y: { ticks: { color: '#8892b0', font: { size: 9 }, callback: function(v) { return '$' + v.toFixed(0); } }, grid: { color: '#1e2d3d' }, beginAtZero: false }
  }
  }
  });
@@ -537,7 +547,7 @@ function renderREChart() {
  x: { ticks: { color: '#888', font: { size: 9 } }, grid: { display: false } },
  y: {
  ticks: { color: '#4a5568', font: { size: 9 }, callback: function(v) { return '$' + v.toLocaleString(); } },
- grid: { color: '#e5e7eb' },
+ grid: { color: '#1f2937' },
  title: { display: true, text: 'HKD per sq ft', color: '#4a5568', font: { size: 10 } }
  }
  }
@@ -572,11 +582,14 @@ async function initDashboard() {
 // ========== TAB SWITCH ==========
 function switchTab(name) {
  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
- document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
- var tab = document.querySelector('.tab[data-tab="' + name + '"]');
- if (tab) tab.classList.add('active');
  var content = document.getElementById('tab' + name.charAt(0).toUpperCase() + name.slice(1));
  if (content) content.classList.add('active');
+ document.querySelectorAll('.tab-bar button').forEach(function(b) { b.classList.remove('active'); });
+ document.querySelectorAll('.tab-bar button').forEach(function(b) {
+  if (b.textContent.trim().toLowerCase() === name) {
+   b.classList.add('active');
+  }
+ });
 }
 
 // ========== PASSWORD ==========
