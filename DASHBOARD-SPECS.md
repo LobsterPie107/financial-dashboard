@@ -14,16 +14,16 @@ Tabs switch via JS (class toggle on `.tab` and `.tab-content` elements).
 
 ---
 
-## Theme: White Background, Black Text (since 2026-06-26)
-- Body: `#ffffff` background, `#222` text
-- Cards: `#f9fafb` with `#e5e7eb` borders
-- Tab bar: `#eef1f5` background
-- Positive: `#16a34a` (green)
-- Negative: `#dc2626` (red)
-- Accent: `#3b82f6` (blue)
-- Chart grid lines: `#e5e7eb`
-- Chart axis labels: `#888`
-- Password overlay: semi-transparent `rgba(0,0,0,0.6)` with white box
+## Theme: Dark Background (reverted 2026-06-26, Chef preferred dark)
+- Body: `#0f0f1a` background, `#e0e0e0` text
+- Cards: `#1a1a2e` with `#2a3a5c` borders
+- Tab bar: `#16213e` background
+- Positive: `#4ade80` (green)
+- Negative: `#ef4444` (red)
+- Accent: `#4a7cff` (blue)
+- Chart grid lines: `#1f2937`
+- Chart axis labels: `#4a5568`
+- Password overlay: dark box on semi-transparent `rgba(0,0,0,0.6)`
 
 ---
 
