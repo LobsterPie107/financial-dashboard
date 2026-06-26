@@ -386,8 +386,8 @@ function renderPortfolio() {
  portfolio.forEach(function(s, i) {
  if (!s.chart) {
  var p = pricesData.find(function(d) { return d.symbol === s.ticker; });
- if (p && p.chartData) {
- s.chart = p.chartData.map(function(d) { return { date: d.date, close: parseFloat(d.close) }; });
+ if (p && p.timestamps) {
+ s.chart = p.timestamps.map(function(ts, j) { return { date: new Date(ts * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), close: parseFloat(p.closes[j]) }; });
  }
  }
  if (!s.chart || !s.chart.length) return;
