@@ -248,8 +248,8 @@ function renderIndexCards() {
  if (!m) return;
  const el = document.getElementById('idx-' + c.item.toLowerCase().replace(/[^a-z0-9]/g, ''));
  if (!el) return;
- const p = parseFloat(m.regularMarketPrice);
- const chg = parseFloat(m.regularMarketChangePercent);
+ const p = parseFloat(m.price);
+ const chg = ((parseFloat(m.price) - parseFloat(m.prevClose)) / parseFloat(m.prevClose) * 100);
  const icon = chg >= 0 ? '▲' : '▼';
  const color = chg >= 0 ? '#22c55e' : '#ef4444';
  if (c.item === 'Crude Oil') {
@@ -351,8 +351,8 @@ function renderPortfolio() {
  var htmlStr = '';
  portfolio = PORTFOLIO_STOCKS.map(function(s) {
  var p = pricesData.find(function(d) { return d.symbol === s.ticker; });
- var price = p ? parseFloat(p.regularMarketPrice) : s.costPrice;
- var change = p ? parseFloat(p.regularMarketChangePercent) : 0;
+ var price = p ? parseFloat(p.price) : s.costPrice;
+ var change = p ? ((parseFloat(p.price) - parseFloat(p.prevClose)) / parseFloat(p.prevClose) * 100) : 0;
  var mktVal = price * s.shares;
  var costVal = s.costPrice * s.shares;
  var pnl = mktVal - costVal;
