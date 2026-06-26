@@ -311,6 +311,7 @@ function renderMainChart(index) {
  },
  grid: { color: '#1f2937' }
  }
+ }
  },
  plugins: [{
  afterDraw: function(chart) {
@@ -338,7 +339,6 @@ function renderMainChart(index) {
  ctx.restore();
  }
  }]
- }
  });
 
  var nameEl = document.getElementById('chartActiveName');
