@@ -511,47 +511,39 @@ function renderPortfolioCharts() {
 }
 
 function renderNews() {
-  // Dollar reserve news ??? summarize or none
-  const dollarNews = newsData.dollarNews || [];
-  const realDollar = dollarNews.filter(a => a.title && !a.title.includes('awaiting') && !a.title.includes('system'));
-  if (realDollar.length) {
-    document.getElementById('dollarNews').innerHTML = realDollar.map(a => {
-      const link = a.url ? ` <a href="${a.url}" target="_blank" style="color:#4a7cff;font-size:11px">?? source</a>` : '';
-      return `<li><span class="headline">${a.title}</span>${link} <span class="date">${a.date}</span></li>`;
-    }).join('');
+  // Dollar reserve news - one-line summary or none
+  const dollarNews = (newsData.dollarNews || []).filter(a => a.title && !a.title.includes('awaiting') && !a.title.includes('system'));
+  if (dollarNews.length) {
+    const summary = dollarNews.map(a => a.title).join('; ');
+    document.getElementById('dollarNews').innerHTML = '<li style="color:#e0e0e0">' + summary + '</li>';
   } else {
     document.getElementById('dollarNews').innerHTML = '<li style="color:#667">No relevant news today</li>';
   }
 
-  // RE news from hkej ??? only show keyPoint summary
+  // HK Real Estate news - one-line summary
   if (reDataHistory && reDataHistory.length) {
-    document.getElementById('reNews').innerHTML = reDataHistory.map(a => {
-      const text = a.keyPoint || a.title;
-      const link = a.url ? ` <a href="${a.url}" target="_blank" style="color:#4a7cff;font-size:11px">?? source</a>` : '';
-      return `<li><span class="headline">${a.title}</span>${link}<br><span class="summary">${text}</span> <span class="date">${a.date}</span></li>`;
-    }).join('');
+    const summaries = reDataHistory.map(a => a.title).filter(Boolean);
+    const text = summaries.slice(0, 5).join('; ');
+    const count = summaries.length > 5 ? ' (+' + (summaries.length - 5) + ' more)' : '';
+    document.getElementById('reNews').innerHTML = '<li style="color:#e0e0e0">' + text + count + '</li>';
   } else {
     document.getElementById('reNews').innerHTML = '<li style="color:#667">No relevant news today</li>';
   }
 
-  // Stock watch news ??? group by ticker, show only relevant
-  const stockNews = newsData.stockNews || [];
-  // Filter out generic 'Yahoo! Finance' items
-  const realStock = stockNews.filter(a => a.title && !a.title.includes('Yahoo! Finance') && !a.title.includes('SymbolLookup'));
-  if (realStock.length) {
-    // Group: limit to 2 per ticker show
+  // Stock watch news - per-ticker one-liner
+  const stockNews = (newsData.stockNews || []).filter(a => a.title && !a.title.includes('Yahoo! Finance') && !a.title.includes('SymbolLookup'));
+  if (stockNews.length) {
     const grouped = {};
-    realStock.forEach(a => {
+    stockNews.forEach(a => {
       const ticker = (a.title.match(/^\[([^\]]+)\]/) || [])[1] || '';
-      if (!grouped[ticker]) grouped[ticker] = [];
-      if (grouped[ticker].length < 2) grouped[ticker].push(a);
+      const cleanName = PORTFOLIO_STOCKS.find(s => s.ticker === ticker)?.name || ticker;
+      const cleanTitle = a.title.replace(/^\[[^\]]+\]\s*/, '');
+      if (!grouped[ticker]) grouped[ticker] = { name: cleanName, titles: [] };
+      if (grouped[ticker].titles.length < 2) grouped[ticker].titles.push(cleanTitle);
     });
-    const items = [];
-    Object.entries(grouped).forEach(([ticker, articles]) => {
-      items.push(`<li style="margin-top:6px"><strong style="color:#4a7cff;font-size:12px">${ticker}:</strong></li>`);
-      articles.forEach(a => {
-        items.push(`<li style="padding:2px 0;border:none;font-size:12px">${a.title.replace(/^\[[^\]]+\]\s*/, '')} <span class="src">${a.source || ''}</span></li>`);
-      });
+    const items = Object.entries(grouped).map(([ticker, g]) => {
+      const displayName = g.name + ' (' + ticker + ')';
+      return '<li style="border-bottom:1px solid #1a1a2e;padding:5px 0;font-size:13px"><strong style="color:#4a7cff">' + displayName + '</strong>: <span style="color:#ccc">' + g.titles.join('; ') + '</span></li>';
     });
     document.getElementById('stockNews').innerHTML = items.join('');
   } else {
