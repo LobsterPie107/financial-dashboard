@@ -62,7 +62,7 @@
  .card .change { font-size: 13px; margin-left: 6px; }
  .card .change.up { color: #4ade80; }
  .card .change.down { color: #ff6b6b; }
- .chart-wrap { position: relative; height: 200px; min-height: 200px; }
+ .chart-wrap { position: relative; height: 300px; min-height: 300px; overflow: visible; }
 
  /* Portfolio Table */
  .portfolio-table { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -331,7 +331,7 @@ function renderMainChart(index) {
  var label = '$' + Number(lastV).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
  if (ticker === 'CL=F') label = '$' + Number(lastV).toFixed(2);
  ctx.save();
- ctx.font = 'bold 11px sans-serif';
+ ctx.font = 'bold 13px sans-serif';
  ctx.textAlign = 'left';
  var tw = ctx.measureText(label).width;
  ctx.fillStyle = 'rgba(15,15,26,0.85)';
