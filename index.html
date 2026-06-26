@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>???? Lobster Pie Dashboard</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>????</text></svg>">
+<title>🦞 Lobster Pie Dashboard</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦞</text></svg>">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -103,7 +103,7 @@
 <!-- Password Overlay -->
 <div id="pwOverlay">
   <div class="pw-box">
-    <h2>???? Lobster Pie</h2>
+    <h2>🦞 Lobster Pie</h2>
     <p>Enter password to access dashboard</p>
     <input type="password" id="pwInput" maxlength="20" autocomplete="off" placeholder="******">
     <div class="err" id="pwErr"></div>
@@ -114,7 +114,7 @@
 <div class="app">
   <div class="header">
     <div>
-      <h1>???? Financial Dashboard</h1>
+      <h1>🦞 Financial Dashboard</h1>
       <div class="sub">Portfolio ?? Markets ?? News</div>
     </div>
     <div class="last-updated" id="lastUpdated">Loading...</div>
@@ -122,9 +122,9 @@
 
   <!-- Tab Bar -->
   <div class="tab-bar">
-    <button class="active" onclick="switchTab('markets')">???? Markets</button>
-    <button onclick="switchTab('portfolio')">???? Portfolio</button>
-    <button onclick="switchTab('news')">???? News</button>
+    <button class="active" onclick="switchTab('markets')">📈 Markets</button>
+    <button onclick="switchTab('portfolio')">💼 Portfolio</button>
+    <button onclick="switchTab('news')">📰 News</button>
   </div>
 
   <!-- Markets Tab -->
@@ -132,7 +132,7 @@
     <!-- Index Cards -->
     <div class="grid-3" id="indexCards"></div>
     <!-- Chart Area -->
-    <div class="section-title"><span class="t">???? </span>6-Month Performance</div>
+    <div class="section-title"><span class="t">📊 </span>6-Month Performance</div>
     <div class="card">
       <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
         <button class="chart-tab active" data-idx="0" onclick="switchChart(0)" style="background:#4a7cff;border:none;color:#fff;padding:4px 12px;border-radius:4px;font-size:12px;cursor:pointer">HSI</button>
@@ -160,26 +160,26 @@
         <tfoot id="portfolioFoot"></tfoot>
       </table>
     </div>
-    <div class="section-title" style="margin-top:16px"><span class="t">???? </span>1M Price vs Cost (individual charts)</div>
+    <div class="section-title" style="margin-top:16px"><span class="t">📈 </span>1M Price vs Cost (individual charts)</div>
     <div id="portfolioCharts" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
   </div>
 
   <!-- News Tab -->
   <div class="tab" id="tabNews">
     <div class="card">
-      <h3>???????? Dollar Reserve Currency</h3>
+      <h3>🇺🇸 Dollar Reserve Currency</h3>
       <ul class="news-list" id="dollarNews"></ul>
     </div>
     <div class="card" style="margin-top:12px">
-      <h3>???? HK Commercial Real Estate</h3>
+      <h3>🏢 HK Commercial Real Estate</h3>
       <ul class="news-list" id="reNews"></ul>
       <div style="margin-top:12px">
-        <h3 style="font-size:13px;color:#8892b0">???? Data Points Over Time</h3>
+        <h3 style="font-size:13px;color:#8892b0">📈 Data Points Over Time</h3>
         <div class="re-chart-wrap"><canvas id="reChart"></canvas></div>
       </div>
     </div>
     <div class="card" style="margin-top:12px">
-      <h3>???? Stock Watch News</h3>
+      <h3>📋 Stock Watch News</h3>
       <ul class="news-list" id="stockNews"></ul>
     </div>
   </div>
