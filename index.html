@@ -511,35 +511,51 @@ function renderPortfolioCharts() {
 }
 
 function renderNews() {
-  // Dollar reserve news
+  // Dollar reserve news — summarize or none
   const dollarNews = newsData.dollarNews || [];
-  if (dollarNews.length) {
-    document.getElementById('dollarNews').innerHTML = dollarNews.map(a => {
+  const realDollar = dollarNews.filter(a => a.title && !a.title.includes('awaiting') && !a.title.includes('system'));
+  if (realDollar.length) {
+    document.getElementById('dollarNews').innerHTML = realDollar.map(a => {
       const link = a.url ? ` <a href="${a.url}" target="_blank" style="color:#4a7cff;font-size:11px">· source</a>` : '';
-      return `<li><span class="date">${a.date}</span> <span class="headline">${a.title}</span>${link}</li>`;
+      return `<li><span class="headline">${a.title}</span>${link} <span class="date">${a.date}</span></li>`;
     }).join('');
   } else {
-    document.getElementById('dollarNews').innerHTML = '<li style="color:#667">Loading next update...</li>';
+    document.getElementById('dollarNews').innerHTML = '<li style="color:#667">No relevant news today</li>';
   }
 
-  // RE news from hkej
+  // RE news from hkej — only show keyPoint summary
   if (reDataHistory && reDataHistory.length) {
     document.getElementById('reNews').innerHTML = reDataHistory.map(a => {
+      const text = a.keyPoint || a.title;
       const link = a.url ? ` <a href="${a.url}" target="_blank" style="color:#4a7cff;font-size:11px">· source</a>` : '';
-      return `<li><span class="date">${a.date}</span> <span class="headline">${a.title}</span>${link}</li>`;
+      return `<li><span class="headline">${a.title}</span>${link}<br><span class="summary">${text}</span> <span class="date">${a.date}</span></li>`;
     }).join('');
   } else {
-    document.getElementById('reNews').innerHTML = '<li style="color:#667">Loading next update...</li>';
+    document.getElementById('reNews').innerHTML = '<li style="color:#667">No relevant news today</li>';
   }
 
-  // Stock watch news
+  // Stock watch news — group by ticker, show only relevant
   const stockNews = newsData.stockNews || [];
-  if (stockNews.length) {
-    document.getElementById('stockNews').innerHTML = stockNews.map(a => {
-      return `<li><span class="src">${a.source || 'Yahoo'}</span> <span class="headline">${a.title}</span></li>`;
-    }).join('');
+  // Filter out generic 'Yahoo! Finance' items
+  const realStock = stockNews.filter(a => a.title && !a.title.includes('Yahoo! Finance') && !a.title.includes('SymbolLookup'));
+  if (realStock.length) {
+    // Group: limit to 2 per ticker show
+    const grouped = {};
+    realStock.forEach(a => {
+      const ticker = (a.title.match(/^\[([^\]]+)\]/) || [])[1] || '';
+      if (!grouped[ticker]) grouped[ticker] = [];
+      if (grouped[ticker].length < 2) grouped[ticker].push(a);
+    });
+    const items = [];
+    Object.entries(grouped).forEach(([ticker, articles]) => {
+      items.push(`<li style="margin-top:6px"><strong style="color:#4a7cff;font-size:12px">${ticker}:</strong></li>`);
+      articles.forEach(a => {
+        items.push(`<li style="padding:2px 0;border:none;font-size:12px">${a.title.replace(/^\[[^\]]+\]\s*/, '')} <span class="src">${a.source || ''}</span></li>`);
+      });
+    });
+    document.getElementById('stockNews').innerHTML = items.join('');
   } else {
-    document.getElementById('stockNews').innerHTML = '<li style="color:#667">Loading next update...</li>';
+    document.getElementById('stockNews').innerHTML = '<li style="color:#667">No relevant news today</li>';
   }
 }
 
