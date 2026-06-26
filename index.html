@@ -188,12 +188,12 @@
 <script>
 // ========== PASSWORD ==========
 const CORRECT_PW = "123456";
-function checkPw() {
+async function checkPw() {
  const v = document.getElementById('pwInput').value;
  if (v === CORRECT_PW) {
  document.getElementById('pwOverlay').classList.add('hidden');
  document.body.classList.add('pw-authed');
- initDashboard();
+ await initDashboard();
  } else {
  document.getElementById('pwErr').textContent = 'Wrong password';
  document.getElementById('pwInput').value = '';
