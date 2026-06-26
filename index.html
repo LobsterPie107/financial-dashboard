@@ -86,6 +86,10 @@
  .news-list .src { color: #4a7cff; font-size: 11px; }
  .news-list .summary { color: #888; font-size: 12px; margin-top: 2px; }
 
+ .card-sm { background: #1a1a2e; border: 1px solid #2a3a5c; border-radius: 10px; padding: 12px 14px; text-align: center; }
+ .card-sm .card-label { font-size: 11px; color: #4a5568; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+ .card-sm .card-value { font-size: 22px; font-weight: 700; color: #fff; }
+ .card-sm .card-chg { font-size: 12px; margin-top: 1px; }
  .re-chart-wrap { position: relative; height: 120px; }
 
  @media (max-width: 768px) {
@@ -254,10 +258,11 @@ function renderIndexCards() {
  const chg = ((parseFloat(m.price) - parseFloat(m.prevClose)) / parseFloat(m.prevClose) * 100);
  const icon = chg >= 0 ? '▲' : '▼';
  const color = chg >= 0 ? '#4ade80' : '#ef4444';
+ var label = c.item;
  if (c.item === 'Crude Oil') {
- el.innerHTML = '<div class="card-value">$' + p.toFixed(2) + '</div><div class="card-chg" style="color:' + color + '">' + icon + ' ' + Math.abs(chg).toFixed(2) + '%</div>';
+ el.innerHTML = '<div class="card-label">' + label + '</div><div class="card-value">$' + p.toFixed(2) + '</div><div class="card-chg" style="color:' + color + '">' + icon + ' ' + Math.abs(chg).toFixed(2) + '%</div>';
  } else {
- el.innerHTML = '<div class="card-value">' + p.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0}) + '</div><div class="card-chg" style="color:' + color + '">' + icon + ' ' + Math.abs(chg).toFixed(2) + '%</div>';
+ el.innerHTML = '<div class="card-label">' + label + '</div><div class="card-value">' + p.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0}) + '</div><div class="card-chg" style="color:' + color + '">' + icon + ' ' + Math.abs(chg).toFixed(2) + '%</div>';
  }
  });
 }
