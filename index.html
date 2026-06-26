@@ -3,201 +3,201 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🦞 Lobster Pie Dashboard</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦞</text></svg>">
+<title>Financial Dashboard</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22></text></svg>">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+ * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  /* Password Overlay */
-  #pwOverlay {
-    position: fixed; inset: 0; z-index: 9999;
-    background: #0f0f1a;
-    display: flex; align-items: center; justify-content: center;
-  }
-  #pwOverlay.hidden { display: none; }
-  .pw-box {
-    background: #1a1a2e; padding: 40px; border-radius: 16px;
-    border: 1px solid #2a3a5c; text-align: center;
-  }
-  .pw-box h2 { color: #e0e0e0; margin-bottom: 8px; }
-  .pw-box p { color: #8892b0; margin-bottom: 20px; font-size: 14px; }
-  .pw-box input {
-    background: #16213e; border: 1px solid #2a3a5c; border-radius: 8px;
-    padding: 12px 16px; color: #e0e0e0; font-size: 18px; width: 200px;
-    text-align: center; letter-spacing: 4px;
-  }
-  .pw-box input:focus { outline: none; border-color: #4a7cff; }
-  .pw-box .err { color: #ff6b6b; font-size: 13px; margin-top: 8px; min-height: 20px; }
-  .pw-box button {
-    margin-top: 16px; background: #4a7cff; border: none;
-    border-radius: 8px; padding: 10px 32px; color: #fff; font-size: 14px;
-    cursor: pointer;
-  }
-  .pw-box button:hover { background: #3a6aee; }
+ /* Password Overlay */
+ #pwOverlay {
+ position: fixed; inset: 0; z-index: 9999;
+ background: #0f0f1a;
+ display: flex; align-items: center; justify-content: center;
+ }
+ #pwOverlay.hidden { display: none; }
+ .pw-box {
+ background: #1a1a2e; padding: 40px; border-radius: 16px;
+ border: 1px solid #2a3a5c; text-align: center;
+ }
+ .pw-box h2 { color: #e0e0e0; margin-bottom: 8px; }
+ .pw-box p { color: #8892b0; margin-bottom: 20px; font-size: 14px; }
+ .pw-box input {
+ background: #16213e; border: 1px solid #2a3a5c; border-radius: 8px;
+ padding: 12px 16px; color: #e0e0e0; font-size: 18px; width: 200px;
+ text-align: center; letter-spacing: 4px;
+ }
+ .pw-box input:focus { outline: none; border-color: #4a7cff; }
+ .pw-box .err { color: #ff6b6b; font-size: 13px; margin-top: 8px; min-height: 20px; }
+ .pw-box button {
+ margin-top: 16px; background: #4a7cff; border: none;
+ border-radius: 8px; padding: 10px 32px; color: #fff; font-size: 14px;
+ cursor: pointer;
+ }
+ .pw-box button:hover { background: #3a6aee; }
 
-  body.pw-authed { background: #0f0f1a; color: #e0e0e0; font-family: -apple-system, 'Segoe UI', system-ui, sans-serif; }
-  body.pw-authed .app { display: block; max-width: 1200px; margin: 0 auto; padding: 24px; }
-  .app { display: none; }
+ body.pw-authed { background: #0f0f1a; color: #e0e0e0; font-family: -apple-system, 'Segoe UI', system-ui, sans-serif; }
+ body.pw-authed .app { display: block; max-width: 1200px; margin: 0 auto; padding: 24px; }
+ .app { display: none; }
 
-  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 8px; }
-  .header h1 { font-size: 24px; color: #fff; }
-  .header .sub { color: #8892b0; font-size: 13px; }
-  .header .last-updated { color: #4a5568; font-size: 12px; }
+ .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 8px; }
+ .header h1 { font-size: 24px; color: #fff; }
+ .header .sub { color: #8892b0; font-size: 13px; }
+ .header .last-updated { color: #4a5568; font-size: 12px; }
 
-  .section-title { font-size: 16px; color: #8892b0; margin: 24px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #2a3a5c; }
-  .section-title .t { color: #e0e0e0; font-weight: 600; }
+ .section-title { font-size: 16px; color: #8892b0; margin: 24px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #2a3a5c; }
+ .section-title .t { color: #e0e0e0; font-weight: 600; }
 
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+ .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+ .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
 
-  .card {
-    background: #1a1a2e; border: 1px solid #2a3a5c; border-radius: 12px;
-    padding: 16px; overflow: hidden;
-  }
-  .card h3 { font-size: 14px; color: #8892b0; margin-bottom: 4px; }
-  .card .big { font-size: 26px; font-weight: 700; color: #fff; }
-  .card .change { font-size: 13px; margin-left: 6px; }
-  .card .change.up { color: #4ade80; }
-  .card .change.down { color: #ff6b6b; }
-  .chart-wrap { position: relative; height: 200px; min-height: 200px; }
+ .card {
+ background: #1a1a2e; border: 1px solid #2a3a5c; border-radius: 12px;
+ padding: 16px; overflow: hidden;
+ }
+ .card h3 { font-size: 14px; color: #8892b0; margin-bottom: 4px; }
+ .card .big { font-size: 26px; font-weight: 700; color: #fff; }
+ .card .change { font-size: 13px; margin-left: 6px; }
+ .card .change.up { color: #4ade80; }
+ .card .change.down { color: #ff6b6b; }
+ .chart-wrap { position: relative; height: 200px; min-height: 200px; }
 
-  /* Portfolio Table */
-  .portfolio-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .portfolio-table th { text-align: left; color: #4a5568; padding: 8px 6px; border-bottom: 1px solid #2a3a5c; font-weight: 500; }
-  .portfolio-table td { padding: 8px 6px; border-bottom: 1px solid #1f2937; }
-  .portfolio-table tr:hover td { background: rgba(74,124,255,0.05); }
-  .portfolio-table .num { text-align: right; font-variant-numeric: tabular-nums; }
-  .pct-up { color: #4ade80; }
-  .pct-dn { color: #ff6b6b; }
-  .pnl-summary { display: flex; gap: 24px; padding: 12px 0; flex-wrap: wrap; }
-  .pnl-summary .stat { }
-  .pnl-summary .stat .label { font-size: 12px; color: #4a5568; }
-  .pnl-summary .stat .value { font-size: 20px; font-weight: 700; }
+ /* Portfolio Table */
+ .portfolio-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+ .portfolio-table th { text-align: left; color: #4a5568; padding: 8px 6px; border-bottom: 1px solid #2a3a5c; font-weight: 500; }
+ .portfolio-table td { padding: 8px 6px; border-bottom: 1px solid #1f2937; }
+ .portfolio-table tr:hover td { background: rgba(74,124,255,0.05); }
+ .portfolio-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+ .pct-up { color: #4ade80; }
+ .pct-dn { color: #ff6b6b; }
+ .pnl-summary { display: flex; gap: 24px; padding: 12px 0; flex-wrap: wrap; }
+ .pnl-summary .stat { }
+ .pnl-summary .stat .label { font-size: 12px; color: #4a5568; }
+ .pnl-summary .stat .value { font-size: 20px; font-weight: 700; }
 
-  /* News Sections */
-  .news-list { list-style: none; }
-  .news-list li { padding: 10px 0; border-bottom: 1px solid #1f2937; font-size: 13px; }
-  .news-list li:last-child { border-bottom: none; }
-  .news-list .date { color: #4a5568; font-size: 11px; }
-  .news-list .headline { color: #e0e0e0; }
-  .news-list .src { color: #4a7cff; font-size: 11px; }
-  .news-list .summary { color: #667; font-size: 12px; margin-top: 2px; }
+ /* News Sections */
+ .news-list { list-style: none; }
+ .news-list li { padding: 10px 0; border-bottom: 1px solid #1f2937; font-size: 13px; }
+ .news-list li:last-child { border-bottom: none; }
+ .news-list .date { color: #4a5568; font-size: 11px; }
+ .news-list .headline { color: #e0e0e0; }
+ .news-list .src { color: #4a7cff; font-size: 11px; }
+ .news-list .summary { color: #667; font-size: 12px; margin-top: 2px; }
 
-  .re-chart-wrap { position: relative; height: 120px; }
+ .re-chart-wrap { position: relative; height: 120px; }
 
-  @media (max-width: 768px) {
-    .grid-2, .grid-3 { grid-template-columns: 1fr; }
-    .header h1 { font-size: 20px; }
-  }
+ @media (max-width: 768px) {
+ .grid-2, .grid-3 { grid-template-columns: 1fr; }
+ .header h1 { font-size: 20px; }
+ }
 
-  .tab-bar { display: flex; gap: 2px; margin-bottom: 16px; background: #16213e; border-radius: 8px; padding: 3px; width: fit-content; }
-  .tab-bar button { background: transparent; border: none; color: #8892b0; padding: 8px 20px; border-radius: 6px; cursor: pointer; font-size: 13px; }
-  .tab-bar button.active { background: #4a7cff; color: #fff; }
-  .tab { display: none; }
-  .tab.active { display: block; }
+ .tab-bar { display: flex; gap: 2px; margin-bottom: 16px; background: #16213e; border-radius: 8px; padding: 3px; width: fit-content; }
+ .tab-bar button { background: transparent; border: none; color: #8892b0; padding: 8px 20px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+ .tab-bar button.active { background: #4a7cff; color: #fff; }
+ .tab { display: none; }
+ .tab.active { display: block; }
 </style>
 </head>
 <body>
 
 <!-- Password Overlay -->
 <div id="pwOverlay">
-  <div class="pw-box">
-    <h2>🦞 Lobster Pie</h2>
-    <p>Enter password to access dashboard</p>
-    <input type="password" id="pwInput" maxlength="20" autocomplete="off" placeholder="******">
-    <div class="err" id="pwErr"></div>
-    <button onclick="checkPw()">Unlock</button>
-  </div>
+ <div class="pw-box">
+ <h2>Lobster Pie</h2>
+ <p>Enter password to access dashboard</p>
+ <input type="password" id="pwInput" maxlength="20" autocomplete="off" placeholder="******">
+ <div class="err" id="pwErr"></div>
+ <button onclick="checkPw()">Unlock</button>
+</div>
 </div>
 
 <div class="app">
-  <div class="header">
-    <div>
-      <h1>🦞 Financial Dashboard</h1>
-      <div class="sub">Portfolio ?? Markets ?? News</div>
-    </div>
-    <div class="last-updated" id="lastUpdated">Loading...</div>
-  </div>
+ <div class="header">
+ <div>
+ <h1>Financial Dashboard</h1>
+ <div class="sub">Portfolio ?? Markets ?? News</div>
+</div>
+ <div class="last-updated" id="lastUpdated">Loading...</div>
+</div>
 
-  <!-- Tab Bar -->
-  <div class="tab-bar">
-    <button class="active" onclick="switchTab('markets')">📈 Markets</button>
-    <button onclick="switchTab('portfolio')">💼 Portfolio</button>
-    <button onclick="switchTab('news')">📰 News</button>
-  </div>
+ <!-- Tab Bar -->
+ <div class="tab-bar">
+ <button class="active" onclick="switchTab('markets')"> Markets</button>
+ <button onclick="switchTab('portfolio')"> Portfolio</button>
+ <button onclick="switchTab('news')"> News</button>
+</div>
 
-  <!-- Markets Tab -->
-  <div class="tab active" id="tabMarkets">
-    <!-- Index Cards -->
-    <div class="grid-3" id="indexCards"></div>
-    <!-- Chart Area -->
-    <div class="section-title"><span class="t">📊 </span>6-Month Performance</div>
-    <div class="card">
-      <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
-        <button class="chart-tab active" data-idx="0" onclick="switchChart(0)" style="background:#4a7cff;border:none;color:#fff;padding:4px 12px;border-radius:4px;font-size:12px;cursor:pointer">HSI</button>
-        <button class="chart-tab" data-idx="1" onclick="switchChart(1)" style="background:#2a3a5c;border:none;color:#8892b0;padding:4px 12px;border-radius:4px;font-size:12px;cursor:pointer">S&P 500</button>
-        <button class="chart-tab" data-idx="2" onclick="switchChart(2)" style="background:#2a3a5c;border:none;color:#8892b0;padding:4px 12px;border-radius:4px;font-size:12px;cursor:pointer">Nasdaq</button>
-        <button class="chart-tab" data-idx="3" onclick="switchChart(3)" style="background:#2a3a5c;border:none;color:#8892b0;padding:4px 12px;border-radius:4px;font-size:12px;cursor:pointer">Shanghai</button>
-        <button class="chart-tab" data-idx="4" onclick="switchChart(4)" style="background:#2a3a5c;border:none;color:#8892b0;padding:4px 12px;border-radius:4px;font-size:12px;cursor:pointer">Oil WTI</button>
-      </div>
-      <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
-    </div>
-  </div>
+ <!-- Markets Tab -->
+ <div class="tab active" id="tabMarkets">
+ <!-- Index Cards -->
+ <div class="grid-3" id="indexCards"></div>
+ <!-- Chart Area -->
+ <div class="section-title">6-Month Performance</div>
+ <div class="card">
+ <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+ <button class="chart-tab active" data-idx="0" onclick="switchChart(0)" style="background:#4a7cff;border:none;color:#fff;padding:4px 12px;border-radius:4px;font-size:12px;cursor:pointer">HSI</button>
+ <button class="chart-tab" data-idx="1" onclick="switchChart(1)" style="background:#2a3a5c;border:none;color:#8892b0;padding:4px 12px;border-radius:4px;font-size:12px;cursor:pointer">S&P 500</button>
+ <button class="chart-tab" data-idx="2" onclick="switchChart(2)" style="background:#2a3a5c;border:none;color:#8892b0;padding:4px 12px;border-radius:4px;font-size:12px;cursor:pointer">Nasdaq</button>
+ <button class="chart-tab" data-idx="3" onclick="switchChart(3)" style="background:#2a3a5c;border:none;color:#8892b0;padding:4px 12px;border-radius:4px;font-size:12px;cursor:pointer">Shanghai</button>
+ <button class="chart-tab" data-idx="4" onclick="switchChart(4)" style="background:#2a3a5c;border:none;color:#8892b0;padding:4px 12px;border-radius:4px;font-size:12px;cursor:pointer">Oil WTI</button>
+</div>
+ <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
+</div>
+</div>
 
-  <!-- Portfolio Tab -->
-  <div class="tab" id="tabPortfolio">
-    <div class="pnl-summary" id="pnlSummary"></div>
-    <div class="card" style="padding:0;overflow-x:auto">
-      <table class="portfolio-table" id="portfolioTable">
-        <thead>
-          <tr>
-            <th>Stock</th><th>Shares</th><th>Cost Avg</th><th>Current</th>
-            <th>Value</th><th>Cost Total</th><th>P&L</th><th>1M Chg</th>
-          </tr>
-        </thead>
-        <tbody id="portfolioBody"></tbody>
-        <tfoot id="portfolioFoot"></tfoot>
-      </table>
-    </div>
-    <div class="section-title" style="margin-top:16px"><span class="t">📈 </span>1M Price vs Cost (individual charts)</div>
-    <div id="portfolioCharts" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
-  </div>
+ <!-- Portfolio Tab -->
+ <div class="tab" id="tabPortfolio">
+ <div class="pnl-summary" id="pnlSummary"></div>
+ <div class="card" style="padding:0;overflow-x:auto">
+ <table class="portfolio-table" id="portfolioTable">
+ <thead>
+ <tr>
+ <th>Stock</th><th>Shares</th><th>Cost Avg</th><th>Current</th>
+ <th>Value</th><th>Cost Total</th><th>P&L</th><th>1M Chg</th>
+</tr>
+</thead>
+ <tbody id="portfolioBody"></tbody>
+ <tfoot id="portfolioFoot"></tfoot>
+</table>
+</div>
+ <div class="section-title" style="margin-top:16px">1M Price vs Cost (individual charts)</div>
+ <div id="portfolioCharts" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
+</div>
 
-  <!-- News Tab -->
-  <div class="tab" id="tabNews">
-    <div class="card">
-      <h3>🇺🇸 Dollar Reserve Currency</h3>
-      <ul class="news-list" id="dollarNews"></ul>
-    </div>
-    <div class="card" style="margin-top:12px">
-      <h3>🏢 HK Commercial Real Estate</h3>
-      <ul class="news-list" id="reNews"></ul>
-      <div style="margin-top:12px">
-        <h3 style="font-size:13px;color:#8892b0">📈 Data Points Over Time</h3>
-        <div class="re-chart-wrap"><canvas id="reChart"></canvas></div>
-      </div>
-    </div>
-    <div class="card" style="margin-top:12px">
-      <h3>📋 Stock Watch News</h3>
-      <ul class="news-list" id="stockNews"></ul>
-    </div>
-  </div>
+ <!-- News Tab -->
+ <div class="tab" id="tabNews">
+ <div class="card">
+ <h3>Dollar Reserve Currency</h3>
+ <ul class="news-list" id="dollarNews"></ul>
+</div>
+ <div class="card" style="margin-top:12px">
+ <h3>HK Commercial Real Estate</h3>
+ <ul class="news-list" id="reNews"></ul>
+ <div style="margin-top:12px">
+ <h3 style="font-size:13px;color:#8892b0">Data Points Over Time</h3>
+ <div class="re-chart-wrap"><canvas id="reChart"></canvas></div>
+</div>
+</div>
+ <div class="card" style="margin-top:12px">
+ <h3>Stock Watch News</h3>
+ <ul class="news-list" id="stockNews"></ul>
+</div>
+</div>
 </div>
 
 <script>
 // ========== PASSWORD ==========
 const CORRECT_PW = "123456";
 function checkPw() {
-  const v = document.getElementById('pwInput').value;
-  if (v === CORRECT_PW) {
-    document.getElementById('pwOverlay').classList.add('hidden');
-    document.body.classList.add('pw-authed');
-    initDashboard();
-  } else {
-    document.getElementById('pwErr').textContent = 'Wrong password';
-    document.getElementById('pwInput').value = '';
-  }
+ const v = document.getElementById('pwInput').value;
+ if (v === CORRECT_PW) {
+ document.getElementById('pwOverlay').classList.add('hidden');
+ document.body.classList.add('pw-authed');
+ initDashboard();
+ } else {
+ document.getElementById('pwErr').textContent = 'Wrong password';
+ document.getElementById('pwInput').value = '';
+ }
 }
 document.getElementById('pwInput').addEventListener('keydown', e => { if (e.key === 'Enter') checkPw(); });
 
@@ -208,43 +208,43 @@ let portfolio = [];
 let reDataHistory = [];
 
 const PORTFOLIO_STOCKS = [
-  { ticker: "0941.HK", name: "China Mobile", shares: 10000, costPrice: 67.34 },
-  { ticker: "0005.HK", name: "HSBC", shares: 10000, costPrice: 123.35 },
-  { ticker: "0939.HK", name: "CCB", shares: 10000, costPrice: 5.60 },
-  { ticker: "0728.HK", name: "China Telecom", shares: 10000, costPrice: 3.79 },
-  { ticker: "0762.HK", name: "China Unicom", shares: 10000, costPrice: 5.95 },
-  { ticker: "0883.HK", name: "CNOOC", shares: 10000, costPrice: 11.31 },
-  { ticker: "0857.HK", name: "CNPC", shares: 10000, costPrice: 3.39 },
-  { ticker: "1398.HK", name: "ICBC", shares: 10000, costPrice: 4.97 },
-  { ticker: "3988.HK", name: "BOC", shares: 10000, costPrice: 3.36 }
+ { ticker: "0941.HK", name: "China Mobile", shares: 10000, costPrice: 67.34 },
+ { ticker: "0005.HK", name: "HSBC", shares: 10000, costPrice: 123.35 },
+ { ticker: "0939.HK", name: "CCB", shares: 10000, costPrice: 5.60 },
+ { ticker: "0728.HK", name: "China Telecom", shares: 10000, costPrice: 3.79 },
+ { ticker: "0762.HK", name: "China Unicom", shares: 10000, costPrice: 5.95 },
+ { ticker: "0883.HK", name: "CNOOC", shares: 10000, costPrice: 11.31 },
+ { ticker: "0857.HK", name: "CNPC", shares: 10000, costPrice: 3.39 },
+ { ticker: "1398.HK", name: "ICBC", shares: 10000, costPrice: 4.97 },
+ { ticker: "3988.HK", name: "BOC", shares: 10000, costPrice: 3.36 }
 ];
 
 let newsData = { dollarNews: [], stockNews: [] };
 
 async function loadData() {
-  try {
-    const mResp = await fetch('data/market-data.json?' + Date.now());
-    marketData = (await mResp.json()).data;
-    const pResp = await fetch('data/prices.json?' + Date.now());
-    pricesData = (await pResp.json()).data;
-    const reResp = await fetch('data/real-estate.json?' + Date.now());
-    reDataHistory = (await reResp.json()).data || [];
-    const nResp = await fetch('data/news.json?' + Date.now());
-    newsData = (await nResp.json()) || { dollarNews: [], stockNews: [] };
-  } catch(e) {
-    console.log('Data load error:', e);
-  }
-  portfolio = PORTFOLIO_STOCKS;
+ try {
+ const mResp = await fetch('data/market-data.json?' + Date.now());
+ marketData = (await mResp.json()).data;
+ const pResp = await fetch('data/prices.json?' + Date.now());
+ pricesData = (await pResp.json()).data;
+ const reResp = await fetch('data/real-estate.json?' + Date.now());
+ reDataHistory = (await reResp.json()).data || [];
+ const nResp = await fetch('data/news.json?' + Date.now());
+ newsData = (await nResp.json()) || { dollarNews: [], stockNews: [] };
+ } catch(e) {
+ console.log('Data load error:', e);
+ }
+ portfolio = PORTFOLIO_STOCKS;
 }
 
 function findPrice(ticker) {
-  const p = pricesData.find(d => d.symbol === ticker);
-  return p ? p.price : null;
+ const p = pricesData.find(d => d.symbol === ticker);
+ return p ? p.price : null;
 }
 
 function find1MHistory(ticker) {
-  const p = pricesData.find(d => d.symbol === ticker);
-  return p ? (p.closes || []) : [];
+ const p = pricesData.find(d => d.symbol === ticker);
+ return p ? (p.closes || []) : [];
 }
 
 // ========== RENDER ==========
@@ -252,358 +252,358 @@ let chartInstance = null;
 let reChartInstance = null;
 
 function renderIndexCards() {
-  const container = document.getElementById('indexCards');
-  container.innerHTML = marketData.map(d => {
-    const chg = d.prevClose ? ((d.price - d.prevClose) / d.prevClose * 100).toFixed(2) : '0';
-    const cls = chg >= 0 ? 'up' : 'down';
-    const sign = chg >= 0 ? '+' : '';
-    return `<div class="card"><h3>${d.name}</h3><div class="big">${formatNum(d.price)}</div><span class="change ${cls}">${sign}${chg}%</span></div>`;
-  }).join('');
+ const container = document.getElementById('indexCards');
+ container.innerHTML = marketData.map(d => {
+ const chg = d.prevClose ? ((d.price - d.prevClose) / d.prevClose * 100).toFixed(2) : '0';
+ const cls = chg >= 0 ? 'up' : 'down';
+ const sign = chg >= 0 ? '+' : '';
+ return `<div class="card"><h3>${d.name}</h3><div class="big">${formatNum(d.price)}</div><span class="change ${cls}">${sign}${chg}%</span></div>`;
+ }).join('');
 }
 
 function renderMainChart(idx) {
-  const d = marketData[idx];
-  if (!d || !d.timestamps || !d.closes) return;
-  const labels = d.timestamps.map(t => {
-    const dt = new Date(t * 1000);
-    return dt.toLocaleDateString('zh-HK', { month: 'short', day: 'numeric' });
-  });
-  const prices = d.closes;
-  const ctx = document.getElementById('mainChart').getContext('2d');
-  if (chartInstance) chartInstance.destroy();
+ const d = marketData[idx];
+ if (!d || !d.timestamps || !d.closes) return;
+ const labels = d.timestamps.map(t => {
+ const dt = new Date(t * 1000);
+ return dt.toLocaleDateString('zh-HK', { month: 'short', day: 'numeric' });
+ });
+ const prices = d.closes;
+ const ctx = document.getElementById('mainChart').getContext('2d');
+ if (chartInstance) chartInstance.destroy();
 
-  const gradient = ctx.createLinearGradient(0, 0, 0, 180);
-  gradient.addColorStop(0, 'rgba(74, 124, 255, 0.2)');
-  gradient.addColorStop(1, 'rgba(74, 124, 255, 0.0)');
+ const gradient = ctx.createLinearGradient(0, 0, 0, 180);
+ gradient.addColorStop(0, 'rgba(74, 124, 255, 0.2)');
+ gradient.addColorStop(1, 'rgba(74, 124, 255, 0.0)');
 
-  chartInstance = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        data: prices,
-        borderColor: '#4a7cff',
-        backgroundColor: gradient,
-        fill: true,
-        tension: 0.2,
-        pointRadius: 0,
-        borderWidth: 2
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
-      scales: {
-        x: { display: true, ticks: { color: '#4a5568', maxTicksLimit: 10, font: { size: 10 } }, grid: { display: false } },
-        y: { display: true, ticks: { color: '#4a5568', font: { size: 10 } }, grid: { color: '#1f2937' } }
-      },
-      interaction: { mode: 'nearest', axis: 'x', intersect: false }
-    }
-  });
+ chartInstance = new Chart(ctx, {
+ type: 'line',
+ data: {
+ labels,
+ datasets: [{
+ data: prices,
+ borderColor: '#4a7cff',
+ backgroundColor: gradient,
+ fill: true,
+ tension: 0.2,
+ pointRadius: 0,
+ borderWidth: 2
+ }]
+ },
+ options: {
+ responsive: true,
+ maintainAspectRatio: false,
+ plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+ scales: {
+ x: { display: true, ticks: { color: '#4a5568', maxTicksLimit: 10, font: { size: 10 } }, grid: { display: false } },
+ y: { display: true, ticks: { color: '#4a5568', font: { size: 10 } }, grid: { color: '#1f2937' } }
+ },
+ interaction: { mode: 'nearest', axis: 'x', intersect: false }
+ }
+ });
 }
 
 function switchChart(idx) {
-  document.querySelectorAll('.chart-tab').forEach((b, i) => {
-    b.style.background = i === idx ? '#4a7cff' : '#2a3a5c';
-    b.style.color = i === idx ? '#fff' : '#8892b0';
-  });
-  renderMainChart(idx);
+ document.querySelectorAll('.chart-tab').forEach((b, i) => {
+ b.style.background = i === idx ? '#4a7cff' : '#2a3a5c';
+ b.style.color = i === idx ? '#fff' : '#8892b0';
+ });
+ renderMainChart(idx);
 }
 
 function renderPortfolio() {
-  let totalValue = 0, totalCost = 0;
-  const rows = portfolio.map(s => {
-    const price = findPrice(s.ticker);
-    const curVal = price !== null ? price * s.shares : null;
-    const costVal = s.costPrice * s.shares;
-    const pnl = curVal !== null ? curVal - costVal : null;
-    const pnlPct = pnl !== null ? (pnl / costVal * 100) : null;
-    const cls = pnlPct !== null ? (pnlPct >= 0 ? 'pct-up' : 'pct-dn') : '';
-    const sign = pnlPct !== null && pnlPct >= 0 ? '+' : '';
+ let totalValue = 0, totalCost = 0;
+ const rows = portfolio.map(s => {
+ const price = findPrice(s.ticker);
+ const curVal = price !== null ? price * s.shares : null;
+ const costVal = s.costPrice * s.shares;
+ const pnl = curVal !== null ? curVal - costVal : null;
+ const pnlPct = pnl !== null ? (pnl / costVal * 100) : null;
+ const cls = pnlPct !== null ? (pnlPct >= 0 ? 'pct-up' : 'pct-dn') : '';
+ const sign = pnlPct !== null && pnlPct >= 0 ? '+' : '';
 
-    if (curVal !== null) totalValue += curVal;
-    totalCost += costVal;
+ if (curVal !== null) totalValue += curVal;
+ totalCost += costVal;
 
-    // 1M history
-    const hist = find1MHistory(s.ticker);
-    let oneMChange = null;
-    if (hist && hist.length > 1) {
-      const first = hist[0];
-      const last = hist[hist.length - 1];
-      if (first && last) oneMChange = (last - first) / first * 100;
-    }
+ // 1M history
+ const hist = find1MHistory(s.ticker);
+ let oneMChange = null;
+ if (hist && hist.length > 1) {
+ const first = hist[0];
+ const last = hist[hist.length - 1];
+ if (first && last) oneMChange = (last - first) / first * 100;
+ }
 
-    return `<tr>
-      <td><strong>${s.name}</strong><br><span style="color:#4a5568;font-size:11px">${s.ticker}</span></td>
-      <td class="num">${s.shares}</td>
-      <td class="num">$${s.costPrice.toFixed(2)}</td>
-      <td class="num">${price !== null ? '$' + price.toFixed(2) : '-'}</td>
-      <td class="num">${curVal !== null ? '$' + curVal.toFixed(0) : '-'}</td>
-      <td class="num">$${costVal.toFixed(0)}</td>
-      <td class="num ${cls}">${pnl !== null ? sign + '$' + Math.abs(pnl).toFixed(0) : '-'}<br><small>${pnlPct !== null ? '(' + sign + pnlPct.toFixed(1) + '%)' : ''}</small></td>
-      <td class="num ${oneMChange !== null && oneMChange >= 0 ? 'pct-up' : 'pct-dn'}">${oneMChange !== null ? (oneMChange >= 0 ? '+' : '') + oneMChange.toFixed(1) + '%' : '-'}</td>
-    </tr>`;
-  }).join('');
+ return `<tr>
+ <td><strong>${s.name}</strong><br><span style="color:#4a5568;font-size:11px">${s.ticker}</span></td>
+ <td class="num">${s.shares}</td>
+ <td class="num">$${s.costPrice.toFixed(2)}</td>
+ <td class="num">${price !== null ? '$' + price.toFixed(2) : '-'}</td>
+ <td class="num">${curVal !== null ? '$' + curVal.toFixed(0) : '-'}</td>
+ <td class="num">$${costVal.toFixed(0)}</td>
+ <td class="num ${cls}">${pnl !== null ? sign + '$' + Math.abs(pnl).toFixed(0) : '-'}<br><small>${pnlPct !== null ? '(' + sign + pnlPct.toFixed(1) + '%)' : ''}</small></td>
+ <td class="num ${oneMChange !== null && oneMChange >= 0 ? 'pct-up' : 'pct-dn'}">${oneMChange !== null ? (oneMChange >= 0 ? '+' : '') + oneMChange.toFixed(1) + '%' : '-'}</td>
+</tr>`;
+ }).join('');
 
-  const totalPnl = totalValue - totalCost;
-  const totalPnlPct = totalCost > 0 ? (totalPnl / totalCost * 100) : 0;
-  const sign = totalPnl >= 0 ? '+' : '';
-  const cls2 = totalPnl >= 0 ? 'pct-up' : 'pct-dn';
+ const totalPnl = totalValue - totalCost;
+ const totalPnlPct = totalCost > 0 ? (totalPnl / totalCost * 100) : 0;
+ const sign = totalPnl >= 0 ? '+' : '';
+ const cls2 = totalPnl >= 0 ? 'pct-up' : 'pct-dn';
 
-  document.getElementById('pnlSummary').innerHTML = `
-    <div class="stat"><div class="label">Total Value</div><div class="value" style="color:#fff">$${totalValue.toFixed(0)}</div></div>
-    <div class="stat"><div class="label">Total Cost</div><div class="value" style="color:#8892b0">$${totalCost.toFixed(0)}</div></div>
-    <div class="stat"><div class="label">Total P&L</div><div class="value ${cls2}">${sign}$${Math.abs(totalPnl).toFixed(0)} (${sign}${totalPnlPct.toFixed(1)}%)</div></div>
-  `;
-  document.getElementById('portfolioBody').innerHTML = rows;
-  document.getElementById('portfolioFoot').innerHTML = `
-    <tr><td><strong>Total</strong></td><td></td><td></td><td></td>
-    <td class="num"><strong>$${totalValue.toFixed(0)}</strong></td>
-    <td class="num"><strong>$${totalCost.toFixed(0)}</strong></td>
-    <td class="num ${cls2}"><strong>${sign}$${Math.abs(totalPnl).toFixed(0)} (${sign}${totalPnlPct.toFixed(1)}%)</strong></td>
-    <td></td></tr>
-  `;
+ document.getElementById('pnlSummary').innerHTML = `
+ <div class="stat"><div class="label">Total Value</div><div class="value" style="color:#fff">$${totalValue.toFixed(0)}</div></div>
+ <div class="stat"><div class="label">Total Cost</div><div class="value" style="color:#8892b0">$${totalCost.toFixed(0)}</div></div>
+ <div class="stat"><div class="label">Total P&L</div><div class="value ${cls2}">${sign}$${Math.abs(totalPnl).toFixed(0)} (${sign}${totalPnlPct.toFixed(1)}%)</div></div>
+ `;
+ document.getElementById('portfolioBody').innerHTML = rows;
+ document.getElementById('portfolioFoot').innerHTML = `
+ <tr><td><strong>Total</strong></td><td></td><td></td><td></td>
+ <td class="num"><strong>$${totalValue.toFixed(0)}</strong></td>
+ <td class="num"><strong>$${totalCost.toFixed(0)}</strong></td>
+ <td class="num ${cls2}"><strong>${sign}$${Math.abs(totalPnl).toFixed(0)} (${sign}${totalPnlPct.toFixed(1)}%)</strong></td>
+ <td></td></tr>
+ `;
 }
 
 function renderPortfolioCharts() {
-  const container = document.getElementById('portfolioCharts');
-  container.innerHTML = portfolio.map((s, idx) => {
-    const price = findPrice(s.ticker);
-    const hist = find1MHistory(s.ticker);
-    if (!hist || hist.length < 2) return '';
-    // Drop leading nulls
-    const clean = hist.filter(v => v !== null);
-    if (clean.length < 2) return '';
-    const pnl = clean[clean.length-1] - s.costPrice;
-    const pnlPct = pnl / s.costPrice * 100;
-    const color = pnlPct >= 0 ? '#4ade80' : '#ff6b6b';
-    const sign = pnlPct >= 0 ? '+' : '';
-    const dateLabels = pricesData.find(d => d.symbol === s.ticker)?.timestamps || [];
-    // Build labels: only first and last
-    const labels = clean.map((_, i) => {
-      if (i === 0 || i === clean.length - 1) {
-        const dt = dateLabels[i] ? new Date(dateLabels[i]*1000) : new Date();
-        return (dt.getMonth()+1) + '/' + dt.getDate();
-      }
-      return '';
-    });
+ const container = document.getElementById('portfolioCharts');
+ container.innerHTML = portfolio.map((s, idx) => {
+ const price = findPrice(s.ticker);
+ const hist = find1MHistory(s.ticker);
+ if (!hist || hist.length < 2) return '';
+ // Drop leading nulls
+ const clean = hist.filter(v => v !== null);
+ if (clean.length < 2) return '';
+ const pnl = clean[clean.length-1] - s.costPrice;
+ const pnlPct = pnl / s.costPrice * 100;
+ const color = pnlPct >= 0 ? '#4ade80' : '#ff6b6b';
+ const sign = pnlPct >= 0 ? '+' : '';
+ const dateLabels = pricesData.find(d => d.symbol === s.ticker)?.timestamps || [];
+ // Build labels: only first and last
+ const labels = clean.map((_, i) => {
+ if (i === 0 || i === clean.length - 1) {
+ const dt = dateLabels[i] ? new Date(dateLabels[i]*1000) : new Date();
+ return (dt.getMonth()+1) + '/' + dt.getDate();
+ }
+ return '';
+ });
 
-    return `<div class="card" style="padding:10px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <h3 style="font-size:13px;margin:0">${s.name} <span style="color:#4a5568;font-weight:400">${s.ticker}</span></h3>
-        <span style="font-size:14px;font-weight:700;color:${color}">${sign}${pnlPct.toFixed(1)}%</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:11px;color:#4a5568;margin-bottom:2px">
-        <span>Cost: $${s.costPrice.toFixed(2)}</span>
-        <span>Now: $${clean[clean.length-1].toFixed(2)}</span>
-      </div>
-      <div class="chart-wrap" style="height:100px"><canvas id="pc${idx}"></canvas></div>
-    </div>`;
-  }).join('');
+ return `<div class="card" style="padding:10px">
+ <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+ <h3 style="font-size:13px;margin:0">${s.name} <span style="color:#4a5568;font-weight:400">${s.ticker}</span></h3>
+ <span style="font-size:14px;font-weight:700;color:${color}">${sign}${pnlPct.toFixed(1)}%</span>
+</div>
+ <div style="display:flex;justify-content:space-between;font-size:11px;color:#4a5568;margin-bottom:2px">
+ <span>Cost: $${s.costPrice.toFixed(2)}</span>
+ <span>Now: $${clean[clean.length-1].toFixed(2)}</span>
+</div>
+ <div class="chart-wrap" style="height:100px"><canvas id="pc${idx}"></canvas></div>
+</div>`;
+ }).join('');
 
-  portfolio.forEach((s, idx) => {
-    const hist = find1MHistory(s.ticker);
-    if (!hist || hist.length < 2) return;
-    const clean = hist.filter(v => v !== null);
-    if (clean.length < 2) return;
-    const canvas = document.getElementById('pc' + idx);
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const pnlPct = (clean[clean.length-1] - s.costPrice) / s.costPrice * 100;
-    const color = pnlPct >= 0 ? '#4ade80' : '#ff6b6b';
-    const dateLabels = pricesData.find(d => d.symbol === s.ticker)?.timestamps || [];
-    const labels = clean.map((_, i) => {
-      if (i === 0 || i === clean.length - 1) {
-        const dt = dateLabels[i] ? new Date(dateLabels[i]*1000) : new Date();
-        return (dt.getMonth()+1) + '/' + dt.getDate();
-      }
-      return '';
-    });
+ portfolio.forEach((s, idx) => {
+ const hist = find1MHistory(s.ticker);
+ if (!hist || hist.length < 2) return;
+ const clean = hist.filter(v => v !== null);
+ if (clean.length < 2) return;
+ const canvas = document.getElementById('pc' + idx);
+ if (!canvas) return;
+ const ctx = canvas.getContext('2d');
+ const pnlPct = (clean[clean.length-1] - s.costPrice) / s.costPrice * 100;
+ const color = pnlPct >= 0 ? '#4ade80' : '#ff6b6b';
+ const dateLabels = pricesData.find(d => d.symbol === s.ticker)?.timestamps || [];
+ const labels = clean.map((_, i) => {
+ if (i === 0 || i === clean.length - 1) {
+ const dt = dateLabels[i] ? new Date(dateLabels[i]*1000) : new Date();
+ return (dt.getMonth()+1) + '/' + dt.getDate();
+ }
+ return '';
+ });
 
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Price',
-            data: clean,
-            borderColor: color,
-            backgroundColor: color + '22',
-            fill: true,
-            borderWidth: 2,
-            pointRadius: 0,
-            tension: 0.3
-          },
-          {
-            label: 'Cost',
-            data: clean.map(() => s.costPrice),
-            borderColor: '#8892b0',
-            borderWidth: 1.5,
-            pointRadius: 0,
-            borderDash: [5,4]
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            mode: 'index',
-            callbacks: {
-              label: function(ctx) {
-                const v = ctx.parsed.y;
-                if (ctx.dataset.label === 'Cost') return 'Cost: $' + v.toFixed(2);
-                const pct = (v - s.costPrice) / s.costPrice * 100;
-                const sign = pct >= 0 ? '+' : '';
-                return 'Price: $' + v.toFixed(2) + ' (' + sign + pct.toFixed(1) + '%)';
-              }
-            }
-          }
-        },
-        scales: {
-          x: {
-            display: true,
-            ticks: { color: '#4a5568', font: { size: 9 }, maxTicksLimit: 4 },
-            grid: { display: false }
-          },
-          y: {
-            display: true,
-            ticks: { color: '#e0e0e0', font: { size: 10, weight: 'bold' }, maxTicksLimit: 6, callback: function(v) { return '$' + v.toFixed(0); } },
-            grid: { color: '#2a3a5c', drawTicks: false }
-          }
-        }
-      },
-      plugins: [{
-        id: 'endLabels',
-        afterDatasetsDraw(chart) {
-          const ctx2 = chart.ctx;
-          chart.data.datasets.forEach((ds, i) => {
-            const meta = chart.getDatasetMeta(i);
-            if (!meta.visible) return;
-            const lastIdx = ds.data.length - 1;
-            const point = meta.data[lastIdx];
-            if (!point) return;
-            const val = ds.data[lastIdx];
-            const label = i === 0 ? '$' + val.toFixed(2) : 'Cost $' + val.toFixed(2);
-            ctx2.save();
-            ctx2.font = 'bold 11px sans-serif';
-            ctx2.fillStyle = i === 0 ? color : '#8892b0';
-            ctx2.textAlign = 'left';
-            ctx2.textBaseline = 'middle';
-            const x = point.x + 5;
-            const y = point.y;
-            // Background
-            const tw = ctx2.measureText(label).width;
-            ctx2.fillStyle = '#1a1a2e';
-            ctx2.fillRect(x - 2, y - 8, tw + 6, 18);
-            ctx2.fillStyle = i === 0 ? color : '#8892b0';
-            ctx2.fillText(label, x, y);
-            ctx2.restore();
-          });
-        }
-      }]
-    });
-  });
+ new Chart(ctx, {
+ type: 'line',
+ data: {
+ labels,
+ datasets: [
+ {
+ label: 'Price',
+ data: clean,
+ borderColor: color,
+ backgroundColor: color + '22',
+ fill: true,
+ borderWidth: 2,
+ pointRadius: 0,
+ tension: 0.3
+ },
+ {
+ label: 'Cost',
+ data: clean.map(() => s.costPrice),
+ borderColor: '#8892b0',
+ borderWidth: 1.5,
+ pointRadius: 0,
+ borderDash: [5,4]
+ }
+ ]
+ },
+ options: {
+ responsive: true,
+ maintainAspectRatio: false,
+ plugins: {
+ legend: { display: false },
+ tooltip: {
+ mode: 'index',
+ callbacks: {
+ label: function(ctx) {
+ const v = ctx.parsed.y;
+ if (ctx.dataset.label === 'Cost') return 'Cost: $' + v.toFixed(2);
+ const pct = (v - s.costPrice) / s.costPrice * 100;
+ const sign = pct >= 0 ? '+' : '';
+ return 'Price: $' + v.toFixed(2) + ' (' + sign + pct.toFixed(1) + '%)';
+ }
+ }
+ }
+ },
+ scales: {
+ x: {
+ display: true,
+ ticks: { color: '#4a5568', font: { size: 9 }, maxTicksLimit: 4 },
+ grid: { display: false }
+ },
+ y: {
+ display: true,
+ ticks: { color: '#e0e0e0', font: { size: 10, weight: 'bold' }, maxTicksLimit: 6, callback: function(v) { return '$' + v.toFixed(0); } },
+ grid: { color: '#2a3a5c', drawTicks: false }
+ }
+ }
+ },
+ plugins: [{
+ id: 'endLabels',
+ afterDatasetsDraw(chart) {
+ const ctx2 = chart.ctx;
+ chart.data.datasets.forEach((ds, i) => {
+ const meta = chart.getDatasetMeta(i);
+ if (!meta.visible) return;
+ const lastIdx = ds.data.length - 1;
+ const point = meta.data[lastIdx];
+ if (!point) return;
+ const val = ds.data[lastIdx];
+ const label = i === 0 ? '$' + val.toFixed(2) : 'Cost $' + val.toFixed(2);
+ ctx2.save();
+ ctx2.font = 'bold 11px sans-serif';
+ ctx2.fillStyle = i === 0 ? color : '#8892b0';
+ ctx2.textAlign = 'left';
+ ctx2.textBaseline = 'middle';
+ const x = point.x + 5;
+ const y = point.y;
+ // Background
+ const tw = ctx2.measureText(label).width;
+ ctx2.fillStyle = '#1a1a2e';
+ ctx2.fillRect(x - 2, y - 8, tw + 6, 18);
+ ctx2.fillStyle = i === 0 ? color : '#8892b0';
+ ctx2.fillText(label, x, y);
+ ctx2.restore();
+ });
+ }
+ }]
+ });
+ });
 }
 
 function renderNews() {
-  // Dollar reserve news - one-line summary or none
-  const dollarNews = (newsData.dollarNews || []).filter(a => a.title && !a.title.includes('awaiting') && !a.title.includes('system'));
-  if (dollarNews.length) {
-    const summary = dollarNews.map(a => a.title).join('; ');
-    document.getElementById('dollarNews').innerHTML = '<li style="color:#e0e0e0">' + summary + '</li>';
-  } else {
-    document.getElementById('dollarNews').innerHTML = '<li style="color:#667">No relevant news today</li>';
-  }
+ // Dollar reserve news - one-line summary or none
+ const dollarNews = (newsData.dollarNews || []).filter(a => a.title && !a.title.includes('awaiting') && !a.title.includes('system'));
+ if (dollarNews.length) {
+ const summary = dollarNews.map(a => a.title).join('; ');
+ document.getElementById('dollarNews').innerHTML = '<li style="color:#e0e0e0">' + summary + '</li>';
+ } else {
+ document.getElementById('dollarNews').innerHTML = '<li style="color:#667">No relevant news today</li>';
+ }
 
-  // HK Real Estate news - one-line summary
-  if (reDataHistory && reDataHistory.length) {
-    const summaries = reDataHistory.map(a => a.title).filter(Boolean);
-    const text = summaries.slice(0, 5).join('; ');
-    const count = summaries.length > 5 ? ' (+' + (summaries.length - 5) + ' more)' : '';
-    document.getElementById('reNews').innerHTML = '<li style="color:#e0e0e0">' + text + count + '</li>';
-  } else {
-    document.getElementById('reNews').innerHTML = '<li style="color:#667">No relevant news today</li>';
-  }
+ // HK Real Estate news - one-line summary
+ if (reDataHistory && reDataHistory.length) {
+ const summaries = reDataHistory.map(a => a.title).filter(Boolean);
+ const text = summaries.slice(0, 5).join('; ');
+ const count = summaries.length > 5 ? ' (+' + (summaries.length - 5) + ' more)' : '';
+ document.getElementById('reNews').innerHTML = '<li style="color:#e0e0e0">' + text + count + '</li>';
+ } else {
+ document.getElementById('reNews').innerHTML = '<li style="color:#667">No relevant news today</li>';
+ }
 
-  // Stock watch news - per-ticker one-liner
-  const stockNews = (newsData.stockNews || []).filter(a => a.title && !a.title.includes('Yahoo! Finance') && !a.title.includes('SymbolLookup'));
-  if (stockNews.length) {
-    const grouped = {};
-    stockNews.forEach(a => {
-      const ticker = (a.title.match(/^\[([^\]]+)\]/) || [])[1] || '';
-      const cleanName = PORTFOLIO_STOCKS.find(s => s.ticker === ticker)?.name || ticker;
-      const cleanTitle = a.title.replace(/^\[[^\]]+\]\s*/, '');
-      if (!grouped[ticker]) grouped[ticker] = { name: cleanName, titles: [] };
-      if (grouped[ticker].titles.length < 2) grouped[ticker].titles.push(cleanTitle);
-    });
-    const items = Object.entries(grouped).map(([ticker, g]) => {
-      const displayName = g.name + ' (' + ticker + ')';
-      return '<li style="border-bottom:1px solid #1a1a2e;padding:5px 0;font-size:13px"><strong style="color:#4a7cff">' + displayName + '</strong>: <span style="color:#ccc">' + g.titles.join('; ') + '</span></li>';
-    });
-    document.getElementById('stockNews').innerHTML = items.join('');
-  } else {
-    document.getElementById('stockNews').innerHTML = '<li style="color:#667">No relevant news today</li>';
-  }
+ // Stock watch news - per-ticker one-liner
+ const stockNews = (newsData.stockNews || []).filter(a => a.title && !a.title.includes('Yahoo! Finance') && !a.title.includes('SymbolLookup'));
+ if (stockNews.length) {
+ const grouped = {};
+ stockNews.forEach(a => {
+ const ticker = (a.title.match(/^\[([^\]]+)\]/) || [])[1] || '';
+ const cleanName = PORTFOLIO_STOCKS.find(s => s.ticker === ticker)?.name || ticker;
+ const cleanTitle = a.title.replace(/^\[[^\]]+\]\s*/, '');
+ if (!grouped[ticker]) grouped[ticker] = { name: cleanName, titles: [] };
+ if (grouped[ticker].titles.length < 2) grouped[ticker].titles.push(cleanTitle);
+ });
+ const items = Object.entries(grouped).map(([ticker, g]) => {
+ const displayName = g.name + ' (' + ticker + ')';
+ return '<li style="border-bottom:1px solid #1a1a2e;padding:5px 0;font-size:13px"><strong style="color:#4a7cff">' + displayName + '</strong>: <span style="color:#ccc">' + g.titles.join('; ') + '</span></li>';
+ });
+ document.getElementById('stockNews').innerHTML = items.join('');
+ } else {
+ document.getElementById('stockNews').innerHTML = '<li style="color:#667">No relevant news today</li>';
+ }
 }
 
 function renderREChart() {
-  const canvas = document.getElementById('reChart');
-  if (!canvas || !reDataHistory.length) return;
-  const ctx = canvas.getContext('2d');
-  if (reChartInstance) reChartInstance.destroy();
-  const labels = reDataHistory.map(d => d.date || '');
-  const values = reDataHistory.map(d => d.value || 0);
-  reChartInstance = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        data: values,
-        borderColor: '#4a7cff', borderWidth: 1.5, pointRadius: 3, tension: 0.3,
-        fill: false
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { mode: 'index' } },
-      scales: { x: { ticks: { color: '#4a5568', font: { size: 9 } }, grid: { display: false } },
-                y: { ticks: { color: '#4a5568', font: { size: 9 } }, grid: { color: '#1f2937' } } }
-    }
-  });
+ const canvas = document.getElementById('reChart');
+ if (!canvas || !reDataHistory.length) return;
+ const ctx = canvas.getContext('2d');
+ if (reChartInstance) reChartInstance.destroy();
+ const labels = reDataHistory.map(d => d.date || '');
+ const values = reDataHistory.map(d => d.value || 0);
+ reChartInstance = new Chart(ctx, {
+ type: 'line',
+ data: {
+ labels,
+ datasets: [{
+ data: values,
+ borderColor: '#4a7cff', borderWidth: 1.5, pointRadius: 3, tension: 0.3,
+ fill: false
+ }]
+ },
+ options: {
+ responsive: true, maintainAspectRatio: false,
+ plugins: { legend: { display: false }, tooltip: { mode: 'index' } },
+ scales: { x: { ticks: { color: '#4a5568', font: { size: 9 } }, grid: { display: false } },
+ y: { ticks: { color: '#4a5568', font: { size: 9 } }, grid: { color: '#1f2937' } } }
+ }
+ });
 }
 
 function updateTimestamp() {
-  document.getElementById('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleString('zh-HK');
+ document.getElementById('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleString('zh-HK');
 }
 
 function formatNum(n) {
-  if (n >= 1000) return n.toLocaleString('zh-HK', { maximumFractionDigits: 2 });
-  return parseFloat(n).toFixed(2);
+ if (n >= 1000) return n.toLocaleString('zh-HK', { maximumFractionDigits: 2 });
+ return parseFloat(n).toFixed(2);
 }
 
 // ========== INIT ==========
 async function initDashboard() {
-  await loadData();
-  updateTimestamp();
-  renderIndexCards();
-  renderMainChart(0);
-  renderPortfolio();
-  renderPortfolioCharts();
-  renderNews();
-  renderREChart();
+ await loadData();
+ updateTimestamp();
+ renderIndexCards();
+ renderMainChart(0);
+ renderPortfolio();
+ renderPortfolioCharts();
+ renderNews();
+ renderREChart();
 }
 
 // ========== TAB SWITCH ==========
 function switchTab(name) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
-  document.querySelector(`.tab-bar button[onclick*="${name}"]`).classList.add('active');
+ document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+ document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
+ document.getElementById('tab' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+ document.querySelector(`.tab-bar button[onclick*="${name}"]`).classList.add('active');
 }
 </script>
 </body>
