@@ -2,17 +2,14 @@
   "name": "Lobster Pie 🦞🥧 Portfolio",
   "baseCurrency": "HKD",
   "stocks": [
-    { "ticker": "0700.HK", "name": "Tencent", "market": "HK", "shares": 200, "costPrice": 344 },
-    { "ticker": "9988.HK", "name": "Alibaba", "market": "HK", "shares": 400, "costPrice": 79.5 },
-    { "ticker": "3690.HK", "name": "Meituan", "market": "HK", "shares": 200, "costPrice": 99.6 },
-    { "ticker": "0005.HK", "name": "HSBC", "market": "HK", "shares": 400, "costPrice": 72.05 },
-    { "ticker": "0883.HK", "name": "CNOOC", "market": "HK", "shares": 1000, "costPrice": 17.9 },
-    { "ticker": "1299.HK", "name": "AIA", "market": "HK", "shares": 200, "costPrice": 56.75 },
-    { "ticker": "0388.HK", "name": "HKEX", "market": "HK", "shares": 100, "costPrice": 286.8 },
-    { "ticker": "0823.HK", "name": "Link REIT", "market": "HK", "shares": 500, "costPrice": 33.65 },
-    { "ticker": "0002.HK", "name": "CLP Group", "market": "HK", "shares": 500, "costPrice": 65.4 },
-    { "ticker": "0066.HK", "name": "MTR Corp", "market": "HK", "shares": 500, "costPrice": 26.7 },
-    { "ticker": "2388.HK", "name": "BOC Hong Kong", "market": "HK", "shares": 500, "costPrice": 23.9 },
-    { "ticker": "VOO", "name": "Vanguard S&P 500 ETF", "market": "US", "shares": 10, "costPrice": 481 }
+    { "ticker": "0941.HK", "name": "China Mobile", "shares": 10000, "costPrice": 67.34 },
+    { "ticker": "0005.HK", "name": "HSBC", "shares": 10000, "costPrice": 123.35 },
+    { "ticker": "0939.HK", "name": "CCB", "shares": 10000, "costPrice": 5.60 },
+    { "ticker": "0728.HK", "name": "China Telecom", "shares": 10000, "costPrice": 3.79 },
+    { "ticker": "0762.HK", "name": "China Unicom", "shares": 10000, "costPrice": 5.95 },
+    { "ticker": "0883.HK", "name": "CNOOC", "shares": 10000, "costPrice": 11.31 },
+    { "ticker": "0857.HK", "name": "CNPC", "shares": 10000, "costPrice": 3.39 },
+    { "ticker": "1398.HK", "name": "ICBC", "shares": 10000, "costPrice": 4.97 },
+    { "ticker": "3988.HK", "name": "BOC", "shares": 10000, "costPrice": 3.36 }
   ]
 }
