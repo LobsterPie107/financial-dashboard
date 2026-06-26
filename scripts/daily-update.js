@@ -17,9 +17,11 @@ function fetchText(url) {
 async function scrapeHKEJ() {
   console.log('Scraping hkej.com property news...');
 
-  const realEstatePath = path.join(DASHBOARD_DIR, 'data/real-estate.json');
-  let existing = { data: [] };
-  try { existing = JSON.parse(fs.readFileSync(realEstatePath, 'utf8')); } catch(e) {}
+  // Store HK real estate news in news.json (not real-estate.json which holds price chart data)
+  const newsPath = path.join(DASHBOARD_DIR, 'data/news.json');
+  let newsData = { dollarNews: [], reNews: [], stockNews: [] };
+  try { newsData = JSON.parse(fs.readFileSync(newsPath, 'utf8')); } catch(e) {}
+  if (!newsData.reNews) newsData.reNews = [];
 
   const sources = [
     { url: 'https://www.hkej.com/property/business', section: '工商舖' },
@@ -37,14 +39,13 @@ async function scrapeHKEJ() {
         const relUrl = match[1];
         const fullUrl = 'https://www.hkej.com' + relUrl;
 
-        if (!existing.data.some(d => d.url === fullUrl)) {
-          existing.data.push({
+        if (!newsData.reNews.some(d => d.url === fullUrl)) {
+          newsData.reNews.push({
             date: new Date().toISOString().slice(0, 10),
             title: title,
             source: 'hkej',
             url: fullUrl,
-            keyPoint: title,
-            category: src.section === '工商舖' ? 'Commercial' : 'Latest'
+            summary: title
           });
         }
       }
@@ -55,12 +56,11 @@ async function scrapeHKEJ() {
   }
 
   // Keep last 100, sort newest first
-  existing.data.sort((a, b) => b.date.localeCompare(a.date));
-  if (existing.data.length > 100) existing.data = existing.data.slice(0, 100);
-
-  existing.fetched = new Date().toISOString();
-  fs.writeFileSync(realEstatePath, JSON.stringify(existing, null, 2), 'utf8');
-  console.log(`  Total entries: ${existing.data.length}`);
+  newsData.reNews.sort((a, b) => b.date.localeCompare(a.date));
+  if (newsData.reNews.length > 100) newsData.reNews = newsData.reNews.slice(0, 100);
+  newsData.fetched = new Date().toISOString();
+  fs.writeFileSync(newsPath, JSON.stringify(newsData, null, 2), 'utf8');
+  console.log(`  RE news entries: ${newsData.reNews.length}`);
 }
 
 async function buildDollarNews() {
@@ -77,6 +77,7 @@ async function buildDollarNews() {
   try {
     const existing = JSON.parse(fs.readFileSync(newsPath, 'utf8'));
     if (existing.dollarNews) newsData.dollarNews = existing.dollarNews;
+    if (existing.reNews) newsData.reNews = existing.reNews;
     if (existing.stockNews) newsData.stockNews = existing.stockNews;
   } catch(e) {}
 

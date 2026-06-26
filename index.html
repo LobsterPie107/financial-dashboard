@@ -440,7 +440,7 @@ function renderNews() {
  document.getElementById('dollarNews').innerHTML = '<li style="color:#667">No relevant news today</li>';
  }
 
- // HK Real Estate news - chart data summary
+ // HK Real Estate news - chart data summary + scraped news
  if (reDataHistory && reDataHistory.kwunTong && reDataHistory.kwunTong.length) {
  var kt = reDataHistory.kwunTong;
  var mk = reDataHistory.mongKok || [];
@@ -451,7 +451,17 @@ function renderNews() {
  var firstMK = mk.length ? mk[0].value : 0;
  var mkChg = mk.length ? ((lastMK - firstMK) / firstMK * 100).toFixed(1) : 0;
  var sumText = 'Kwun Tong avg $' + lastKT.toLocaleString() + ' psf (' + ktChg + '% since 2022). Mong Kok avg $' + lastMK.toLocaleString() + ' psf (' + mkChg + '% since 2022). See chart below.';
+
+ // Also show scraped RE news articles if available
+ var reArticles = newsData.reNews || [];
+ if (reArticles.length) {
+ var recentArticles = reArticles.slice(0, 3);
+ var articleLines = recentArticles.map(function(a) { return a.summary || a.title; });
+ var fullText = sumText + ' | ' + articleLines.join(' | ');
+ document.getElementById('reNews').innerHTML = '<li style="color:#e0e0e0">' + fullText + '</li>';
+ } else {
  document.getElementById('reNews').innerHTML = '<li style="color:#e0e0e0">' + sumText + '</li>';
+ }
  } else {
  document.getElementById('reNews').innerHTML = '<li style="color:#667">No relevant news today</li>';
  }
