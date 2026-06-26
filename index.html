@@ -12,7 +12,7 @@
  /* Password Overlay */
  #pwOverlay {
  position: fixed; inset: 0; z-index: 9999;
- background: #0f0f1a;
+ background: rgba(0,0,0,0.6);
  display: flex; align-items: center; justify-content: center;
  }
  #pwOverlay.hidden { display: none; }
@@ -20,14 +20,14 @@
  background: #1a1a2e; padding: 40px; border-radius: 16px;
  border: 1px solid #2a3a5c; text-align: center;
  }
- .pw-box h2 { color: #e0e0e0; margin-bottom: 8px; }
- .pw-box p { color: #8892b0; margin-bottom: 20px; font-size: 14px; }
+ .pw-box h2 { color: #111; margin-bottom: 8px; }
+ .pw-box p { color: #666; margin-bottom: 20px; font-size: 14px; }
  .pw-box input {
  background: #16213e; border: 1px solid #2a3a5c; border-radius: 8px;
  padding: 12px 16px; color: #e0e0e0; font-size: 18px; width: 200px;
  text-align: center; letter-spacing: 4px;
  }
- .pw-box input:focus { outline: none; border-color: #4a7cff; }
+ .pw-box input:focus { outline: none; border-color: #3b82f6; }
  .pw-box .err { color: #ff6b6b; font-size: 13px; margin-top: 8px; min-height: 20px; }
  .pw-box button {
  margin-top: 16px; background: #4a7cff; border: none;
@@ -36,16 +36,16 @@
  }
  .pw-box button:hover { background: #3a6aee; }
 
- body.pw-authed { background: #0f0f1a; color: #e0e0e0; font-family: -apple-system, 'Segoe UI', system-ui, sans-serif; }
+ body.pw-authed { background: #ffffff; color: #222; font-family: -apple-system, 'Segoe UI', system-ui, sans-serif; }
  body.pw-authed .app { display: block; max-width: 1200px; margin: 0 auto; padding: 24px; }
  .app { display: none; }
 
  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 8px; }
- .header h1 { font-size: 24px; color: #fff; }
- .header .sub { color: #8892b0; font-size: 13px; }
- .header .last-updated { color: #4a5568; font-size: 12px; }
+ .header h1 { font-size: 24px; color: #111; }
+ .header .sub { color: #666; font-size: 13px; }
+ .header .last-updated { color: #999; font-size: 12px; }
 
- .section-title { font-size: 16px; color: #8892b0; margin: 24px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #2a3a5c; }
+ .section-title { font-size: 16px; color: #555; margin: 24px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #d1d5db; }
  .section-title .t { color: #e0e0e0; font-weight: 600; }
 
  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -55,8 +55,8 @@
  background: #1a1a2e; border: 1px solid #2a3a5c; border-radius: 12px;
  padding: 16px; overflow: hidden;
  }
- .card h3 { font-size: 14px; color: #8892b0; margin-bottom: 4px; }
- .card .big { font-size: 26px; font-weight: 700; color: #fff; }
+ .card h3 { font-size: 14px; color: #555; margin-bottom: 4px; }
+ .card .big { font-size: 26px; font-weight: 700; color: #111; }
  .card .change { font-size: 13px; margin-left: 6px; }
  .card .change.up { color: #4ade80; }
  .card .change.down { color: #ff6b6b; }
@@ -64,25 +64,25 @@
 
  /* Portfolio Table */
  .portfolio-table { width: 100%; border-collapse: collapse; font-size: 13px; }
- .portfolio-table th { text-align: left; color: #4a5568; padding: 8px 6px; border-bottom: 1px solid #2a3a5c; font-weight: 500; }
- .portfolio-table td { padding: 8px 6px; border-bottom: 1px solid #1f2937; }
- .portfolio-table tr:hover td { background: rgba(74,124,255,0.05); }
+ .portfolio-table th { text-align: left; color: #555; padding: 8px 6px; border-bottom: 1px solid #d1d5db; font-weight: 600; }
+ .portfolio-table td { padding: 8px 6px; border-bottom: 1px solid #e5e7eb; }
+ .portfolio-table tr:hover td { background: rgba(59,130,246,0.05); }
  .portfolio-table .num { text-align: right; font-variant-numeric: tabular-nums; }
  .pct-up { color: #4ade80; }
  .pct-dn { color: #ff6b6b; }
  .pnl-summary { display: flex; gap: 24px; padding: 12px 0; flex-wrap: wrap; }
  .pnl-summary .stat { }
- .pnl-summary .stat .label { font-size: 12px; color: #4a5568; }
+ .pnl-summary .stat .label { font-size: 12px; color: #888; }
  .pnl-summary .stat .value { font-size: 20px; font-weight: 700; }
 
  /* News Sections */
  .news-list { list-style: none; }
- .news-list li { padding: 10px 0; border-bottom: 1px solid #1f2937; font-size: 13px; }
+ .news-list li { padding: 10px 0; border-bottom: 1px solid #e5e7eb; font-size: 13px; }
  .news-list li:last-child { border-bottom: none; }
- .news-list .date { color: #4a5568; font-size: 11px; }
- .news-list .headline { color: #e0e0e0; }
- .news-list .src { color: #4a7cff; font-size: 11px; }
- .news-list .summary { color: #667; font-size: 12px; margin-top: 2px; }
+ .news-list .date { color: #888; font-size: 11px; }
+ .news-list .headline { color: #222; }
+ .news-list .src { color: #3b82f6; font-size: 11px; }
+ .news-list .summary { color: #888; font-size: 12px; margin-top: 2px; }
 
  .re-chart-wrap { position: relative; height: 120px; }
 
@@ -91,9 +91,9 @@
  .header h1 { font-size: 20px; }
  }
 
- .tab-bar { display: flex; gap: 2px; margin-bottom: 16px; background: #16213e; border-radius: 8px; padding: 3px; width: fit-content; }
- .tab-bar button { background: transparent; border: none; color: #8892b0; padding: 8px 20px; border-radius: 6px; cursor: pointer; font-size: 13px; }
- .tab-bar button.active { background: #4a7cff; color: #fff; }
+ .tab-bar { display: flex; gap: 2px; margin-bottom: 16px; background: #eef1f5; border-radius: 8px; padding: 3px; width: fit-content; }
+ .tab-bar button { background: transparent; border: none; color: #555; padding: 8px 20px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+ .tab-bar button.active { background: #3b82f6; color: #fff; }
  .tab { display: none; }
  .tab.active { display: block; }
 </style>
@@ -136,10 +136,10 @@
  <div class="card">
  <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
  <button class="chart-tab active" data-idx="0" onclick="switchChart(0)" style="background:#4a7cff;border:none;color:#fff;padding:4px 12px;border-radius:4px;font-size:12px;cursor:pointer">HSI</button>
- <button class="chart-tab" data-idx="1" onclick="switchChart(1)" style="background:#2a3a5c;border:none;color:#8892b0;padding:4px 12px;border-radius:4px;font-size:12px;cursor:pointer">S&P 500</button>
- <button class="chart-tab" data-idx="2" onclick="switchChart(2)" style="background:#2a3a5c;border:none;color:#8892b0;padding:4px 12px;border-radius:4px;font-size:12px;cursor:pointer">Nasdaq</button>
- <button class="chart-tab" data-idx="3" onclick="switchChart(3)" style="background:#2a3a5c;border:none;color:#8892b0;padding:4px 12px;border-radius:4px;font-size:12px;cursor:pointer">Shanghai</button>
- <button class="chart-tab" data-idx="4" onclick="switchChart(4)" style="background:#2a3a5c;border:none;color:#8892b0;padding:4px 12px;border-radius:4px;font-size:12px;cursor:pointer">Oil WTI</button>
+ <button class="chart-tab" data-idx="1" onclick="switchChart(1)" style="background:#eef1f5;border:none;color:#555;padding:4px 12px;border-radius:4px;font-size:12px;cursor:pointer">S&P 500</button>
+ <button class="chart-tab" data-idx="2" onclick="switchChart(2)" style="background:#eef1f5;border:none;color:#555;padding:4px 12px;border-radius:4px;font-size:12px;cursor:pointer">Nasdaq</button>
+ <button class="chart-tab" data-idx="3" onclick="switchChart(3)" style="background:#eef1f5;border:none;color:#555;padding:4px 12px;border-radius:4px;font-size:12px;cursor:pointer">Shanghai</button>
+ <button class="chart-tab" data-idx="4" onclick="switchChart(4)" style="background:#eef1f5;border:none;color:#555;padding:4px 12px;border-radius:4px;font-size:12px;cursor:pointer">Oil WTI</button>
 </div>
  <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
 </div>
@@ -174,7 +174,7 @@
  <h3>HK Commercial Real Estate</h3>
  <ul class="news-list" id="reNews"></ul>
  <div style="margin-top:12px">
- <h3 style="font-size:13px;color:#8892b0">Data Points Over Time</h3>
+ <h3 style="font-size:13px;color:#555">Data Points Over Time</h3>
  <div class="re-chart-wrap"><canvas id="reChart"></canvas></div>
 </div>
 </div>
@@ -251,7 +251,7 @@ function renderIndexCards() {
  const p = parseFloat(m.price);
  const chg = ((parseFloat(m.price) - parseFloat(m.prevClose)) / parseFloat(m.prevClose) * 100);
  const icon = chg >= 0 ? '▲' : '▼';
- const color = chg >= 0 ? '#22c55e' : '#ef4444';
+ const color = chg >= 0 ? '#16a34a' : '#dc2626';
  if (c.item === 'Crude Oil') {
  el.innerHTML = '<div class="card-value">$' + p.toFixed(2) + '</div><div class="card-chg" style="color:' + color + '">' + icon + ' ' + Math.abs(chg).toFixed(2) + '%</div>';
  } else {
@@ -307,7 +307,7 @@ function renderMainChart(index) {
  return v.toFixed(0);
  }
  },
- grid: { color: '#1f2937' }
+ grid: { color: '#e5e7eb' }
  }
  },
  plugins: [{
@@ -361,7 +361,7 @@ function renderPortfolio() {
  var costVal = s.costPrice * s.shares;
  var pnl = mktVal - costVal;
  var pnlPct = ((price - s.costPrice) / s.costPrice) * 100;
- var color = pnl >= 0 ? '#22c55e' : '#ef4444';
+ var color = pnl >= 0 ? '#16a34a' : '#dc2626';
  var icon = pnl >= 0 ? '▲' : '▼';
  return { ticker: s.ticker, name: s.name, price: price, change: change, mktVal: mktVal, costVal: costVal, pnl: pnl, pnlPct: pnlPct, color: color, icon: icon, shares: s.shares, costPrice: s.costPrice };
  });
@@ -376,7 +376,7 @@ function renderPortfolio() {
  var totalPnlPct = (totalPnl / totalCost) * 100;
  var pnlEl = document.getElementById('pnlSummary');
  if (pnlEl) {
-   var color = totalPnl >= 0 ? '#22c55e' : '#ef4444';
+   var color = totalPnl >= 0 ? '#16a34a' : '#dc2626';
    pnlEl.innerHTML = '<span>Total Value: <strong>$' + totalVal.toLocaleString('en-US', {minimumFractionDigits:0}) + '</strong></span> <span style="color:' + color + '">P&L: ' + (totalPnl >= 0 ? '+$' : '-$') + Math.abs(totalPnl).toLocaleString('en-US', {minimumFractionDigits:0}) + ' (' + (totalPnlPct >= 0 ? '+' : '') + totalPnlPct.toFixed(1) + '%)</span>';
  }
 }function renderPortfolioCharts() {
@@ -392,7 +392,7 @@ function renderPortfolio() {
  }
  if (!s.chart || !s.chart.length) return;
  var wrapper = document.createElement('div');
- wrapper.style.cssText = 'width:100%;height:160px;margin-bottom:16px;border:1px solid #1e2d3d;border-radius:6px;padding:8px';
+ wrapper.style.cssText = 'width:100%;height:160px;margin-bottom:16px;border:1px solid #e5e7eb;border-radius:6px;padding:8px';
 
  var header = document.createElement('div');
  header.style.cssText = 'display:flex;justify-content:space-between;font-size:11px;color:#8892b0;padding:0 4px 4px';
@@ -415,7 +415,7 @@ function renderPortfolio() {
  datasets: [{
  label: 'Price',
  data: values,
- borderColor: s.pnl >= 0 ? '#22c55e' : '#ef4444',
+ borderColor: s.pnl >= 0 ? '#16a34a' : '#dc2626',
  borderWidth: 1.5,
  pointRadius: 0,
  tension: 0.1,
@@ -437,8 +437,8 @@ function renderPortfolio() {
  tooltip: { mode: 'index' }
  },
  scales: {
- x: { ticks: { maxTicksLimit: 6, color: '#8892b0', font: { size: 9 } }, grid: { color: '#1e2d3d' } },
- y: { ticks: { color: '#8892b0', font: { size: 9 }, callback: function(v) { return '$' + v.toFixed(0); } }, grid: { color: '#1e2d3d' }, beginAtZero: false }
+ x: { ticks: { maxTicksLimit: 6, color: '#8892b0', font: { size: 9 } }, grid: { color: '#e5e7eb' } },
+ y: { ticks: { color: '#8892b0', font: { size: 9 }, callback: function(v) { return '$' + v.toFixed(0); } }, grid: { color: '#e5e7eb' }, beginAtZero: false }
  }
  }
  });
@@ -523,7 +523,7 @@ function renderREChart() {
  options: {
  responsive: true, maintainAspectRatio: false,
  plugins: {
- legend: { labels: { color: '#8892b0', font: { size: 11 } } },
+ legend: { labels: { color: '#666', font: { size: 11 } } },
  tooltip: {
  mode: 'index',
  callbacks: {
@@ -532,10 +532,10 @@ function renderREChart() {
  }
  },
  scales: {
- x: { ticks: { color: '#4a5568', font: { size: 9 } }, grid: { display: false } },
+ x: { ticks: { color: '#888', font: { size: 9 } }, grid: { display: false } },
  y: {
  ticks: { color: '#4a5568', font: { size: 9 }, callback: function(v) { return '$' + v.toLocaleString(); } },
- grid: { color: '#1f2937' },
+ grid: { color: '#e5e7eb' },
  title: { display: true, text: 'HKD per sq ft', color: '#4a5568', font: { size: 10 } }
  }
  }
