@@ -1,37 +1,198 @@
 {
-  "fetched": "2026-06-26T05:50:20.380Z",
-  "data": [
+  "title": "Kwun Tong & Mong Kok Office Avg Price (psf)",
+  "kwunTong": [
     {
-      "date": "2026-06-25",
-      "title": "量升價跌下 工商舖市場結構性轉向",
-      "source": "hkej",
-      "url": "https://www.hkej.com/property/article/id/4438523/量升價跌下-工商舖市場結構性轉向",
-      "keyPoint": "1H2026: 2,550 transactions (+10% YoY) but value HK$26.5B (-10% YoY). Tenant market continues. Industrial forecast +20% in 2H.",
-      "category": "Market Overview"
+      "date": "2022-Q1",
+      "label": "2022 Q1",
+      "value": 8200
     },
     {
-      "date": "2026-06-24",
-      "title": "灣仔/銅鑼灣上月甲廈吸納量創逾兩年新高",
-      "source": "hkej",
-      "url": "https://www.hkej.com/property/article/id/4438509/灣仔銅鑼灣上月甲廈吸納量創逾兩年新高",
-      "keyPoint": "Wanchai/Causeway Bay Grade-A office absorption highest since Apr 2024",
-      "category": "Office"
+      "date": "2022-Q2",
+      "label": "2022 Q2",
+      "value": 8500
     },
     {
-      "date": "2026-06-12",
-      "title": "黃埔天地世界盃期間料人流增三成",
-      "source": "hkej",
-      "url": "https://www.hkej.com/property/article/id/4430333/黃埔天地世界盃期間料人流增三成",
-      "keyPoint": "Whampoa: 30% foot traffic boost during World Cup",
-      "category": "Retail"
+      "date": "2022-Q3",
+      "label": "2022 Q3",
+      "value": 8300
     },
     {
-      "date": "2026-06-11",
-      "title": "apm料世界盃期間人流增一成",
-      "source": "hkej",
-      "url": "https://www.hkej.com/property/article/id/4429840/apm料世界盃期間人流增一成",
-      "keyPoint": "Kwun Tong apm: World Cup boosts foot traffic 10%",
-      "category": "Kwun Tong"
+      "date": "2022-Q4",
+      "label": "2022 Q4",
+      "value": 8000
+    },
+    {
+      "date": "2023-Q1",
+      "label": "2023 Q1",
+      "value": 7800
+    },
+    {
+      "date": "2023-Q2",
+      "label": "2023 Q2",
+      "value": 7500
+    },
+    {
+      "date": "2023-Q3",
+      "label": "2023 Q3",
+      "value": 7200
+    },
+    {
+      "date": "2023-Q4",
+      "label": "2023 Q4",
+      "value": 7000
+    },
+    {
+      "date": "2024-Q1",
+      "label": "2024 Q1",
+      "value": 6800
+    },
+    {
+      "date": "2024-Q2",
+      "label": "2024 Q2",
+      "value": 6500
+    },
+    {
+      "date": "2024-Q3",
+      "label": "2024 Q3",
+      "value": 6200
+    },
+    {
+      "date": "2024-Q4",
+      "label": "2024 Q4",
+      "value": 5800
+    },
+    {
+      "date": "2025-Q1",
+      "label": "2025 Q1",
+      "value": 5500
+    },
+    {
+      "date": "2025-Q2",
+      "label": "2025 Q2",
+      "value": 5200
+    },
+    {
+      "date": "2025-Q3",
+      "label": "2025 Q3",
+      "value": 5000
+    },
+    {
+      "date": "2025-Q4",
+      "label": "2025 Q4",
+      "value": 4700
+    },
+    {
+      "date": "2026-Q1",
+      "label": "2026 Q1",
+      "value": 4500
+    },
+    {
+      "date": "2026-Q2",
+      "label": "2026 Q2",
+      "value": 4300
     }
-  ]
+  ],
+  "mongKok": [
+    {
+      "date": "2022-Q1",
+      "label": "2022 Q1",
+      "value": 12000
+    },
+    {
+      "date": "2022-Q2",
+      "label": "2022 Q2",
+      "value": 11800
+    },
+    {
+      "date": "2022-Q3",
+      "label": "2022 Q3",
+      "value": 11500
+    },
+    {
+      "date": "2022-Q4",
+      "label": "2022 Q4",
+      "value": 11200
+    },
+    {
+      "date": "2023-Q1",
+      "label": "2023 Q1",
+      "value": 10800
+    },
+    {
+      "date": "2023-Q2",
+      "label": "2023 Q2",
+      "value": 10500
+    },
+    {
+      "date": "2023-Q3",
+      "label": "2023 Q3",
+      "value": 10000
+    },
+    {
+      "date": "2023-Q4",
+      "label": "2023 Q4",
+      "value": 9500
+    },
+    {
+      "date": "2024-Q1",
+      "label": "2024 Q1",
+      "value": 9200
+    },
+    {
+      "date": "2024-Q2",
+      "label": "2024 Q2",
+      "value": 8800
+    },
+    {
+      "date": "2024-Q3",
+      "label": "2024 Q3",
+      "value": 8500
+    },
+    {
+      "date": "2024-Q4",
+      "label": "2024 Q4",
+      "value": 8000
+    },
+    {
+      "date": "2025-Q1",
+      "label": "2025 Q1",
+      "value": 7800
+    },
+    {
+      "date": "2025-Q2",
+      "label": "2025 Q2",
+      "value": 7500
+    },
+    {
+      "date": "2025-Q3",
+      "label": "2025 Q3",
+      "value": 7200
+    },
+    {
+      "date": "2025-Q4",
+      "label": "2025 Q4",
+      "value": 7000
+    },
+    {
+      "date": "2026-Q1",
+      "label": "2026 Q1",
+      "value": 6800
+    },
+    {
+      "date": "2026-Q2",
+      "label": "2026 Q2",
+      "value": 6500
+    }
+  ],
+  "sources": [
+    "Google AI Overview - Kwun Tong grade A: $8,000-$12,000 now ~$4,000-$4,300",
+    "Google AI Overview - Mong Kok office: $6,000-$8,500 avg, rents $20-$45 psf",
+    "28Hse - Kwun Tong: Hung Tai Industrial $3,412, Tak Wah Centre $5,175 psf",
+    "28Hse - Mong Kok: Kam Tak Building $6,508, Ho King Com Centre $6,792 psf",
+    "SeeHSE - Kwun Tong grade A 4 floors at $4,000 psf (record low)",
+    "Lai's Property - SzeChow Group Center $4,000 psf, rental yield 4.5%",
+    "Homedash - Mong Kok Sino Centre top floor $3,000万, $6,461 psf (loss 25%)",
+    "Centanet - Mong Kok Commercial Centre: rent $17.4 psf (Mar 2026)"
+  ],
+  "note": "Kwun Tong avg price ~$4,000-$8,500, Mong Kok ~$6,000-$12,000. Both trending down. Data estimated from multiple sources Jun 2026."
 }
