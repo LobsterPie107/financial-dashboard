@@ -160,7 +160,7 @@
         <tfoot id="portfolioFoot"></tfoot>
       </table>
     </div>
-    <div class="section-title" style="margin-top:16px"><span class="t">📈 </span>Individual 1M Performance vs Cost</div>
+    <div class="section-title" style="margin-top:16px"><span class="t">📈 </span>1M Price vs Cost (individual charts)</div>
     <div id="portfolioCharts" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
   </div>
 
@@ -372,39 +372,109 @@ function renderPortfolioCharts() {
     const price = findPrice(s.ticker);
     const hist = find1MHistory(s.ticker);
     if (!hist || hist.length < 2) return '';
-    // Normalize to percentage from cost
-    const data = hist.map(v => v !== null ? ((v - s.costPrice) / s.costPrice * 100) : null).filter(v => v !== null);
-    if (data.length < 2) return '';
-    const labels = hist.map((v, i) => '');
-    const costLine = 0; // 0% = cost price
+    // Drop leading nulls
+    const clean = hist.filter(v => v !== null);
+    if (clean.length < 2) return '';
+    const pnl = clean[clean.length-1] - s.costPrice;
+    const pnlPct = pnl / s.costPrice * 100;
+    const color = pnlPct >= 0 ? '#4ade80' : '#ff6b6b';
+    const sign = pnlPct >= 0 ? '+' : '';
+    const dateLabels = pricesData.find(d => d.symbol === s.ticker)?.timestamps || [];
+    // Build labels: only first and last
+    const labels = clean.map((_, i) => {
+      if (i === 0 || i === clean.length - 1) {
+        const dt = dateLabels[i] ? new Date(dateLabels[i]*1000) : new Date();
+        return (dt.getMonth()+1) + '/' + dt.getDate();
+      }
+      return '';
+    });
 
-    return `<div class="card" style="padding:8px"><h3 style="font-size:11px;margin-bottom:2px">${s.name}</h3>
-      <div class="chart-wrap" style="height:80px"><canvas id="pc${idx}"></canvas></div></div>`;
+    return `<div class="card" style="padding:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <h3 style="font-size:13px;margin:0">${s.name} <span style="color:#4a5568;font-weight:400">${s.ticker}</span></h3>
+        <span style="font-size:14px;font-weight:700;color:${color}">${sign}${pnlPct.toFixed(1)}%</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:#4a5568;margin-bottom:2px">
+        <span>Cost: $${s.costPrice.toFixed(2)}</span>
+        <span>Now: $${clean[clean.length-1].toFixed(2)}</span>
+      </div>
+      <div class="chart-wrap" style="height:100px"><canvas id="pc${idx}"></canvas></div>
+    </div>`;
   }).join('');
 
   portfolio.forEach((s, idx) => {
     const hist = find1MHistory(s.ticker);
     if (!hist || hist.length < 2) return;
-    const data = hist.map(v => v !== null ? ((v - s.costPrice) / s.costPrice * 100) : null).filter(v => v !== null);
-    if (data.length < 2) return;
+    const clean = hist.filter(v => v !== null);
+    if (clean.length < 2) return;
     const canvas = document.getElementById('pc' + idx);
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
+    const pnlPct = (clean[clean.length-1] - s.costPrice) / s.costPrice * 100;
+    const color = pnlPct >= 0 ? '#4ade80' : '#ff6b6b';
+    const dateLabels = pricesData.find(d => d.symbol === s.ticker)?.timestamps || [];
+    const labels = clean.map((_, i) => {
+      if (i === 0 || i === clean.length - 1) {
+        const dt = dateLabels[i] ? new Date(dateLabels[i]*1000) : new Date();
+        return (dt.getMonth()+1) + '/' + dt.getDate();
+      }
+      return '';
+    });
+
     new Chart(ctx, {
       type: 'line',
       data: {
-        labels: data.map(() => ''),
+        labels,
         datasets: [
-          { data: data, borderColor: data[data.length-1] >= 0 ? '#4ade80' : '#ff6b6b', borderWidth: 1.5, pointRadius: 0, tension: 0.3 },
-          { data: data.map(() => 0), borderColor: '#4a5568', borderWidth: 1, pointRadius: 0, borderDash: [3,3] }
+          {
+            label: 'Price',
+            data: clean,
+            borderColor: color,
+            backgroundColor: color + '22',
+            fill: true,
+            borderWidth: 2,
+            pointRadius: 0,
+            tension: 0.3
+          },
+          {
+            label: 'Cost',
+            data: clean.map(() => s.costPrice),
+            borderColor: '#8892b0',
+            borderWidth: 1.5,
+            pointRadius: 0,
+            borderDash: [5,4]
+          }
         ]
       },
       options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.y.toFixed(1) + '%' } } },
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            mode: 'index',
+            callbacks: {
+              label: function(ctx) {
+                const v = ctx.parsed.y;
+                if (ctx.dataset.label === 'Cost') return 'Cost: $' + v.toFixed(2);
+                const pct = (v - s.costPrice) / s.costPrice * 100;
+                const sign = pct >= 0 ? '+' : '';
+                return 'Price: $' + v.toFixed(2) + ' (' + sign + pct.toFixed(1) + '%)';
+              }
+            }
+          }
+        },
         scales: {
-          x: { display: false, grid: { display: false } },
-          y: { display: false, grid: { display: false } }
+          x: {
+            display: true,
+            ticks: { color: '#4a5568', font: { size: 9 }, maxTicksLimit: 4 },
+            grid: { display: false }
+          },
+          y: {
+            display: true,
+            ticks: { color: '#4a5568', font: { size: 9 }, callback: function(v) { return '$' + v.toFixed(0); } },
+            grid: { color: '#1f2937' }
+          }
         }
       }
     });
