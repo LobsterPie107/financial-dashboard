@@ -437,24 +437,29 @@ function computePortfolio() {
   portfolio = PORTFOLIO_STOCKS.map(function(s) {
     var p = pricesData.find(function(d) { return d.symbol === s.ticker; });
     var price = p ? parseFloat(p.price) : s.costPrice;
-    var prevClose = p ? parseFloat(p.prevClose) : price;
-    var changePct = ((price - prevClose) / prevClose) * 100;
     var mktVal = price * s.shares;
     var costVal = s.costPrice * s.shares;
     var pnl = mktVal - costVal;
     var pnlPct = ((price - s.costPrice) / s.costPrice) * 100;
     var up = pnl >= 0;
-    var bigMove = Math.abs(changePct) >= 2;
+    var bigMove = changePct !== null && Math.abs(changePct) >= 2;
     var currency = (p && p.currency) ? p.currency : 'HKD';
     var volume = (p && p.volume) ? p.volume : null;
     
-    // Calculate weekly, monthly, YTD from chart history
+    // Calculate daily, weekly, monthly, YTD from chart history
+    var changePct = null;
+    var changePct = null;
     var chg1w = null, chg1m = null, chgYtd = null;
     if (p && p.timestamps && p.closes && p.closes.length > 1) {
       var closes = p.closes.map(function(v) { return parseFloat(v); });
       var timestamps = p.timestamps;
       var len = closes.length;
       var latest = closes[len - 1];
+      
+      // Daily change: last close vs previous close
+      if (len >= 2 && closes[len - 2] > 0) {
+        changePct = ((latest - closes[len - 2]) / closes[len - 2]) * 100;
+      }
       
       // 1 week ~5 trading days back
       var idx1w = Math.max(0, len - 6);
@@ -534,11 +539,12 @@ function renderPortfolioTable() {
       var sgn = forceSign && v >= 0 ? '+' : '';
       return '<span style="color:' + c + '">' + sgn + v.toFixed(1) + '%</span>';
     }
-    var dayColor = s.bigMove ? '#f59e0b' : (s.changePct >= 0 ? '#4ade80' : '#ef4444');
+    var dayColor = s.bigMove ? '#f59e0b' : (s.changePct !== null && s.changePct >= 0 ? '#4ade80' : '#ef4444');
+    var dayText = s.changePct !== null ? (s.changePct >= 0 ? '+' : '') + s.changePct.toFixed(1) + '%' : '-';
     html += '<tr>'
       + '<td>' + s.name + '</td>'
       + '<td class="right">$' + s.price.toFixed(2) + '</td>'
-      + '<td class="right" style="color:' + dayColor + ';font-weight:' + (s.bigMove ? '700' : '400') + '">' + (s.changePct >= 0 ? '+' : '') + s.changePct.toFixed(1) + '%</td>'
+      + '<td class="right" style="color:' + dayColor + ';font-weight:' + (s.bigMove ? '700' : '400') + '">' + dayText + '</td>'
       + '<td class="right">' + fmtPct(s.chg1w) + '</td>'
       + '<td class="right">' + fmtPct(s.chg1m) + '</td>'
       + '<td class="right">' + fmtPct(s.chgYtd, true) + '</td>'
