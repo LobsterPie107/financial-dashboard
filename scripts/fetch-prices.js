@@ -17,7 +17,7 @@ const results = [];
 let completed = 0;
 
 tickers.forEach(t => {
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(t.symbol)}?range=1mo&interval=1d`;
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(t.symbol)}?range=6mo&interval=1d`;
   https.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 15000 }, (res) => {
     let data = '';
     res.on('data', chunk => data += chunk);
