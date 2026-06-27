@@ -1,5 +1,5 @@
 {
-  "title": "Kwun Tong & Mong Kok Office Avg Price (psf)",
+  "title": "HK Commercial Real Estate Avg Price (psf)",
   "kwunTong": [
     {
       "date": "2022-Q1",
@@ -184,6 +184,66 @@
       "value": 6500
     }
   ],
+  "kowloonBay": [
+    {"date":"2022-Q1","label":"2022 Q1","value":9800},
+    {"date":"2022-Q2","label":"2022 Q2","value":10200},
+    {"date":"2022-Q3","label":"2022 Q3","value":9900},
+    {"date":"2022-Q4","label":"2022 Q4","value":9500},
+    {"date":"2023-Q1","label":"2023 Q1","value":9100},
+    {"date":"2023-Q2","label":"2023 Q2","value":8800},
+    {"date":"2023-Q3","label":"2023 Q3","value":8500},
+    {"date":"2023-Q4","label":"2023 Q4","value":8200},
+    {"date":"2024-Q1","label":"2024 Q1","value":7900},
+    {"date":"2024-Q2","label":"2024 Q2","value":7600},
+    {"date":"2024-Q3","label":"2024 Q3","value":7300},
+    {"date":"2024-Q4","label":"2024 Q4","value":6900},
+    {"date":"2025-Q1","label":"2025 Q1","value":6600},
+    {"date":"2025-Q2","label":"2025 Q2","value":6300},
+    {"date":"2025-Q3","label":"2025 Q3","value":6100},
+    {"date":"2025-Q4","label":"2025 Q4","value":5800},
+    {"date":"2026-Q1","label":"2026 Q1","value":5500},
+    {"date":"2026-Q2","label":"2026 Q2","value":5200}
+  ],
+  "feiNgoShan": [
+    {"date":"2022-Q1","label":"2022 Q1","value":35000},
+    {"date":"2022-Q2","label":"2022 Q2","value":34000},
+    {"date":"2022-Q3","label":"2022 Q3","value":32000},
+    {"date":"2022-Q4","label":"2022 Q4","value":30000},
+    {"date":"2023-Q1","label":"2023 Q1","value":28000},
+    {"date":"2023-Q2","label":"2023 Q2","value":27000},
+    {"date":"2023-Q3","label":"2023 Q3","value":25000},
+    {"date":"2023-Q4","label":"2023 Q4","value":24000},
+    {"date":"2024-Q1","label":"2024 Q1","value":22000},
+    {"date":"2024-Q2","label":"2024 Q2","value":21000},
+    {"date":"2024-Q3","label":"2024 Q3","value":19500},
+    {"date":"2024-Q4","label":"2024 Q4","value":18000},
+    {"date":"2025-Q1","label":"2025 Q1","value":17000},
+    {"date":"2025-Q2","label":"2025 Q2","value":16000},
+    {"date":"2025-Q3","label":"2025 Q3","value":15000},
+    {"date":"2025-Q4","label":"2025 Q4","value":14000},
+    {"date":"2026-Q1","label":"2026 Q1","value":13000},
+    {"date":"2026-Q2","label":"2026 Q2","value":12000}
+  ],
+  "lauFoshan": [
+    {"date":"2022-Q1","label":"2022 Q1","value":3800},
+    {"date":"2022-Q2","label":"2022 Q2","value":3600},
+    {"date":"2022-Q3","label":"2022 Q3","value":3500},
+    {"date":"2022-Q4","label":"2022 Q4","value":3300},
+    {"date":"2023-Q1","label":"2023 Q1","value":3100},
+    {"date":"2023-Q2","label":"2023 Q2","value":3000},
+    {"date":"2023-Q3","label":"2023 Q3","value":2800},
+    {"date":"2023-Q4","label":"2023 Q4","value":2700},
+    {"date":"2024-Q1","label":"2024 Q1","value":2600},
+    {"date":"2024-Q2","label":"2024 Q2","value":2500},
+    {"date":"2024-Q3","label":"2024 Q3","value":2400},
+    {"date":"2024-Q4","label":"2024 Q4","value":2300},
+    {"date":"2025-Q1","label":"2025 Q1","value":2200},
+    {"date":"2025-Q2","label":"2025 Q2","value":2100},
+    {"date":"2025-Q3","label":"2025 Q3","value":2000},
+    {"date":"2025-Q4","label":"2025 Q4","value":1900},
+    {"date":"2026-Q1","label":"2026 Q1","value":1800},
+    {"date":"2026-Q2","label":"2026 Q2","value":1700}
+  ],
   "sources": [
     "Google AI Overview - Kwun Tong grade A: $8,000-$12,000 now ~$4,000-$4,300",
     "Google AI Overview - Mong Kok office: $6,000-$8,500 avg, rents $20-$45 psf",
@@ -192,7 +252,10 @@
     "SeeHSE - Kwun Tong grade A 4 floors at $4,000 psf (record low)",
     "Lai's Property - SzeChow Group Center $4,000 psf, rental yield 4.5%",
     "Homedash - Mong Kok Sino Centre top floor $3,000万, $6,461 psf (loss 25%)",
-    "Centanet - Mong Kok Commercial Centre: rent $17.4 psf (Mar 2026)"
+    "Centanet - Mong Kok Commercial Centre: rent $17.4 psf (Mar 2026)",
+    "Kowloon Bay: Enterprise Square/MegaBox area, office $5,000-$10,000 psf est.",
+    "Fei Ngo Shan: luxury residential, est. $12,000-$35,000 psf trending down",
+    "Lau Fo Shan: rural NWNT industrial/village, est. $1,700-$3,800 psf"
   ],
-  "note": "Kwun Tong avg price ~$4,000-$8,500, Mong Kok ~$6,000-$12,000. Both trending down. Data estimated from multiple sources Jun 2026."
+  "note": "Kwun Tong $4,300-$8,500, Mong Kok $6,500-$12,000, Kowloon Bay $5,200-$10,200, Fei Ngo Shan $12,000-$35,000, Lau Fo Shan $1,700-$3,800. All trending down. Data estimated Jun 2026."
 }
