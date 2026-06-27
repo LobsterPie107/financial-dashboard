@@ -1,133 +1,156 @@
 {
-  "dollarNews": [],
-  "reNews": [],
+  "dollarNews": [
+    {
+      "date": "2026-06-27",
+      "title": "Indonesia set to issue US$1 billion in panda bonds in China to stabilise finances as rupiah falls (SCMP, Jun 26)",
+      "source": "SCMP",
+      "url": "https://www.scmp.com/economy/global-economy/article/3358485/indonesia-set-issue-us1-billion-panda-bonds-china",
+      "summary": "Indonesia plans US$1B panda bonds in China as rupiah depreciates. More nations turning to yuan-denominated debt."
+    },
+    {
+      "date": "2026-06-27",
+      "title": "Hong Kong vows stronger exchange with reforms, bond futures and gold push (SCMP, Jun 27)",
+      "source": "SCMP",
+      "url": "https://www.scmp.com/business/banking-finance/article/3358546/growth-agenda-hong-kong-vows-stronger-exchange-reforms-bond-futures-and-gold-push",
+      "summary": "HK exchange targets growth with bond futures and gold initiatives. Part of efforts to strengthen HK's financial hub status amid dollar dynamics."
+    },
+    {
+      "date": "2026-06-27",
+      "title": "EU pitches Brazil a more beneficial rare earths deal than US or China, promising refining investment and tech transfer (SCMP, Jun 26)",
+      "source": "SCMP",
+      "url": "",
+      "summary": "Competition for strategic minerals reshaping trade alliances. EU competes with US and China for Brazilian rare earths."
+    }
+  ],
+  "reNews": [
+    {
+      "date": "2026-06-27",
+      "title": "Hong Kong prime office vacancy hits 7-month low on Central spillover demand (SCMP, Jun 25)",
+      "source": "SCMP",
+      "url": "https://www.scmp.com/business/article/3358242/hong-kong-prime-office-vacancy-hits-7-month-low-central-spillover-demand",
+      "summary": "HK prime office vacancy rate fell to a 7-month low as demand spills over from Central to other districts. Positive sign for Grade A office recovery."
+    },
+    {
+      "date": "2026-06-27",
+      "title": "Mainland Chinese mining boss snaps up HK home at US$28m receivership sale (SCMP, Jun 24)",
+      "source": "SCMP",
+      "url": "https://www.scmp.com/business/banking-finance/article/3358190/mainland-chinese-mining-executive-buys-hong-kong-trophy-home-us28m-receivership-sale",
+      "summary": "Distressed Stanley property sold at steep discount as banks push to clear losses. Mainland investors returning to HK luxury market."
+    },
+    {
+      "date": "2026-06-27",
+      "title": "HK banks force sales of distressed commercial property to control losses (SCMP, Jun 22)",
+      "source": "SCMP",
+      "url": "https://www.scmp.com/business/article/3357811/hong-kongs-commercial-property-slum",
+      "summary": "Banks prioritising loss control over loan extensions, forcing owners to sell assets or restructure debt. Commercial property remains under pressure."
+    },
+    {
+      "date": "2026-06-27",
+      "title": "Xtep opens first Saucony store in Hong Kong, eyes more premium retail sites (SCMP, Jun 26)",
+      "source": "SCMP",
+      "url": "https://www.scmp.com/business/article/3358512/big-stride-xtep-opens-first-saucony-store-hong-kong-eyes-more-prime-retail-sites",
+      "summary": "Chinese sportswear group positions premium running brand in HK. Improving market sentiment drawing retailers back to prime sites."
+    },
+    {
+      "date": "2026-06-27",
+      "title": "Creditors push to sell 2 HK hotels amid banks drive to cut losses (SCMP, Jun 24)",
+      "source": "SCMP",
+      "url": "https://www.scmp.com/business/article/3358101/creditors-aggressive-push-sell-2-hong-kong-hotels-amid-banks-drive-cut-losses",
+      "summary": "Dual-branded Sheraton complex heads for tender. Stricter capital rules pushing lenders to accept quicker disposals on distressed hotel assets."
+    },
+    {
+      "date": "2026-06-27",
+      "title": "Wan Chai / Causeway Bay Grade A office net absorption hits 2-year high in May (HKEJ, Jun 24)",
+      "source": "HKEJ",
+      "url": "https://www.hkej.com/property/article/id/4438509/",
+      "summary": "JLL Hong Kong Property Market Monitor reports May net absorption in Wan Chai/Causeway Bay Grade A offices surpassed 2-year record."
+    },
+    {
+      "date": "2026-06-27",
+      "title": "Taipan Bread founder family sells San Po Kong industrial unit for HK$19.5M (HKEJ, Jun 17)",
+      "source": "HKEJ",
+      "url": "",
+      "summary": "Notable industrial property sale in San Po Kong district, reflecting mixed sentiment in the industrial segment."
+    },
+    {
+      "date": "2026-06-27",
+      "title": "apm Kwun Tong expects 10% foot traffic increase during World Cup (HKEJ, Jun 11)",
+      "source": "HKEJ",
+      "url": "",
+      "summary": "SHK Properties' apm mall in Kwun Tong installing 6m x 3.5m LED screen for live World Cup broadcasts, expects foot traffic boost."
+    },
+    {
+      "date": "2026-06-27",
+      "title": "Causeway Bay mini shop sells for HK$58,000, down over 96% from peak (HKEJ, Jun 10)",
+      "source": "HKEJ",
+      "url": "",
+      "summary": "Stratified retail space in Causeway Bay Plaza sold at 96%+ loss from peak, illustrating severe retail property correction."
+    }
+  ],
   "stockNews": [
     {
-      "date": "2026-06-26",
-      "title": "[0941.HK] CMHK Achieves Comprehensive Network Upgrade",
+      "date": "2026-06-27",
+      "title": "[0941.HK] China Preps $295 Billion Plan to Fund Nationwide AI Buildout - China Mobile positioned to benefit from data center expansion",
       "source": "Yahoo Finance",
       "url": "",
-      "summary": ""
+      "summary": "China's massive AI infrastructure plan positions telecom giants like China Mobile as key beneficiaries from data center buildout."
     },
     {
-      "date": "2026-06-26",
-      "title": "[0941.HK] China Preps $295 Billion Plan to Fund Nationwide AI Buildout",
+      "date": "2026-06-27",
+      "title": "[0005.HK] HSBC (LSE:HSBA) Weighs Allianz Sale of Singapore Insurance Business",
       "source": "Yahoo Finance",
       "url": "",
-      "summary": ""
+      "summary": "HSBC evaluating sale of Singapore insurance operations to Allianz. Part of ongoing portfolio rationalization."
     },
     {
-      "date": "2026-06-26",
-      "title": "[0005.HK] HSBC Holdings (LSE:HSBA) Stock After 73% Yearly Gain Is The Rally Justified",
+      "date": "2026-06-27",
+      "title": "[0939.HK] Should Value Investors Buy China Construction Bank Stock?",
       "source": "Yahoo Finance",
       "url": "",
-      "summary": ""
+      "summary": "CCB continues to attract value investors amid attractive dividend yields and stable earnings from big 4 state banks."
     },
     {
-      "date": "2026-06-26",
-      "title": "[0005.HK] HSBC (LSE:HSBA) Weighs Allianz Sale Of Singapore Insurance Business",
-      "source": "Yahoo Finance",
-      "url": "",
-      "summary": ""
-    },
-    {
-      "date": "2026-06-26",
-      "title": "[0939.HK] Is China Construction Bank (CICHY) Stock Undervalued Right Now?",
-      "source": "Yahoo Finance",
-      "url": "",
-      "summary": ""
-    },
-    {
-      "date": "2026-06-26",
-      "title": "[0939.HK] Should Value Investors Buy China Construction Bank (CICHY) Stock?",
-      "source": "Yahoo Finance",
-      "url": "",
-      "summary": ""
-    },
-    {
-      "date": "2026-06-26",
-      "title": "[0728.HK] Green Agriculture Chain Section at the 4th CISCE: AI-Driven Innovation Across Global Agri-Food Supply Chains",
-      "source": "Yahoo Finance",
-      "url": "",
-      "summary": ""
-    },
-    {
-      "date": "2026-06-26",
+      "date": "2026-06-27",
       "title": "[0728.HK] China Telecom At Heart Of HK$295b Data Center Expansion Story",
       "source": "Yahoo Finance",
       "url": "",
-      "summary": ""
+      "summary": "China Telecom positioned as core player in HK$295 billion data center investment theme, leveraging network infrastructure advantage."
     },
     {
-      "date": "2026-06-26",
-      "title": "[0762.HK] Pentagon adds Alibaba, BYD and Baidu to firms with ties to China’s military",
+      "date": "2026-06-27",
+      "title": "[0762.HK] Pentagon adds Alibaba, BYD and Baidu to firms with ties to China military",
       "source": "Yahoo Finance",
       "url": "",
-      "summary": ""
+      "summary": "Pentagon list expansion may indirectly impact China Unicom given sector-wide sentiment on US-China tech tensions."
     },
     {
-      "date": "2026-06-26",
-      "title": "[0762.HK] ROBOTERA Raises Over USD 200 Million in New Round Led by SF Group, HSG and IDG Capital",
+      "date": "2026-06-27",
+      "title": "[0883.HK] CNOOC Q1 Profit Rises To 39.14 Billion Yuan As Oil Prices Climb",
       "source": "Yahoo Finance",
       "url": "",
-      "summary": ""
+      "summary": "CNOOC benefiting from elevated oil prices. Q1 profit of 39.14B yuan reflects strong upstream performance."
     },
     {
-      "date": "2026-06-26",
-      "title": "[0883.HK] Memory Chip Giant CXMT Heads for China’s Biggest IPO Since 2022",
-      "source": "Yahoo Finance",
-      "url": "",
-      "summary": ""
-    },
-    {
-      "date": "2026-06-26",
-      "title": "[0883.HK] Cnooc Q1 Profit Rises To 39.14 Billion Yuan As Oil Prices Climb",
-      "source": "Yahoo Finance",
-      "url": "",
-      "summary": ""
-    },
-    {
-      "date": "2026-06-26",
-      "title": "[0857.HK] World Brand Lab Releases China's 500 Most Valuable Brands 2026",
-      "source": "Yahoo Finance",
-      "url": "",
-      "summary": ""
-    },
-    {
-      "date": "2026-06-26",
+      "date": "2026-06-27",
       "title": "[0857.HK] Woodside Denies Exxon Deal Talks Amid Takeover Speculation",
       "source": "Yahoo Finance",
       "url": "",
-      "summary": ""
+      "summary": "PetroChina-related industry news: Woodside denies M&A talks with Exxon. Energy sector consolidation watch continues."
     },
     {
-      "date": "2026-06-26",
+      "date": "2026-06-27",
       "title": "[1398.HK] Chinese Banks Move to Rein in Retail Gold Trading on Volatility",
       "source": "Yahoo Finance",
       "url": "",
-      "summary": ""
+      "summary": "ICBC among major Chinese banks curbing retail gold trading amid heightened volatility in precious metal markets."
     },
     {
-      "date": "2026-06-26",
-      "title": "[1398.HK] 70% of Gold Demand Is Asian — Singapore Moves to End London’s Grip",
-      "source": "Yahoo Finance",
-      "url": "",
-      "summary": ""
-    },
-    {
-      "date": "2026-06-26",
-      "title": "[3988.HK] Clean Energy Chain Section at the 4th CISCE Highlights Low-Carbon Innovation Across the Energy Value Chain",
-      "source": "Yahoo Finance",
-      "url": "",
-      "summary": ""
-    },
-    {
-      "date": "2026-06-26",
+      "date": "2026-06-27",
       "title": "[3988.HK] Chinese Banks Move to Rein in Retail Gold Trading on Volatility",
       "source": "Yahoo Finance",
       "url": "",
-      "summary": ""
+      "summary": "BOC also participating in restriction of retail gold trading. Gold rally prompting risk management measures across state banks."
     }
   ],
-  "fetched": "2026-06-26T05:56:08.681Z"
+  "fetched": "2026-06-27T10:34:00.000Z"
 }
