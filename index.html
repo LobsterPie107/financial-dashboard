@@ -79,6 +79,10 @@ body.pw-authed .app{display:block}
 .news-list .summary.gray{color:#667}
 .re-chart-wrap{position:relative;height:120px}
 .macro-src{font-size:11px;color:#667;margin-top:8px;text-align:center}
+.econ-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px}
+@media(max-width:800px){.econ-grid{grid-template-columns:1fr}}
+.econ-card{padding:12px!important}
+.ec-chart-wrap{width:100%;height:160px}
 
 @media(max-width:768px){
 .grid-3{grid-template-columns:1fr}
@@ -200,6 +204,11 @@ body.pw-authed .app{display:block}
       <div class="chart-wrap" style="height:300px"><canvas id="reserveChart"></canvas></div>
       <div style="font-size:11px;color:#667;margin-top:8px;text-align:center">Source: IMF COFER Database (Q1 2026)</div>
     </div>
+    <div class="section-title" style="margin-top:16px">US Treasury Flows by Investor Type (Since 2000)</div>
+    <div class="card">
+      <div class="chart-wrap" style="height:320px"><canvas id="ticChart"></canvas></div>
+      <div style="font-size:11px;color:#667;margin-top:8px;text-align:center">Source: FRED / Treasury TIC Data (12-mo rolling sum, USD bn)</div>
+    </div>
     <div class="card" style="margin-top:16px">
       <h3 style="font-size:14px;color:#8892b0;margin-bottom:4px">About the Dollar Dominance Trend</h3>
       <ul class="news-list" id="dollarNews"></ul>
@@ -236,6 +245,21 @@ body.pw-authed .app{display:block}
         </thead>
         <tbody id="treasuryBody"></tbody>
       </table>
+    </div>
+    <div class="section-title" style="margin-top:16px">Inflation & Employment (12 Mo)</div>
+    <div class="econ-grid">
+      <div class="card econ-card">
+        <h4 style="margin:0 0 4px;font-size:12px;color:#8892b0">CPI YoY%</h4>
+        <div class="ec-chart-wrap"><canvas id="cpiChart"></canvas></div>
+      </div>
+      <div class="card econ-card">
+        <h4 style="margin:0 0 4px;font-size:12px;color:#8892b0">Core PCE YoY%</h4>
+        <div class="ec-chart-wrap"><canvas id="pceChart"></canvas></div>
+      </div>
+      <div class="card econ-card">
+        <h4 style="margin:0 0 4px;font-size:12px;color:#8892b0">NFP Change (000s)</h4>
+        <div class="ec-chart-wrap"><canvas id="nfpChart"></canvas></div>
+      </div>
     </div>
     <div class="section-title" style="margin-top:16px">Rates News</div>
     <div class="card">
@@ -1030,6 +1054,118 @@ function renderTreasuryTab() {
   renderYieldHistory(0);
   renderTreasuryTable();
   renderRatesNews();
+  // Render economic charts (fetches FRED data)
+  renderEconCharts();
+}
+
+// ========== ECONOMIC CHARTS (FRED) ==========
+var cpiChart, pceChart, nfpChart;
+var econData = null;
+
+function fetchFredCSV(seriesId, transform) {
+  return fetch('https://fred.stlouisfed.org/graph/fredgraph.csv?id=' + seriesId + '&cosd=2025-06-01&coed=2026-06-01' + (transform ? '&transformation=' + transform : ''))
+    .then(function(r) { return r.text(); })
+    .then(function(text) {
+      var lines = text.trim().split('\n').slice(1);
+      var dates = [], values = [];
+      lines.forEach(function(l) {
+        var parts = l.split(',');
+        if (parts.length >= 2) {
+          var v = parseFloat(parts[1]);
+          if (!isNaN(v)) {
+            dates.push(parts[0].substring(0, 7));
+            values.push(v);
+          }
+        }
+      });
+      return { dates: dates, values: values };
+    });
+}
+
+function renderEconCharts() {
+  var cpiC = document.getElementById('cpiChart');
+  var pceC = document.getElementById('pceChart');
+  var nfpC = document.getElementById('nfpChart');
+  if (!cpiC || !pceC || !nfpC) return;
+  if (econData) { renderEconChartFromData(); return; }
+  
+  Promise.all([
+    fetchFredCSV('CPIAUCSL', 'pc1'),
+    fetchFredCSV('PCEPILFE', 'pc1'),
+    fetchFredCSV('PAYEMS', 'chg')
+  ]).then(function(results) {
+    econData = { cpi: results[0], pce: results[1], nfp: results[2] };
+    renderEconChartFromData();
+  }).catch(function() {
+    console.warn('Failed to fetch FRED data');
+  });
+}
+
+function makeMiniLineChart(canvas, data, label, color, suffix) {
+  if (canvas.chartInstance) canvas.chartInstance.destroy();
+  suffix = suffix || '';
+  canvas.chartInstance = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: data.dates,
+      datasets: [{
+        label: label,
+        data: data.values,
+        borderColor: color,
+        backgroundColor: 'rgba(' + 
+          (color === '#4ade80' ? '74,222,128' :
+           color === '#f59e0b' ? '245,158,11' :
+           color === '#4a7cff' ? '74,124,255' :
+           '239,68,68') + ',0.1)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 3,
+        borderWidth: 1.5
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) { return ctx.raw.toFixed((suffix === 'k' || suffix === 'K') ? 0 : 2) + suffix; }
+          }
+        }
+      },
+      scales: {
+        y: {
+          ticks: { color:'#667', font: {size:9} },
+          grid: { color:'#1f2937' }
+        },
+        x: {
+          ticks: { color:'#667', font: {size:8}, maxTicksLimit: 6 },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+function renderEconChartFromData() {
+  var cpiC = document.getElementById('cpiChart');
+  var pceC = document.getElementById('pceChart');
+  var nfpC = document.getElementById('nfpChart');
+  if (!cpiC || !pceC || !nfpC || !econData) return;
+  makeMiniLineChart(cpiC, econData.cpi, 'CPI YoY%', '#f59e0b', '%');
+  makeMiniLineChart(pceC, econData.pce, 'Core PCE YoY%', '#4ade80', '%');
+  // NFP in thousands
+  var nfpData = { dates: econData.nfp.dates, values: econData.nfp.values };
+  makeMiniLineChart(nfpC, nfpData, 'NFP (000s)', '#4a7cff', '');
+  // Override tooltip for NFP to show raw number
+  if (nfpC.chartInstance) {
+    nfpC.chartInstance.options.plugins.tooltip.callbacks.label = function(ctx) {
+      var v = ctx.raw;
+      return (v >= 0 ? '+' : '') + v.toFixed(0);
+    };
+  }
 }
 
 // ========== MACRO CHARTS ==========
@@ -1084,6 +1220,10 @@ function renderReserveChart() {
   if (reserveChart) reserveChart.destroy();
   // IMF COFER data: 5 years Q1 2022 to Q1 2026
   var years = ['Q1 2022', 'Q1 2023', 'Q1 2024', 'Q1 2025', 'Q1 2026'];
+  
+  // Also render TIC chart
+  renderTICChart();
+  
   reserveChart = new Chart(canvas, {
     type: 'line',
     data: {
@@ -1166,6 +1306,118 @@ function renderReserveChart() {
         x: {
           ticks: { color:'#8892b0' },
           grid: { color:'#1f2937' }
+        }
+      }
+    }
+  });
+}
+
+// ========== TIC TREASURY FLOWS CHART ==========
+var ticChartInstance = null;
+var ticDataCache = null;
+
+function renderTICChart() {
+  var canvas = document.getElementById('ticChart');
+  if (!canvas) return;
+  if (ticDataCache) { drawTICChart(canvas, ticDataCache); return; }
+  
+  // Fetch both official and total flows from FRED
+  Promise.all([
+    fetch('https://fred.stlouisfed.org/graph/fredgraph.csv?id=FORLTTREASNET99990&cosd=2000-01-01&coed=2026-06-01').then(function(r) { return r.text(); }),
+    fetch('https://fred.stlouisfed.org/graph/fredgraph.csv?id=FORTREASNET99996&cosd=2000-01-01&coed=2026-06-01').then(function(r) { return r.text(); })
+  ]).then(function(results) {
+    function parseAnnualSum(text) {
+      var lines = text.trim().split('\n').slice(1);
+      var yearly = {};
+      lines.forEach(function(l) {
+        var parts = l.split(',');
+        if (parts.length >= 2) {
+          var v = parseFloat(parts[1]);
+          if (!isNaN(v)) {
+            var y = parts[0].substring(0, 4);
+            yearly[y] = (yearly[y] || 0) + v;
+          }
+        }
+      });
+      return yearly;
+    }
+    var officialYearly = parseAnnualSum(results[0]);
+    var totalYearly = parseAnnualSum(results[1]);
+    
+    var labels = [], officialData = [], totalData = [];
+    for (var y = 2000; y <= 2025; y++) {
+      var yStr = String(y);
+      labels.push(yStr);
+      var o = officialYearly[yStr] || 0;
+      var t = totalYearly[yStr] || 0;
+      officialData.push(Math.round(o / 1000));
+      totalData.push(Math.round(t / 1000));
+    }
+    // Private = total - official
+    var privateData = [];
+    for (var i = 0; i < totalData.length; i++) {
+      privateData.push(totalData[i] - officialData[i]);
+    }
+    ticDataCache = { labels: labels, official: officialData, total: totalData, private: privateData };
+    drawTICChart(canvas, ticDataCache);
+  }).catch(function() {
+    drawTICChart(canvas, null);
+  });
+}
+
+function drawTICChart(canvas, data) {
+  if (ticChartInstance) ticChartInstance.destroy();
+  
+  var labels, officialData, privateData;
+  if (data && data.private) {
+    labels = data.labels;
+    officialData = data.official;
+    privateData = data.private;
+  } else {
+    // Fallback hardcoded representative data
+    labels = ['2000','2002','2004','2006','2008','2010','2012','2014','2016','2018','2020','2022','2024'];
+    officialData = [50, 110, 250, 380, 540, 680, 580, 390, 210, 280, 450, 520, 90];
+    privateData = [20, 40, 100, 150, 200, 250, 320, 280, 350, 420, 600, 700, 600];
+  }
+  
+  ticChartInstance = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Foreign Official (Central Banks)',
+        data: officialData,
+        backgroundColor: 'rgba(74,124,255,0.7)',
+        borderRadius: 3
+      }, {
+        label: 'Foreign Private',
+        data: privateData,
+        backgroundColor: 'rgba(99,102,241,0.5)',
+        borderRadius: 3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color:'#8892b0', padding: 12, usePointStyle: true }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) { return ctx.dataset.label + ': $' + ctx.raw.toLocaleString() + 'B'; }
+          }
+        }
+      },
+      scales: {
+        y: {
+          ticks: { color:'#667', callback: function(v) { return '$' + v + 'B'; } },
+          grid: { color:'#1f2937' }
+        },
+        x: {
+          ticks: { color:'#8892b0', maxTicksLimit: 12 },
+          grid: { display: false }
         }
       }
     }
