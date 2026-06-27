@@ -44,7 +44,7 @@ body.pw-authed .app{display:block}
 .card-sm .card-chg{font-size:12px;margin-top:1px}
 
 /* Chart area */
-.chart-wrap{position:relative;height:300px;min-height:300px}
+.chart-wrap{position:relative;height:300px;min-height:300px;background:#111827;border-radius:6px}
 
 /* Tab bar */
 .tab-bar{display:flex;gap:2px;margin-bottom:16px;background:#16213e;border-radius:8px;padding:3px;width:fit-content}
@@ -77,12 +77,12 @@ body.pw-authed .app{display:block}
 .news-list li:last-child{border-bottom:none}
 .news-list .summary{color:#e0e0e0}
 .news-list .summary.gray{color:#667}
-.re-chart-wrap{position:relative;height:120px}
+.re-chart-wrap{position:relative;height:120px;background:#111827;border-radius:6px}
 .macro-src{font-size:11px;color:#667;margin-top:8px;text-align:center}
 .econ-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px}
 @media(max-width:800px){.econ-grid{grid-template-columns:1fr}}
 .econ-card{padding:12px!important}
-.ec-chart-wrap{width:100%;height:160px}
+.ec-chart-wrap{width:100%;height:160px;background:#111827;border-radius:6px}
 
 @media(max-width:768px){
 .grid-3{grid-template-columns:1fr}
@@ -1101,6 +1101,9 @@ function renderEconCharts() {
   });
 }
 
+// Set default chart background for all charts
+Chart.defaults.plugins.legend.labels.color = '#8892b0';
+
 function makeMiniLineChart(canvas, data, label, color, suffix) {
   if (canvas.chartInstance) canvas.chartInstance.destroy();
   suffix = suffix || '';
@@ -1129,11 +1132,8 @@ function makeMiniLineChart(canvas, data, label, color, suffix) {
       animation: false,
       plugins: {
         legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: function(ctx) { return ctx.raw.toFixed((suffix === 'k' || suffix === 'K') ? 0 : 2) + suffix; }
-          }
-        }
+        tooltip: { enabled: false },
+        /*chartArea: { backgroundColor: '#111827' }*/
       },
       scales: {
         y: {
