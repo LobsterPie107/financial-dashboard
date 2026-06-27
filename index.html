@@ -394,6 +394,8 @@ function renderPortfolio() {
 }function renderPortfolioCharts() {
  var container = document.getElementById('portfolioCharts');
  if (!container) return;
+ portfolioChartInstances.forEach(function(c) { try { c.destroy(); } catch(e) {} });
+ portfolioChartInstances = [];
  container.innerHTML = '';
  portfolio.forEach(function(s, i) {
  if (!s.chart) {
@@ -420,7 +422,7 @@ function renderPortfolio() {
  var values = s.chart.map(function(d) { return d.close; });
  var costVal = s.costPrice;
 
- new Chart(canvas.getContext('2d'), {
+ var ins = new Chart(canvas.getContext('2d'), {
  type: 'line',
  data: {
  labels: labels,
@@ -454,6 +456,7 @@ function renderPortfolio() {
  }
  }
  });
+ portfolioChartInstances.push(ins);
  });
 }
 
@@ -567,6 +570,7 @@ function formatNum(n) {
 // ========== INIT ==========
 var chartActiveTicker = '^HSI';
 var reChartInstance = null;
+var portfolioChartInstances = [];
 
 async function initDashboard() {
  await loadData();
@@ -590,6 +594,7 @@ function switchTab(name) {
    b.classList.add('active');
   }
  });
+ if (name === 'portfolio') renderPortfolioCharts();
 }
 
 // ========== PASSWORD ==========
