@@ -161,7 +161,7 @@ body.pw-authed .app{display:block}
   <!-- News Tab -->
   <div class="tab" id="tabNews">
     <div class="card">
-      <h3 style="font-size:14px;color:#8892b0;margin-bottom:4px">Dollar Reserve Currency</h3>
+      <h3 style="font-size:14px;color:#8892b0;margin-bottom:4px">About the Dollar Dominance trend</h3>
       <ul class="news-list" id="dollarNews"></ul>
     </div>
     <div class="card" style="margin-top:12px">
@@ -586,24 +586,18 @@ function renderNews() {
     }
   }
 
-  // Stock watch
+  // Stock watch - bullet point format
   var sn = (newsData.stockNews || []).filter(function(a) {
     return a.title && !a.title.includes('Yahoo! Finance') && !a.title.includes('SymbolLookup');
   });
   var stockEl = document.getElementById('stockNews');
   if (stockEl) {
     if (sn.length) {
-      var grouped = {};
-      sn.forEach(function(a) {
-        var key = a.symbol || a.ticker || '???';
-        if (!grouped[key]) grouped[key] = [];
-        if (grouped[key].length < 2) grouped[key].push(a.title);
+      var items = [];
+      sn.forEach(function(a, i) {
+        if (i < 10) items.push(a.title || a.summary);
       });
-      var parts = [];
-      Object.keys(grouped).forEach(function(key) {
-        parts.push(key + ': ' + grouped[key].join('. '));
-      });
-      stockEl.innerHTML = '<li><span class="summary">' + parts.join('</span></li><li><span class="summary">') + '</span></li>';
+      stockEl.innerHTML = items.map(function(t) { return '<li><span class="summary">' + t + '</span></li>'; }).join('');
     } else {
       stockEl.innerHTML = '<li><span class="summary gray">No relevant news today</span></li>';
     }
