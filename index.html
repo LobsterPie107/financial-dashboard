@@ -199,6 +199,11 @@ body.pw-authed .app{display:block}
       <div class="chart-wrap" style="height:280px"><canvas id="settlementChart"></canvas></div>
       <div style="font-size:11px;color:#667;margin-top:8px;text-align:center">Source: SWIFT Global Currency Tracker (May 2026)</div>
     </div>
+    <div class="section-title" style="margin-top:16px">SWIFT Currency Share Trend (Since 2010)</div>
+    <div class="card">
+      <div class="chart-wrap" style="height:300px"><canvas id="swiftTrendChart"></canvas></div>
+      <div style="font-size:11px;color:#667;margin-top:8px;text-align:center">Source: SWIFT Monthly Reports (year-end data)</div>
+    </div>
     <div class="section-title" style="margin-top:16px">Central Bank Reserve Currency Share (5-Year Trend)</div>
     <div class="card">
       <div class="chart-wrap" style="height:300px"><canvas id="reserveChart"></canvas></div>
@@ -1178,6 +1183,91 @@ function renderSettlementChart() {
   });
 }
 
+// ========== SWIFT TREND CHART (2010-2025) ==========
+var swiftTrendChart = null;
+
+function renderSwiftTrendChart() {
+  var canvas = document.getElementById('swiftTrendChart');
+  if (!canvas) return;
+  if (swiftTrendChart) swiftTrendChart.destroy();
+  
+  fetch('data/SWIFT_Trend.json').then(function(r) { return r.json(); })
+    .then(function(data) {
+      drawSwiftTrend(canvas, data);
+    }).catch(function() {
+      var ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#667';
+      ctx.font = '14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Data unavailable', canvas.width/2, canvas.height/2);
+    });
+}
+
+function drawSwiftTrend(canvas, data) {
+  if (!data || !data.years) return;
+  
+  var colors = {
+    'USD': '#4a7cff',
+    'EUR': '#4ade80',
+    'GBP': '#6366f1',
+    'JPY': '#f59e0b',
+    'CNY': '#ef4444',
+    'Other': '#8892b0'
+  };
+  
+  var labels = data.years.map(function(y) { return String(y); });
+  var datasets = Object.keys(data.currencies).map(function(curr) {
+    var isRmb = (curr === 'CNY');
+    return {
+      label: isRmb ? 'CNY (RMB)' : curr,
+      data: data.currencies[curr],
+      borderColor: colors[curr] || '#666',
+      backgroundColor: colors[curr] ? colors[curr] + '18' : 'rgba(100,100,100,0.1)',
+      fill: false,
+      tension: 0.3,
+      pointRadius: isRmb ? 5 : 3,
+      pointHoverRadius: 6,
+      borderWidth: isRmb ? 3 : 2,
+      borderDash: isRmb ? [] : undefined
+    };
+  });
+  
+  swiftTrendChart = new Chart(canvas, {
+    type: 'line',
+    data: { labels: labels, datasets: datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false
+      },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color:'#8892b0', padding: 12, usePointStyle: true }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) { return ctx.dataset.label + ': ' + ctx.raw.toFixed(1) + '%'; }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { color:'#667', callback: function(v) { return v + '%'; } },
+          grid: { color:'#1f2937' }
+        },
+        x: {
+          ticks: { color:'#8892b0', maxTicksLimit: 16 },
+          grid: { color:'#1f2937' }
+        }
+      }
+    }
+  });
+}
+
 function renderReserveChart() {
   var canvas = document.getElementById('reserveChart');
   if (!canvas) return;
@@ -1389,6 +1479,7 @@ async function initDashboard() {
   
   // Macro charts
   renderSettlementChart();
+  renderSwiftTrendChart();
   renderReserveChart();
 }
 </script>
