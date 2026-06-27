@@ -931,6 +931,44 @@ function renderTreasuryTab() {
   renderRatesNews();
 }
 
+// ========== DAILY MOVE ALERT ==========
+var alertedStocks = [];
+
+function checkDailyMoves() {
+  computePortfolio();
+  var alerts = [];
+  portfolio.forEach(function(s) {
+    var chg = Math.abs(s.changePct);
+    if (chg >= 2) {
+      alerts.push(s.name + ' (' + s.ticker.replace('.HK','') + ') ' + (s.changePct >= 0 ? '+' : '') + s.changePct.toFixed(1) + '%');
+    }
+  });
+  
+  if (alerts.length) {
+    var msg = 'Stock Movement Alert:\n' + alerts.join('\n');
+    // Only send once per session
+    if (!alertedStocks.length) {
+      alertedStocks = alerts;
+      var payload = JSON.stringify({action:'alert', message: msg});
+      // Log to console as a fallback
+      console.warn('[STOCK ALERT]', msg);
+      // Also show an in-page banner for visibility
+      showAlertBanner(alerts);
+    }
+  }
+}
+
+function showAlertBanner(alerts) {
+  var banner = document.createElement('div');
+  banner.id = 'stockAlertBanner';
+  banner.style.cssText = 'background:#ef4444;color:#fff;padding:10px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;display:flex;justify-content:space-between;align-items:center';
+  banner.innerHTML = '<span><strong>Alert:</strong> ' + alerts.join(' | ') + '</span><span onclick="this.parentElement.remove()" style="cursor:pointer;font-size:16px;margin-left:12px">&times;</span>';
+  var app = document.querySelector('.app');
+  if (app) {
+    app.insertBefore(banner, app.firstChild);
+  }
+}
+
 // ========== INIT ==========
 async function initDashboard() {
   await loadData();
@@ -948,6 +986,9 @@ async function initDashboard() {
   // News + RE chart
   renderNews();
   renderREChart();
+  
+  // Check for large daily moves
+  checkDailyMoves();
 }
 </script>
 
