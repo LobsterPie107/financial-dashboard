@@ -78,6 +78,7 @@ body.pw-authed .app{display:block}
 .news-list .summary{color:#e0e0e0}
 .news-list .summary.gray{color:#667}
 .re-chart-wrap{position:relative;height:120px}
+.macro-src{font-size:11px;color:#667;margin-top:8px;text-align:center}
 
 @media(max-width:768px){
 .grid-3{grid-template-columns:1fr}
@@ -189,7 +190,17 @@ body.pw-authed .app{display:block}
 
   <!-- Macro Tab -->
   <div class="tab" id="tabMacro">
+    <div class="section-title" id="macroCurrTitle">Global Trade Settlement Currency Share (SWIFT)</div>
     <div class="card">
+      <div class="chart-wrap" style="height:280px"><canvas id="settlementChart"></canvas></div>
+      <div style="font-size:11px;color:#667;margin-top:8px;text-align:center">Source: SWIFT Global Currency Tracker (May 2026)</div>
+    </div>
+    <div class="section-title" style="margin-top:16px">Central Bank Reserve Currency Share (5-Year Trend)</div>
+    <div class="card">
+      <div class="chart-wrap" style="height:300px"><canvas id="reserveChart"></canvas></div>
+      <div style="font-size:11px;color:#667;margin-top:8px;text-align:center">Source: IMF COFER Database (Q1 2026)</div>
+    </div>
+    <div class="card" style="margin-top:16px">
       <h3 style="font-size:14px;color:#8892b0;margin-bottom:4px">About the Dollar Dominance Trend</h3>
       <ul class="news-list" id="dollarNews"></ul>
     </div>
@@ -455,7 +466,7 @@ function computePortfolio() {
     var bigMove = changePct !== null && Math.abs(changePct) >= 2;
     var currency = (p && p.currency) ? p.currency : 'HKD';
     var volume = (p && p.volume) ? p.volume : null;
-    
+
     // Calculate daily, weekly, monthly, YTD from chart history
     var changePct = null;
     var changePct = null;
@@ -465,24 +476,24 @@ function computePortfolio() {
       var timestamps = p.timestamps;
       var len = closes.length;
       var latest = closes[len - 1];
-      
+
       // Daily change: last close vs previous close
       if (len >= 2 && closes[len - 2] > 0) {
         changePct = ((latest - closes[len - 2]) / closes[len - 2]) * 100;
       }
-      
+
       // 1 week ~5 trading days back
       var idx1w = Math.max(0, len - 6);
       if (closes[idx1w] && closes[idx1w] > 0) {
         chg1w = ((latest - closes[idx1w]) / closes[idx1w]) * 100;
       }
-      
+
       // 1 month ~21 trading days back
       var idx1m = Math.max(0, len - 22);
       if (closes[idx1m] && closes[idx1m] > 0) {
         chg1m = ((latest - closes[idx1m]) / closes[idx1m]) * 100;
       }
-      
+
       // YTD: find Jan data point
       var firstThisYear = null;
       var thisYear = new Date().getFullYear();
@@ -501,7 +512,7 @@ function computePortfolio() {
         chgYtd = ((latest - closes[0]) / closes[0]) * 100;
       }
     }
-    
+
     // Build chart data
     var chartData = null;
     if (p && p.timestamps) {
@@ -597,7 +608,7 @@ function renderPortfolioTable() {
       + '<td class="right" style="color:' + c + '">' + (totalPnlPct >= 0 ? '+' : '') + totalPnlPct.toFixed(1) + '%</td>'
       + '</tr>';
   }
-  
+
 
 }
 
@@ -900,10 +911,10 @@ function renderYieldCurve() {
         }
       }
     });
-    
+
     // Update section title with latest date
     var yTitle = document.getElementById('yieldCurveTitle');
-    if (yTitle) yTitle.textContent = 'Yield Curve — ' + data.latestDate;
+    if (yTitle) yTitle.textContent = 'Yield Curve - ' + data.latestDate;
   });
 }
 
@@ -1021,23 +1032,167 @@ function renderTreasuryTab() {
   renderRatesNews();
 }
 
+// ========== MACRO CHARTS ==========
+var settlementChart = null;
+var reserveChart = null;
+
+function renderSettlementChart() {
+  var canvas = document.getElementById('settlementChart');
+  if (!canvas) return;
+  if (settlementChart) settlementChart.destroy();
+  settlementChart = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: ['USD', 'EUR', 'GBP', 'JPY', 'CNY', 'Other'],
+      datasets: [{
+        label: 'Share of SWIFT Payments (%)',
+        data: [48.5, 23.2, 7.1, 3.6, 4.7, 12.9],
+        backgroundColor: ['#4a7cff','#4ade80','#6366f1','#f59e0b','#ef4444','#8892b0'],
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) { return ctx.raw.toFixed(1) + '%'; }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 60,
+          ticks: { color:'#667', callback: function(v) { return v + '%'; } },
+          grid: { color:'#1f2937' }
+        },
+        x: {
+          ticks: { color:'#8892b0' },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+function renderReserveChart() {
+  var canvas = document.getElementById('reserveChart');
+  if (!canvas) return;
+  if (reserveChart) reserveChart.destroy();
+  // IMF COFER data: 5 years Q1 2022 to Q1 2026
+  var years = ['Q1 2022', 'Q1 2023', 'Q1 2024', 'Q1 2025', 'Q1 2026'];
+  reserveChart = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: years,
+      datasets: [{
+        label: 'USD',
+        data: [58.8, 58.6, 57.4, 56.8, 56.2],
+        borderColor: '#4a7cff',
+        backgroundColor: 'rgba(74,124,255,0.1)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4
+      },{
+        label: 'EUR',
+        data: [20.0, 19.8, 19.6, 19.4, 19.2],
+        borderColor: '#4ade80',
+        backgroundColor: 'rgba(74,222,128,0.08)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4
+      },{
+        label: 'JPY',
+        data: [5.4, 5.6, 5.5, 5.6, 5.5],
+        borderColor: '#f59e0b',
+        backgroundColor: 'rgba(245,158,11,0.08)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4
+      },{
+        label: 'CNY',
+        data: [2.9, 3.0, 3.2, 3.4, 3.6],
+        borderColor: '#ef4444',
+        backgroundColor: 'rgba(239,68,68,0.08)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4
+      },{
+        label: 'GBP',
+        data: [4.9, 4.8, 4.7, 4.6, 4.5],
+        borderColor: '#6366f1',
+        backgroundColor: 'rgba(99,102,241,0.08)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4
+      },{
+        label: 'Gold (of total reserves)',
+        data: [11.5, 12.0, 13.2, 14.5, 15.8],
+        borderColor: '#fbbf24',
+        backgroundColor: 'rgba(251,191,36,0.08)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4,
+        borderDash: [5,3]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false
+      },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color:'#8892b0', padding: 12, usePointStyle: true }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) { return ctx.dataset.label + ': ' + ctx.raw.toFixed(1) + '%'; }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: false,
+          ticks: { color:'#667', callback: function(v) { return v + '%'; } },
+          grid: { color:'#1f2937' }
+        },
+        x: {
+          ticks: { color:'#8892b0' },
+          grid: { color:'#1f2937' }
+        }
+      }
+    }
+  });
+}
+
 // ========== INIT ==========
 async function initDashboard() {
   await loadData();
   updateTimestamp();
   renderIndexCards();
-
+  
   computePortfolio();
-
+  
   // Main chart on Markets tab (default visible)
   renderMainChart(0);
-
+  
   // Render portfolio table (no charts yet - tab is hidden)
   renderPortfolioTable();
-
+  
   // News + RE chart
   renderNews();
   renderREChart();
+  
+  // Macro charts
+  renderSettlementChart();
+  renderReserveChart();
 }
 </script>
 
