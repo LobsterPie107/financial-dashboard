@@ -153,6 +153,7 @@ body.pw-authed .app{display:block}
           </tr>
         </thead>
         <tbody id="portfolioBody"></tbody>
+        <tfoot id="portfolioFoot"></tfoot>
       </table>
     </div>
     <div class="section-title" style="margin-top:16px">1M Price vs Cost (individual charts)</div>
@@ -452,11 +453,24 @@ function renderPortfolioTable() {
   var totalCost = portfolio.reduce(function(sum, s) { return sum + s.costVal; }, 0);
   var totalPnl = totalVal - totalCost;
   var totalPnlPct = (totalPnl / totalCost) * 100;
+  var c = totalPnl >= 0 ? '#4ade80' : '#ef4444';
   var el = document.getElementById('pnlSummary');
   if (el) {
-    var c = totalPnl >= 0 ? '#4ade80' : '#ef4444';
     el.innerHTML = '<span><span class="label">Total Value</span><br><span class="value">$' + totalVal.toLocaleString('en-US', {minimumFractionDigits:0}) + '</span></span>'
       + '<span><span class="label">P&amp;L</span><br><span class="value" style="color:' + c + '">' + (totalPnl >= 0 ? '+$' : '-$') + Math.abs(totalPnl).toLocaleString('en-US', {minimumFractionDigits:0}) + ' (' + (totalPnlPct >= 0 ? '+' : '') + totalPnlPct.toFixed(1) + '%)</span></span>';
+  }
+  // Total row in table footer
+  var foot = document.getElementById('portfolioFoot');
+  if (foot) {
+    foot.innerHTML = '<tr style="border-top:2px solid #4a7cff;font-weight:700">'
+      + '<td>Total</td>'
+      + '<td class="right"></td>'
+      + '<td class="right"></td>'
+      + '<td class="right">$' + totalVal.toLocaleString('en-US', {minimumFractionDigits:0}) + '</td>'
+      + '<td class="right"></td>'
+      + '<td class="right" style="color:' + c + '">' + (totalPnl >= 0 ? '+$' : '-$') + Math.abs(totalPnl).toLocaleString('en-US', {minimumFractionDigits:0}) + '</td>'
+      + '<td class="right" style="color:' + c + '">' + (totalPnlPct >= 0 ? '+' : '') + totalPnlPct.toFixed(1) + '%</td>'
+      + '</tr>';
   }
 }
 
