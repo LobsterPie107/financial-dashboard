@@ -150,6 +150,8 @@ body.pw-authed .app{display:block}
             <th>1 Wk</th>
             <th>1 Mo</th>
             <th>YTD</th>
+            <th>Currency</th>
+            <th>Volume</th>
             <th>Mkt Val</th>
             <th>Div Yield</th>
             <th>P&amp;L</th>
@@ -443,6 +445,8 @@ function computePortfolio() {
     var pnlPct = ((price - s.costPrice) / s.costPrice) * 100;
     var up = pnl >= 0;
     var bigMove = Math.abs(changePct) >= 2;
+    var currency = (p && p.currency) ? p.currency : 'HKD';
+    var volume = (p && p.volume) ? p.volume : null;
     
     // Calculate weekly, monthly, YTD from chart history
     var chg1w = null, chg1m = null, chgYtd = null;
@@ -505,6 +509,8 @@ function computePortfolio() {
       chg1m: chg1m,
       chgYtd: chgYtd,
       bigMove: bigMove,
+      currency: currency,
+      volume: volume,
       mktVal: mktVal,
       costVal: costVal,
       pnl: pnl,
@@ -536,6 +542,8 @@ function renderPortfolioTable() {
       + '<td class="right">' + fmtPct(s.chg1w) + '</td>'
       + '<td class="right">' + fmtPct(s.chg1m) + '</td>'
       + '<td class="right">' + fmtPct(s.chgYtd, true) + '</td>'
+      + '<td>' + s.currency + '</td>'
+      + '<td class="right">' + (s.volume ? s.volume.toLocaleString('en-US', {maximumFractionDigits:0}) : '-') + '</td>'
       + '<td class="right">$' + s.mktVal.toLocaleString('en-US', {minimumFractionDigits:0}) + '</td>'
       + '<td class="right">' + s.divYield + '%</td>'
       + '<td class="right" style="color:' + s.color + '">' + (s.pnl >= 0 ? '+' : '-') + '$' + Math.abs(s.pnl).toLocaleString('en-US', {minimumFractionDigits:0}) + '</td>'
@@ -560,6 +568,8 @@ function renderPortfolioTable() {
   if (foot) {
     foot.innerHTML = '<tr style="border-top:2px solid #4a7cff;font-weight:700">'
       + '<td>Total</td>'
+      + '<td class="right"></td>'
+      + '<td class="right"></td>'
       + '<td class="right"></td>'
       + '<td class="right"></td>'
       + '<td class="right"></td>'

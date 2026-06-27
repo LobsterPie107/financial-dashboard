@@ -34,7 +34,8 @@ tickers.forEach(t => {
             prevClose: meta.chartPreviousClose || null,
             currency: meta.currency || 'HKD',
             timestamps: result[0].timestamp || [],
-            closes: (result[0].indicators.quote[0].close || []).map(v => v !== null ? v : null)
+            closes: (result[0].indicators.quote[0].close || []).map(v => v !== null ? v : null),
+            volume: ((result[0].indicators.quote[0].volume || []).filter(v => v !== null).pop()) || null
           });
         } else {
           results.push({ symbol: t.symbol, name: t.name, error: 'No data', price: null });
