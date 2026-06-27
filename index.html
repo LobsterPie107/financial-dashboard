@@ -111,6 +111,7 @@ body.pw-authed .app{display:block}
     <button class="active" onclick="switchTab('markets')">Markets</button>
     <button onclick="switchTab('portfolio')">Portfolio</button>
     <button onclick="switchTab('news')">News</button>
+    <button onclick="switchTab('treasury')">US Treasury</button>
   </div>
 
   <!-- Markets Tab -->
@@ -176,6 +177,43 @@ body.pw-authed .app{display:block}
     <div class="card" style="margin-top:12px">
       <h3 style="font-size:14px;color:#8892b0;margin-bottom:4px">Stock Watch News</h3>
       <ul class="news-list" id="stockNews"></ul>
+    </div>
+  </div>
+
+  <!-- US Treasury Tab -->
+  <div class="tab" id="tabTreasury">
+    <div class="section-title" id="yieldCurveTitle">Yield Curve</div>
+    <div class="card">
+      <div class="chart-wrap" style="height:300px"><canvas id="yieldCurveChart"></canvas></div>
+    </div>
+    <div class="section-title" style="margin-top:16px">Yield History</div>
+    <div class="card">
+      <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+        <button class="chart-btn active" onclick="switchYieldHistory(0)">2 Yr</button>
+        <button class="chart-btn" onclick="switchYieldHistory(1)">10 Yr</button>
+        <button class="chart-btn" onclick="switchYieldHistory(2)">30 Yr</button>
+        <button class="chart-btn" onclick="switchYieldHistory(3)">2s10s</button>
+      </div>
+      <div class="chart-wrap" style="height:250px"><canvas id="yieldHistoryChart"></canvas></div>
+    </div>
+    <div class="section-title" style="margin-top:16px">Treasury Bonds</div>
+    <div class="card" style="padding:0;overflow-x:auto">
+      <table class="portfolio-table" id="treasuryTable">
+        <thead>
+          <tr>
+            <th>Security</th>
+            <th>Cpn</th>
+            <th>Maturity</th>
+            <th>Price</th>
+            <th>Yield</th>
+          </tr>
+        </thead>
+        <tbody id="treasuryBody"></tbody>
+      </table>
+    </div>
+    <div class="section-title" style="margin-top:16px">Rates News</div>
+    <div class="card">
+      <ul class="news-list" id="ratesNews"></ul>
     </div>
   </div>
 </div>
@@ -696,6 +734,11 @@ function switchTab(name) {
       b.classList.add('active');
     }
   });
+  if (name === 'treasury') {
+    requestAnimationFrame(function() {
+      setTimeout(renderTreasuryTab, 50);
+    });
+  }
   if (name === 'portfolio') {
     // Render mini charts only when portfolio tab becomes visible
     // Use requestAnimationFrame + setTimeout to ensure layout is ready
@@ -703,6 +746,189 @@ function switchTab(name) {
       setTimeout(renderPortfolioCharts, 50);
     });
   }
+}
+
+// ========== TREASURY ==========
+var yieldCurveChart = null;
+var yieldHistoryChart = null;
+
+function renderYieldCurve() {
+  fetch('data/yield-curve.json?' + Date.now())
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (yieldCurveChart) yieldCurveChart.destroy();
+    var canvas = document.getElementById('yieldCurveChart');
+    if (!canvas) return;
+    var labels = ['1m','2m','3m','6m','1y','2y','3y','5y','7y','10y','20y','30y'];
+    var vals = [data.latest['1 Mo'], data.latest['2 Mo'], data.latest['3 Mo'], data.latest['6 Mo'], data.latest['1 Yr'], data.latest['2 Yr'], data.latest['3 Yr'], data.latest['5 Yr'], data.latest['7 Yr'], data.latest['10 Yr'], data.latest['20 Yr'], data.latest['30 Yr']];
+    yieldCurveChart = new Chart(canvas.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: vals,
+          borderColor: '#f59e0b',
+          backgroundColor: 'rgba(245,158,11,0.1)',
+          borderWidth: 2.5,
+          pointRadius: 4,
+          pointBackgroundColor: '#f59e0b',
+          tension: 0.2,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {display: false},
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+            backgroundColor: '#1a1a2e',
+            titleColor: '#e0e0e0',
+            bodyColor: '#e0e0e0',
+            borderColor: '#f59e0b',
+            borderWidth: 1,
+            padding: 8,
+            callbacks: {
+              label: function(ctx) { return ctx.parsed.y.toFixed(2) + '%'; }
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: {color:'#8892b0', font:{size:10}},
+            grid: {display: false}
+          },
+          y: {
+            ticks: {
+              color:'#4a5568', font:{size:10},
+              callback: function(v) { return v.toFixed(1) + '%'; }
+            },
+            grid: {color:'#1f2937'}
+          }
+        }
+      }
+    });
+    
+    // Update section title with latest date
+    var yTitle = document.getElementById('yieldCurveTitle');
+    if (yTitle) yTitle.textContent = 'Yield Curve — ' + data.latestDate;
+  });
+}
+
+function renderYieldHistory(idx) {
+  fetch('data/yield-curve.json?' + Date.now())
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (yieldHistoryChart) yieldHistoryChart.destroy();
+    var canvas = document.getElementById('yieldHistoryChart');
+    if (!canvas) return;
+    var labels = data.history.map(function(d) { return d.date; });
+    var datasets = [];
+    if (idx === 3) {
+      // 2s10s spread
+      var spread = data.history.map(function(d) {
+        var v = d['10 Yr'] !== undefined && d['2 Yr'] !== undefined ? d['10 Yr'] - d['2 Yr'] : null;
+        return v !== null ? parseFloat(v.toFixed(2)) : null;
+      });
+      datasets.push({label:'2s10s Spread', data:spread, borderColor:'#4a7cff', borderWidth:1.5, pointRadius:0, tension:0.1, fill:false});
+    } else {
+      var names = ['2 Yr','10 Yr','30 Yr'];
+      var colors = ['#4ade80','#4a7cff','#f59e0b'];
+      var vals = data.history.map(function(d) {
+        var v = d[names[idx]];
+        return v !== undefined ? v : null;
+      });
+      datasets.push({label:names[idx], data:vals, borderColor:colors[idx], borderWidth:1.5, pointRadius:0, tension:0.1, fill:false});
+    }
+    yieldHistoryChart = new Chart(canvas.getContext('2d'), {
+      type: 'line',
+      data: {labels: labels, datasets: datasets},
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {labels:{color:'#8892b0', font:{size:11}}},
+          tooltip: {
+            mode: 'index', intersect: false,
+            backgroundColor: '#1a1a2e', titleColor: '#e0e0e0', bodyColor: '#e0e0e0', borderColor: '#4a7cff', borderWidth: 1, padding: 6
+          }
+        },
+        scales: {
+          x: {
+            ticks: {color:'#4a5568', font:{size:9}, maxTicksLimit:10},
+            grid: {display: false}
+          },
+          y: {
+            ticks: {
+              color:'#4a5568', font:{size:9},
+              callback: function(v) { return v.toFixed(1) + '%'; }
+            },
+            grid: {color:'#1f2937'}
+          }
+        }
+      }
+    });
+    // Update button styles
+    document.querySelectorAll('#tabTreasury .chart-btn').forEach(function(b) {
+      b.style.background = '#2a3a5c';
+      b.style.color = '#8892b0';
+    });
+    var btns = document.querySelectorAll('#tabTreasury .chart-btn');
+    if (btns[idx]) {
+      btns[idx].style.background = '#4a7cff';
+      btns[idx].style.color = '#fff';
+    }
+  });
+}
+
+function switchYieldHistory(idx) {
+  renderYieldHistory(idx);
+}
+
+function renderTreasuryTable() {
+  var body = document.getElementById('treasuryBody');
+  if (!body) return;
+  // Demo treasury bonds - placeholder for Chef to fill in later
+  var bonds = [
+    {security:'2-Yr Note', cpn:'4.125', maturity:'Jun 2028', price:'99.78', yield:'4.19'},
+    {security:'5-Yr Note', cpn:'4.250', maturity:'Jun 2031', price:'99.54', yield:'4.32'},
+    {security:'10-Yr Bond', cpn:'4.375', maturity:'May 2036', price:'99.22', yield:'4.38'},
+    {security:'30-Yr Bond', cpn:'4.625', maturity:'May 2056', price:'97.89', yield:'4.87'}
+  ];
+  var html = '';
+  bonds.forEach(function(b) {
+    html += '<tr>'
+      + '<td>' + b.security + '</td>'
+      + '<td class="right">' + b.cpn + '%</td>'
+      + '<td>' + b.maturity + '</td>'
+      + '<td class="right">$' + b.price + '</td>'
+      + '<td class="right">' + b.yield + '%</td>'
+      + '</tr>';
+  });
+  body.innerHTML = html;
+}
+
+function renderRatesNews() {
+  var el = document.getElementById('ratesNews');
+  if (!el) return;
+  var items = [
+    'Fed holds rates steady at 4.25-4.50% in June meeting, signals one cut possible in H2 2026',
+    'May CPI comes in at 3.1% YoY, core at 2.8%, both slightly below expectations',
+    'Non-farm payrolls added 185K in May, unemployment steady at 4.0%',
+    'Treasury yield curve steepens as long-end rates rise on supply concerns',
+    'Fed minutes show divide over rate path; some members favor earlier cuts',
+    '10-yr note auction sees solid demand, yield at 4.39% high'
+  ];
+  el.innerHTML = items.map(function(t) { return '<li><span class="summary">' + t + '</span></li>'; }).join('');
+}
+
+function renderTreasuryTab() {
+  renderYieldCurve();
+  renderYieldHistory(0);
+  renderTreasuryTable();
+  renderRatesNews();
 }
 
 // ========== INIT ==========
