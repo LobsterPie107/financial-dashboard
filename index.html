@@ -146,8 +146,11 @@ body.pw-authed .app{display:block}
           <tr>
             <th>Stock</th>
             <th>Price</th>
-            <th>Change</th>
-            <th>Market Value</th>
+            <th>1 Day</th>
+            <th>1 Wk</th>
+            <th>1 Mo</th>
+            <th>YTD</th>
+            <th>Mkt Val</th>
             <th>Div Yield</th>
             <th>P&amp;L</th>
             <th>P&amp;L %</th>
@@ -439,6 +442,47 @@ function computePortfolio() {
     var pnl = mktVal - costVal;
     var pnlPct = ((price - s.costPrice) / s.costPrice) * 100;
     var up = pnl >= 0;
+    var bigMove = Math.abs(changePct) >= 2;
+    
+    // Calculate weekly, monthly, YTD from chart history
+    var chg1w = null, chg1m = null, chgYtd = null;
+    if (p && p.timestamps && p.closes && p.closes.length > 1) {
+      var closes = p.closes.map(function(v) { return parseFloat(v); });
+      var timestamps = p.timestamps;
+      var len = closes.length;
+      var latest = closes[len - 1];
+      
+      // 1 week ~5 trading days back
+      var idx1w = Math.max(0, len - 6);
+      if (closes[idx1w] && closes[idx1w] > 0) {
+        chg1w = ((latest - closes[idx1w]) / closes[idx1w]) * 100;
+      }
+      
+      // 1 month ~21 trading days back
+      var idx1m = Math.max(0, len - 22);
+      if (closes[idx1m] && closes[idx1m] > 0) {
+        chg1m = ((latest - closes[idx1m]) / closes[idx1m]) * 100;
+      }
+      
+      // YTD: find Jan data point
+      var firstThisYear = null;
+      var thisYear = new Date().getFullYear();
+      for (var i = 0; i < timestamps.length; i++) {
+        var d = new Date(timestamps[i] * 1000);
+        if (d.getFullYear() === thisYear) {
+          firstThisYear = i;
+          break;
+        }
+      }
+      if (firstThisYear !== null && closes[firstThisYear] > 0) {
+        chgYtd = ((latest - closes[firstThisYear]) / closes[firstThisYear]) * 100;
+      }
+      // Fallback: if only 2026 data exists in chart, use first point
+      if (firstThisYear === null && closes[0] > 0) {
+        chgYtd = ((latest - closes[0]) / closes[0]) * 100;
+      }
+    }
+    
     // Build chart data
     var chartData = null;
     if (p && p.timestamps) {
@@ -457,6 +501,10 @@ function computePortfolio() {
       divYield: s.divYield,
       price: price,
       changePct: changePct,
+      chg1w: chg1w,
+      chg1m: chg1m,
+      chgYtd: chgYtd,
+      bigMove: bigMove,
       mktVal: mktVal,
       costVal: costVal,
       pnl: pnl,
@@ -474,10 +522,20 @@ function renderPortfolioTable() {
   if (!tbody) return;
   var html = '';
   portfolio.forEach(function(s) {
+    function fmtPct(v, forceSign) {
+      if (v === null || v === undefined) return '-';
+      var c = v >= 0 ? '#4ade80' : '#ef4444';
+      var sgn = forceSign && v >= 0 ? '+' : '';
+      return '<span style="color:' + c + '">' + sgn + v.toFixed(1) + '%</span>';
+    }
+    var dayColor = s.bigMove ? '#f59e0b' : (s.changePct >= 0 ? '#4ade80' : '#ef4444');
     html += '<tr>'
       + '<td>' + s.name + '</td>'
       + '<td class="right">$' + s.price.toFixed(2) + '</td>'
-      + '<td class="right" style="color:' + s.color + '">' + s.arrow + ' ' + Math.abs(s.changePct).toFixed(2) + '%</td>'
+      + '<td class="right" style="color:' + dayColor + ';font-weight:' + (s.bigMove ? '700' : '400') + '">' + (s.changePct >= 0 ? '+' : '') + s.changePct.toFixed(1) + '%</td>'
+      + '<td class="right">' + fmtPct(s.chg1w) + '</td>'
+      + '<td class="right">' + fmtPct(s.chg1m) + '</td>'
+      + '<td class="right">' + fmtPct(s.chgYtd, true) + '</td>'
       + '<td class="right">$' + s.mktVal.toLocaleString('en-US', {minimumFractionDigits:0}) + '</td>'
       + '<td class="right">' + s.divYield + '%</td>'
       + '<td class="right" style="color:' + s.color + '">' + (s.pnl >= 0 ? '+' : '-') + '$' + Math.abs(s.pnl).toLocaleString('en-US', {minimumFractionDigits:0}) + '</td>'
@@ -504,12 +562,17 @@ function renderPortfolioTable() {
       + '<td>Total</td>'
       + '<td class="right"></td>'
       + '<td class="right"></td>'
+      + '<td class="right"></td>'
+      + '<td class="right"></td>'
+      + '<td class="right"></td>'
       + '<td class="right">$' + totalVal.toLocaleString('en-US', {minimumFractionDigits:0}) + '</td>'
       + '<td class="right"></td>'
       + '<td class="right" style="color:' + c + '">' + (totalPnl >= 0 ? '+$' : '-$') + Math.abs(totalPnl).toLocaleString('en-US', {minimumFractionDigits:0}) + '</td>'
       + '<td class="right" style="color:' + c + '">' + (totalPnlPct >= 0 ? '+' : '') + totalPnlPct.toFixed(1) + '%</td>'
       + '</tr>';
   }
+  
+
 }
 
 // ========== PORTFOLIO MINI CHARTS ==========
@@ -931,44 +994,6 @@ function renderTreasuryTab() {
   renderRatesNews();
 }
 
-// ========== DAILY MOVE ALERT ==========
-var alertedStocks = [];
-
-function checkDailyMoves() {
-  computePortfolio();
-  var alerts = [];
-  portfolio.forEach(function(s) {
-    var chg = Math.abs(s.changePct);
-    if (chg >= 2) {
-      alerts.push(s.name + ' (' + s.ticker.replace('.HK','') + ') ' + (s.changePct >= 0 ? '+' : '') + s.changePct.toFixed(1) + '%');
-    }
-  });
-  
-  if (alerts.length) {
-    var msg = 'Stock Movement Alert:\n' + alerts.join('\n');
-    // Only send once per session
-    if (!alertedStocks.length) {
-      alertedStocks = alerts;
-      var payload = JSON.stringify({action:'alert', message: msg});
-      // Log to console as a fallback
-      console.warn('[STOCK ALERT]', msg);
-      // Also show an in-page banner for visibility
-      showAlertBanner(alerts);
-    }
-  }
-}
-
-function showAlertBanner(alerts) {
-  var banner = document.createElement('div');
-  banner.id = 'stockAlertBanner';
-  banner.style.cssText = 'background:#ef4444;color:#fff;padding:10px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;display:flex;justify-content:space-between;align-items:center';
-  banner.innerHTML = '<span><strong>Alert:</strong> ' + alerts.join(' | ') + '</span><span onclick="this.parentElement.remove()" style="cursor:pointer;font-size:16px;margin-left:12px">&times;</span>';
-  var app = document.querySelector('.app');
-  if (app) {
-    app.insertBefore(banner, app.firstChild);
-  }
-}
-
 // ========== INIT ==========
 async function initDashboard() {
   await loadData();
@@ -986,9 +1011,6 @@ async function initDashboard() {
   // News + RE chart
   renderNews();
   renderREChart();
-  
-  // Check for large daily moves
-  checkDailyMoves();
 }
 </script>
 
