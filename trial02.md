@@ -1,0 +1,719 @@
+# trial02 - Added Dividend Yield column
+
+> Snapshot before adding dividend yield column. Current commit: 987ba53
+
+`html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financial Dashboard</title>
+<meta name="theme-color" content="#0f0f1a">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1a;color:#e0e0e0;font-family:-apple-system,'Segoe UI',system-ui,sans-serif}
+.app{display:none;max-width:1200px;margin:0 auto;padding:24px}
+body.pw-authed .app{display:block}
+
+/* Pw overlay */
+#pwOverlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center}
+#pwOverlay.hidden{display:none}
+.pw-box{background:#1a1a2e;padding:40px;border-radius:16px;border:1px solid #2a3a5c;text-align:center}
+.pw-box h2{color:#e0e0e0;margin-bottom:8px}
+.pw-box p{color:#8892b0;margin-bottom:20px;font-size:14px}
+.pw-box input{background:#16213e;border:1px solid #2a3a5c;border-radius:8px;padding:12px 16px;color:#e0e0e0;font-size:18px;width:200px;text-align:center;letter-spacing:4px}
+.pw-box input:focus{outline:none;border-color:#4a7cff}
+.pw-box .err{color:#ff6b6b;font-size:13px;margin-top:8px;min-height:20px}
+.pw-box button{margin-top:16px;background:#4a7cff;border:none;border-radius:8px;padding:10px 32px;color:#fff;font-size:14px;cursor:pointer}
+.pw-box button:hover{background:#3a6aee}
+
+/* Header */
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:8px}
+.header h1{font-size:24px;color:#fff}
+.header .sub{color:#8892b0;font-size:13px}
+.header .last-updated{color:#4a5568;font-size:12px}
+
+/* Section titles */
+.section-title{font-size:16px;color:#8892b0;margin:24px 0 12px;padding-bottom:6px;border-bottom:1px solid #2a3a5c}
+
+/* Grids */
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+
+/* Cards */
+.card{background:#1a1a2e;border:1px solid #2a3a5c;border-radius:12px;padding:16px;overflow:hidden}
+.card-sm{background:#1a1a2e;border:1px solid #2a3a5c;border-radius:10px;padding:12px 14px;text-align:center}
+.card-sm .card-label{font-size:11px;color:#4a5568;margin-bottom:2px;text-transform:uppercase;letter-spacing:.5px}
+.card-sm .card-value{font-size:22px;font-weight:700;color:#fff}
+.card-sm .card-chg{font-size:12px;margin-top:1px}
+
+/* Chart area */
+.chart-wrap{position:relative;height:300px;min-height:300px}
+
+/* Tab bar */
+.tab-bar{display:flex;gap:2px;margin-bottom:16px;background:#16213e;border-radius:8px;padding:3px;width:fit-content}
+.tab-bar button{background:transparent;border:none;color:#8892b0;padding:8px 20px;border-radius:6px;cursor:pointer;font-size:13px}
+.tab-bar button.active{background:#4a7cff;color:#fff}
+.tab{display:none}
+.tab.active{display:block}
+
+/* Portfolio table */
+.portfolio-table{width:100%;border-collapse:collapse;font-size:13px}
+.portfolio-table th{text-align:left;color:#4a5568;padding:8px 6px;border-bottom:1px solid #2a3a5c;font-weight:500}
+.portfolio-table td{padding:8px 6px;border-bottom:1px solid #1f2937}
+.portfolio-table .right{text-align:right;font-variant-numeric:tabular-nums}
+.pnl-summary{display:flex;gap:24px;padding:12px 0;flex-wrap:wrap}
+.pnl-summary .label{font-size:12px;color:#4a5568}
+.pnl-summary .value{font-size:20px;font-weight:700}
+
+/* Portfolio chart grid */
+.ptf-chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ptf-chart-card{border:1px solid #1e2d3d;border-radius:6px;padding:8px}
+.ptf-chart-header{display:flex;justify-content:space-between;font-size:11px;color:#8892b0;padding:0 4px 4px}
+.ptf-chart-canvas-wrap{height:140px;position:relative}
+
+/* News */
+.news-list{list-style:none}
+.news-list li{padding:10px 0;border-bottom:1px solid #1f2937;font-size:13px}
+.news-list li:last-child{border-bottom:none}
+.news-list .summary{color:#e0e0e0}
+.news-list .summary.gray{color:#667}
+.re-chart-wrap{position:relative;height:120px}
+
+@media(max-width:768px){
+.grid-3{grid-template-columns:1fr}
+.ptf-chart-grid{grid-template-columns:1fr}
+.header h1{font-size:20px}
+}
+</style>
+</head>
+<body>
+
+<!-- Password Overlay -->
+<div id="pwOverlay">
+  <div class="pw-box">
+    <h2>Lobster Pie</h2>
+    <p>Enter password to access dashboard</p>
+    <input type="password" id="pwInput" maxlength="20" autocomplete="off" placeholder="******">
+    <div class="err" id="pwErr"></div>
+    <button onclick="handleLogin()">Unlock</button>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div class="app">
+  <div class="header">
+    <div>
+      <h1>Financial Dashboard</h1>
+      <div class="sub">Portfolio - Markets - News</div>
+    </div>
+    <div class="last-updated" id="lastUpdated">Loading...</div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <button class="active" onclick="switchTab('markets')">Markets</button>
+    <button onclick="switchTab('portfolio')">Portfolio</button>
+    <button onclick="switchTab('news')">News</button>
+  </div>
+
+  <!-- Markets Tab -->
+  <div class="tab active" id="tabMarkets">
+    <div class="grid-3" id="indexCards">
+      <div class="card-sm" id="idx-hsi"></div>
+      <div class="card-sm" id="idx-sse"></div>
+      <div class="card-sm" id="idx-djia"></div>
+      <div class="card-sm" id="idx-sp500"></div>
+      <div class="card-sm" id="idx-nasdaq"></div>
+      <div class="card-sm" id="idx-crudeoil"></div>
+    </div>
+    <div class="section-title">6-Month Performance</div>
+    <div class="card">
+      <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+        <button class="chart-btn active" onclick="switchChart(0)">HSI</button>
+        <button class="chart-btn" onclick="switchChart(1)">S&P 500</button>
+        <button class="chart-btn" onclick="switchChart(2)">Nasdaq</button>
+        <button class="chart-btn" onclick="switchChart(3)">Shanghai</button>
+        <button class="chart-btn" onclick="switchChart(4)">Oil WTI</button>
+      </div>
+      <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Portfolio Tab -->
+  <div class="tab" id="tabPortfolio">
+    <div class="pnl-summary" id="pnlSummary"></div>
+    <div class="card" style="padding:0;overflow-x:auto">
+      <table class="portfolio-table" id="portfolioTable">
+        <thead>
+          <tr>
+            <th>Stock</th>
+            <th>Price</th>
+            <th>Change</th>
+            <th>Market Value</th>
+            <th>P&amp;L</th>
+            <th>P&amp;L %</th>
+          </tr>
+        </thead>
+        <tbody id="portfolioBody"></tbody>
+      </table>
+    </div>
+    <div class="section-title" style="margin-top:16px">1M Price vs Cost (individual charts)</div>
+    <div class="ptf-chart-grid" id="portfolioCharts"></div>
+  </div>
+
+  <!-- News Tab -->
+  <div class="tab" id="tabNews">
+    <div class="card">
+      <h3 style="font-size:14px;color:#8892b0;margin-bottom:4px">About the Dollar Dominance Trend</h3>
+      <ul class="news-list" id="dollarNews"></ul>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <h3 style="font-size:14px;color:#8892b0;margin-bottom:4px">HK Commercial Real Estate</h3>
+      <ul class="news-list" id="reNews"></ul>
+      <div style="margin-top:12px">
+        <div class="re-chart-wrap"><canvas id="reChart"></canvas></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <h3 style="font-size:14px;color:#8892b0;margin-bottom:4px">Stock Watch News</h3>
+      <ul class="news-list" id="stockNews"></ul>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========== CONFIG ==========
+const CORRECT_PW = '123456';
+
+const PORTFOLIO_STOCKS = [
+  {ticker:'0941.HK',name:'China Mobile',shares:10000,costPrice:67.34},
+  {ticker:'0005.HK',name:'HSBC',shares:10000,costPrice:123.35},
+  {ticker:'0939.HK',name:'CCB',shares:10000,costPrice:5.60},
+  {ticker:'0728.HK',name:'China Telecom',shares:10000,costPrice:3.79},
+  {ticker:'0762.HK',name:'China Unicom',shares:10000,costPrice:5.95},
+  {ticker:'0883.HK',name:'CNOOC',shares:10000,costPrice:11.31},
+  {ticker:'0857.HK',name:'CNPC',shares:10000,costPrice:3.39},
+  {ticker:'1398.HK',name:'ICBC',shares:10000,costPrice:4.97},
+  {ticker:'3988.HK',name:'BOC',shares:10000,costPrice:3.36}
+];
+
+const MARKET_TICKERS = ['^HSI','000001.SS','^DJI','^GSPC','^IXIC','CL=F'];
+const MARKET_NAMES = ['HSI','SSE','DJIA','S&P 500','NASDAQ','Crude Oil'];
+const MARKET_IDS = ['hsi','sse','djia','sp500','nasdaq','crudeoil'];
+
+// ========== STATE ==========
+let marketData = [];
+let pricesData = [];
+let reDataHistory = [];
+let newsData = {dollarNews:[],reNews:[],stockNews:[]};
+let mainChart = null;
+let reChart = null;
+let portfolio = [];
+let portfolioCharts = [];
+
+// ========== LOGIN ==========
+async function handleLogin() {
+  const v = document.getElementById('pwInput').value;
+  if (v === CORRECT_PW) {
+    document.getElementById('pwOverlay').classList.add('hidden');
+    document.body.classList.add('pw-authed');
+    await initDashboard();
+  } else {
+    document.getElementById('pwErr').textContent = 'Wrong password';
+    document.getElementById('pwInput').value = '';
+  }
+}
+
+document.getElementById('pwInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') handleLogin();
+});
+
+// ========== LOAD DATA ==========
+async function loadData() {
+  const ts = Date.now();
+  const [mResp, pResp, reResp, nResp] = await Promise.all([
+    fetch('data/market-data.json?' + ts),
+    fetch('data/prices.json?' + ts),
+    fetch('data/real-estate.json?' + ts),
+    fetch('data/news.json?' + ts)
+  ]);
+  marketData = (await mResp.json()).data || [];
+  pricesData = (await pResp.json()).data || [];
+  reDataHistory = await reResp.json() || [];
+  newsData = await nResp.json();
+}
+
+// ========== RENDER INDEX CARDS ==========
+function renderIndexCards() {
+  MARKET_TICKERS.forEach(function(ticker, i) {
+    const m = marketData.find(function(d) { return d.symbol === ticker; });
+    if (!m) return;
+    const el = document.getElementById('idx-' + MARKET_IDS[i]);
+    if (!el) return;
+    const price = parseFloat(m.price);
+    const chg = ((price - parseFloat(m.prevClose)) / parseFloat(m.prevClose)) * 100;
+    const up = chg >= 0;
+    const arrow = up ? '▲' : '▼';
+    const color = up ? '#4ade80' : '#ef4444';
+    const prefix = (ticker === 'CL=F') ? '$' : '';
+    const val = (ticker === 'CL=F')
+      ? '$' + price.toFixed(2)
+      : prefix + price.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0});
+    el.innerHTML = '<div class="card-label">' + MARKET_NAMES[i] + '</div>'
+      + '<div class="card-value">' + val + '</div>'
+      + '<div class="card-chg" style="color:' + color + '">' + arrow + ' ' + Math.abs(chg).toFixed(2) + '%</div>';
+  });
+}
+
+// ========== RENDER MAIN CHART ==========
+function renderMainChart(idx) {
+  const canvas = document.getElementById('mainChart');
+  if (!canvas) return;
+  if (mainChart) mainChart.destroy();
+
+  if (idx >= MARKET_TICKERS.length) return;
+  const ticker = MARKET_TICKERS[idx];
+  const m = marketData.find(function(d) { return d.symbol === ticker; });
+  if (!m || !m.timestamps || !m.timestamps.length) return;
+
+  const labels = m.timestamps.map(function(ts) {
+    return new Date(ts * 1000).toLocaleDateString('en-US', {month:'short',day:'numeric'});
+  });
+  const values = m.closes.map(function(v) { return parseFloat(v); });
+  const lastV = values[values.length - 1];
+  const isOil = ticker === 'CL=F';
+
+  mainChart = new Chart(canvas.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: values,
+        borderColor: '#4a7cff',
+        borderWidth: 1.5,
+        pointRadius: 0,
+        tension: 0.1,
+        fill: true,
+        backgroundColor: 'rgba(74,124,255,0.08)'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {display: false},
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          backgroundColor: '#1a1a2e',
+          titleColor: '#e0e0e0',
+          bodyColor: '#e0e0e0',
+          borderColor: '#4a7cff',
+          borderWidth: 1,
+          padding: 8,
+          callbacks: {
+            label: function(ctx) {
+              var val = parseFloat(ctx.parsed.y);
+              return (isOil ? '$' : '') + val.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {color:'#4a5568', font:{size:9}, maxTicksLimit:10},
+          grid: {display: false}
+        },
+        y: {
+          ticks: {
+            color:'#4a5568', font:{size:9},
+            callback: function(v) {
+              if (isOil) return '$' + v.toFixed(2);
+              if (v >= 10000) return (v/1000).toFixed(1) + 'k';
+              if (v >= 1000) return (v/1000).toFixed(2) + 'k';
+              return v.toFixed(0);
+            }
+          },
+          grid: {color:'#1f2937'}
+        }
+      }
+    },
+    plugins: [{
+      afterDraw: function(chart) {
+        var ctx = chart.ctx;
+        var meta = chart.getDatasetMeta(0);
+        if (!meta || !meta.data || !meta.data.length) return;
+        var pt = meta.data[meta.data.length - 1];
+        if (!pt) return;
+        ctx.save();
+        ctx.resetTransform();
+        ctx.font = 'bold 14px sans-serif';
+        var labelStr = isOil ? '$' + lastV.toFixed(2) : '$' + Number(lastV).toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0});
+        var tw = ctx.measureText(labelStr).width;
+        var boxH = 24;
+        var boxX, textX;
+        var chartW = chart.chartArea ? chart.chartArea.right : canvas.width;
+        if (pt.x + tw + 20 > chartW) {
+          ctx.textAlign = 'right';
+          boxX = pt.x - tw - 14;
+          textX = pt.x - 8;
+        } else {
+          ctx.textAlign = 'left';
+          boxX = pt.x + 6;
+          textX = pt.x + 14;
+        }
+        ctx.fillStyle = '#0f0f1a';
+        ctx.fillRect(boxX, pt.y - 12, tw + 16, boxH);
+        ctx.strokeStyle = '#4a7cff';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(boxX, pt.y - 12, tw + 16, boxH);
+        ctx.fillStyle = '#e0e0e0';
+        ctx.fillText(labelStr, textX, pt.y + 5);
+        ctx.restore();
+      }
+    }]
+  });
+
+  // Update button styles
+  document.querySelectorAll('.chart-btn').forEach(function(b) {
+    b.style.background = '#2a3a5c';
+    b.style.color = '#8892b0';
+  });
+  var btns = document.querySelectorAll('.chart-btn');
+  if (btns[idx]) {
+    btns[idx].style.background = '#4a7cff';
+    btns[idx].style.color = '#fff';
+  }
+}
+
+function switchChart(idx) {
+  renderMainChart(idx);
+}
+
+// ========== RENDER PORTFOLIO ==========
+function computePortfolio() {
+  portfolio = PORTFOLIO_STOCKS.map(function(s) {
+    var p = pricesData.find(function(d) { return d.symbol === s.ticker; });
+    var price = p ? parseFloat(p.price) : s.costPrice;
+    var prevClose = p ? parseFloat(p.prevClose) : price;
+    var changePct = ((price - prevClose) / prevClose) * 100;
+    var mktVal = price * s.shares;
+    var costVal = s.costPrice * s.shares;
+    var pnl = mktVal - costVal;
+    var pnlPct = ((price - s.costPrice) / s.costPrice) * 100;
+    var up = pnl >= 0;
+    // Build chart data
+    var chartData = null;
+    if (p && p.timestamps) {
+      chartData = {
+        labels: p.timestamps.map(function(ts) {
+          return new Date(ts * 1000).toLocaleDateString('en-US', {month:'short',day:'numeric'});
+        }),
+        values: p.closes.map(function(v) { return parseFloat(v); })
+      };
+    }
+    return {
+      ticker: s.ticker,
+      name: s.name,
+      shares: s.shares,
+      costPrice: s.costPrice,
+      price: price,
+      changePct: changePct,
+      mktVal: mktVal,
+      costVal: costVal,
+      pnl: pnl,
+      pnlPct: pnlPct,
+      up: up,
+      color: up ? '#4ade80' : '#ef4444',
+      arrow: up ? '▲' : '▼',
+      chartData: chartData
+    };
+  });
+}
+
+function renderPortfolioTable() {
+  var tbody = document.getElementById('portfolioBody');
+  if (!tbody) return;
+  var html = '';
+  portfolio.forEach(function(s) {
+    html += '<tr>'
+      + '<td>' + s.name + '</td>'
+      + '<td class="right">$' + s.price.toFixed(2) + '</td>'
+      + '<td class="right" style="color:' + s.color + '">' + s.arrow + ' ' + Math.abs(s.changePct).toFixed(2) + '%</td>'
+      + '<td class="right">$' + s.mktVal.toLocaleString('en-US', {minimumFractionDigits:0}) + '</td>'
+      + '<td class="right" style="color:' + s.color + '">' + (s.pnl >= 0 ? '+' : '-') + '$' + Math.abs(s.pnl).toLocaleString('en-US', {minimumFractionDigits:0}) + '</td>'
+      + '<td class="right" style="color:' + s.color + '">' + (s.pnlPct >= 0 ? '+' : '') + s.pnlPct.toFixed(1) + '%</td>'
+      + '</tr>';
+  });
+  tbody.innerHTML = html;
+
+  // P&L summary
+  var totalVal = portfolio.reduce(function(sum, s) { return sum + s.mktVal; }, 0);
+  var totalCost = portfolio.reduce(function(sum, s) { return sum + s.costVal; }, 0);
+  var totalPnl = totalVal - totalCost;
+  var totalPnlPct = (totalPnl / totalCost) * 100;
+  var el = document.getElementById('pnlSummary');
+  if (el) {
+    var c = totalPnl >= 0 ? '#4ade80' : '#ef4444';
+    el.innerHTML = '<span><span class="label">Total Value</span><br><span class="value">$' + totalVal.toLocaleString('en-US', {minimumFractionDigits:0}) + '</span></span>'
+      + '<span><span class="label">P&amp;L</span><br><span class="value" style="color:' + c + '">' + (totalPnl >= 0 ? '+$' : '-$') + Math.abs(totalPnl).toLocaleString('en-US', {minimumFractionDigits:0}) + ' (' + (totalPnlPct >= 0 ? '+' : '') + totalPnlPct.toFixed(1) + '%)</span></span>';
+  }
+}
+
+// ========== PORTFOLIO MINI CHARTS ==========
+function renderPortfolioCharts() {
+  var container = document.getElementById('portfolioCharts');
+  if (!container) return;
+
+  // Destroy old instances
+  portfolioCharts.forEach(function(c) { try { c.destroy(); } catch(e) {} });
+  portfolioCharts = [];
+  container.innerHTML = '';
+
+  portfolio.forEach(function(s) {
+    if (!s.chartData || !s.chartData.labels.length) return;
+
+    var card = document.createElement('div');
+    card.className = 'ptf-chart-card';
+
+    var hdr = document.createElement('div');
+    hdr.className = 'ptf-chart-header';
+    hdr.innerHTML = '<span>' + s.name + ' (' + s.ticker.replace('.HK','') + ')</span><span style="color:' + s.color + '">' + s.pnlPct.toFixed(1) + '%</span>';
+    card.appendChild(hdr);
+
+    var wrap = document.createElement('div');
+    wrap.className = 'ptf-chart-canvas-wrap';
+    var canvas = document.createElement('canvas');
+    wrap.appendChild(canvas);
+    card.appendChild(wrap);
+    container.appendChild(card);
+
+    var costVals = Array(s.chartData.labels.length).fill(s.costPrice);
+
+    var ins = new Chart(canvas.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: s.chartData.labels,
+        datasets: [
+          {
+            label: 'Price',
+            data: s.chartData.values,
+            borderColor: s.up ? '#4ade80' : '#ef4444',
+            borderWidth: 1.5,
+            pointRadius: 0,
+            tension: 0.1,
+            fill: false
+          },
+          {
+            label: 'Cost',
+            data: costVals,
+            borderColor: '#f59e0b',
+            borderWidth: 1,
+            borderDash: [4, 4],
+            pointRadius: 0,
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {display: false},
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+            backgroundColor: '#1a1a2e',
+            titleColor: '#e0e0e0',
+            bodyColor: '#e0e0e0',
+            borderColor: '#4a7cff',
+            borderWidth: 1,
+            padding: 6
+          }
+        },
+        scales: {
+          x: {
+            ticks: {color:'#8892b0', font:{size:9}, maxTicksLimit:6},
+            grid: {color:'#1e2d3d'}
+          },
+          y: {
+            ticks: {
+              color:'#8892b0', font:{size:9},
+              callback: function(v) { return '$' + v.toFixed(0); }
+            },
+            grid: {color:'#1e2d3d'},
+            beginAtZero: false
+          }
+        }
+      }
+    });
+    portfolioCharts.push(ins);
+  });
+}
+
+// ========== NEWS ==========
+function renderNews() {
+  // Dollar reserve
+  var dn = (newsData.dollarNews || []).filter(function(a) {
+    return a.title && !a.title.includes('awaiting') && !a.title.includes('system');
+  });
+  var dollarEl = document.getElementById('dollarNews');
+  if (dollarEl) {
+    if (dn.length) {
+      dollarEl.innerHTML = '<li><span class="summary">' + dn.map(function(a) { return a.title; }).join('; ') + '</span></li>';
+    } else {
+      dollarEl.innerHTML = '<li><span class="summary gray">No relevant news today</span></li>';
+    }
+  }
+
+  // HK real estate
+  var reEl = document.getElementById('reNews');
+  if (reEl) {
+    if (reDataHistory && reDataHistory.kwunTong && reDataHistory.kwunTong.length) {
+      var kt = reDataHistory.kwunTong;
+      var mk = reDataHistory.mongKok || [];
+      var lastKT = kt[kt.length-1].value;
+      var firstKT = kt[0].value;
+      var ktChg = ((lastKT - firstKT) / firstKT * 100).toFixed(1);
+      var lastMK = mk.length ? mk[mk.length-1].value : 0;
+      var firstMK = mk.length ? mk[0].value : 0;
+      var mkChg = mk.length ? ((lastMK - firstMK) / firstMK * 100).toFixed(1) : 0;
+      var sumText = 'Kwun Tong avg $' + lastKT.toLocaleString() + ' psf (' + ktChg + '% since 2022). Mong Kok avg $' + lastMK.toLocaleString() + ' psf (' + mkChg + '% since 2022).';
+      var reArticles = (newsData.reNews || []).slice(0, 3);
+      if (reArticles.length) {
+        sumText += ' | ' + reArticles.map(function(a) { return a.summary || a.title; }).join(' | ');
+      }
+      reEl.innerHTML = '<li><span class="summary">' + sumText + '</span></li>';
+    } else {
+      reEl.innerHTML = '<li><span class="summary gray">No relevant news today</span></li>';
+    }
+  }
+
+  // Stock watch - bullet point format
+  var sn = (newsData.stockNews || []).filter(function(a) {
+    return a.title && !a.title.includes('Yahoo! Finance') && !a.title.includes('SymbolLookup');
+  });
+  var stockEl = document.getElementById('stockNews');
+  if (stockEl) {
+    if (sn.length) {
+      var items = [];
+      sn.forEach(function(a, i) {
+        if (i < 10) items.push(a.title || a.summary);
+      });
+      stockEl.innerHTML = items.map(function(t) { return '<li><span class="summary">' + t + '</span></li>'; }).join('');
+    } else {
+      stockEl.innerHTML = '<li><span class="summary gray">No relevant news today</span></li>';
+    }
+  }
+}
+
+// ========== RE CHART ==========
+function renderREChart() {
+  var canvas = document.getElementById('reChart');
+  if (!canvas) return;
+  if (reChart) reChart.destroy();
+  var ktData = reDataHistory.kwunTong || [];
+  var mkData = reDataHistory.mongKok || [];
+  if (!ktData.length && !mkData.length) return;
+
+  var labels = ktData.length >= mkData.length
+    ? ktData.map(function(d) { return d.label || d.date; })
+    : mkData.map(function(d) { return d.label || d.date; });
+  var ktVals = ktData.map(function(d) { return d.value; });
+  var mkVals = mkData.map(function(d) { return d.value; });
+
+  reChart = new Chart(canvas.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {label:'Kwun Tong', data:ktVals, borderColor:'#4a7cff', backgroundColor:'rgba(74,124,255,0.1)', borderWidth:2, pointRadius:3, tension:0.3, fill:false},
+        {label:'Mong Kok', data:mkVals, borderColor:'#f59e0b', backgroundColor:'rgba(245,158,11,0.1)', borderWidth:2, pointRadius:3, tension:0.3, fill:false}
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {labels:{color:'#8892b0', font:{size:11}}},
+        tooltip: {
+          mode:'index',
+          intersect:false,
+          backgroundColor:'#1a1a2e',
+          titleColor:'#e0e0e0',
+          bodyColor:'#e0e0e0',
+          borderColor:'#4a7cff',
+          borderWidth:1,
+          padding:6
+        }
+      },
+      scales: {
+        x: {
+          ticks: {color:'#888', font:{size:9}},
+          grid: {display:false}
+        },
+        y: {
+          ticks: {
+            color:'#4a5568', font:{size:9},
+            callback: function(v) { return '$' + v.toLocaleString(); }
+          },
+          grid: {color:'#1f2937'}
+        }
+      }
+    }
+  });
+}
+
+// ========== TIMESTAMP ==========
+function updateTimestamp() {
+  document.getElementById('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleString('en-US');
+}
+
+// ========== TAB SWITCH ==========
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.tab-bar button').forEach(function(b) { b.classList.remove('active'); });
+  var content = document.getElementById('tab' + name.charAt(0).toUpperCase() + name.slice(1));
+  if (content) {
+    content.classList.add('active');
+  }
+  document.querySelectorAll('.tab-bar button').forEach(function(b) {
+    if (b.textContent.trim().toLowerCase() === name) {
+      b.classList.add('active');
+    }
+  });
+  if (name === 'portfolio') {
+    // Render mini charts only when portfolio tab becomes visible
+    // Use requestAnimationFrame + setTimeout to ensure layout is ready
+    requestAnimationFrame(function() {
+      setTimeout(renderPortfolioCharts, 50);
+    });
+  }
+}
+
+// ========== INIT ==========
+async function initDashboard() {
+  await loadData();
+  updateTimestamp();
+  renderIndexCards();
+
+  computePortfolio();
+
+  // Main chart on Markets tab (default visible)
+  renderMainChart(0);
+
+  // Render portfolio table (no charts yet - tab is hidden)
+  renderPortfolioTable();
+
+  // News + RE chart
+  renderNews();
+  renderREChart();
+}
+</script>
+
+</body>
+</html>
+
+`

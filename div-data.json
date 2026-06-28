@@ -1,0 +1,83 @@
+[
+  {
+    "symbol": "0941.HK",
+    "dividendYield": 6.51,
+    "dividendRate": 5.04,
+    "trailingAnnualDividendYield": 0.06099163,
+    "trailingAnnualDividendRate": 4.736,
+    "price": 77.4,
+    "payoutRatio": 0.7611
+  },
+  {
+    "symbol": "0005.HK",
+    "dividendYield": 3.97,
+    "dividendRate": 5.86,
+    "trailingAnnualDividendYield": 0.0050573163,
+    "trailingAnnualDividendRate": 0.75,
+    "price": 147.7,
+    "payoutRatio": 0.6191
+  },
+  {
+    "symbol": "0939.HK",
+    "dividendYield": 5.26,
+    "dividendRate": 0.43,
+    "trailingAnnualDividendYield": 0.046867467,
+    "trailingAnnualDividendRate": 0.389,
+    "price": 8.26,
+    "payoutRatio": 0.30290002
+  },
+  {
+    "symbol": "0728.HK",
+    "dividendYield": 6.97,
+    "dividendRate": 0.3,
+    "trailingAnnualDividendYield": 0.06325582,
+    "trailingAnnualDividendRate": 0.272,
+    "price": 4.35,
+    "payoutRatio": 0.7615
+  },
+  {
+    "symbol": "0762.HK",
+    "dividendYield": 7.33,
+    "dividendRate": 0.46,
+    "trailingAnnualDividendYield": 0.0,
+    "trailingAnnualDividendRate": 0.0,
+    "price": 6.34,
+    "payoutRatio": 0.649
+  },
+  {
+    "symbol": "0883.HK",
+    "dividendYield": 6.14,
+    "dividendRate": 1.28,
+    "trailingAnnualDividendYield": 0.054194156,
+    "trailingAnnualDividendRate": 1.15,
+    "price": 20.86,
+    "payoutRatio": 0.4945
+  },
+  {
+    "symbol": "0857.HK",
+    "dividendYield": 6.54,
+    "dividendRate": 0.57,
+    "trailingAnnualDividendYield": 0.053837344,
+    "trailingAnnualDividendRate": 0.47,
+    "price": 8.78,
+    "payoutRatio": 0.543
+  },
+  {
+    "symbol": "1398.HK",
+    "dividendYield": 5.29,
+    "dividendRate": 0.35,
+    "trailingAnnualDividendYield": 0.046757165,
+    "trailingAnnualDividendRate": 0.31,
+    "price": 6.62,
+    "payoutRatio": 0.3034
+  },
+  {
+    "symbol": "3988.HK",
+    "dividendYield": 5.0,
+    "dividendRate": 0.25,
+    "trailingAnnualDividendYield": 0.045290582,
+    "trailingAnnualDividendRate": 0.226,
+    "price": 5.06,
+    "payoutRatio": 0.31370002
+  }
+]

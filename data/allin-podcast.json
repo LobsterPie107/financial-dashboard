@@ -1,0 +1,26 @@
+{
+  "episode": 278,
+  "title": "Socialists Sweep NYC, China Catches Up in Coding, AI Memory Crunch, Micron's Blowout Quarter",
+  "date": "2026-06-27",
+  "duration": "1:41:42",
+  "guests": ["Gavin Baker (Atreides Management)", "Travis Kalanick (Adams)"],
+  "videoUrl": "https://www.youtube.com/watch?v=w8ah_tA0yfg",
+  "chapters": [
+    {"time": "0:00", "title": "Gavin Baker and Travis Kalanick join the show"},
+    {"time": "1:05", "title": "Mamdani-endorsed socialists sweep congressional primaries in NYC"},
+    {"time": "22:51", "title": "Future of the Democratic Party, the Israel issue, social media bans"},
+    {"time": "45:12", "title": "China's open-source AI catch up, distillation, OpenAI's new chip"},
+    {"time": "1:01:46", "title": "Micron smashes earnings, AI's memory crunch hitting Apple and consumer hardware"},
+    {"time": "1:10:17", "title": "The math behind distributed compute and datacenters in space"},
+    {"time": "1:27:22", "title": "IPO update: Anthropic at $3T, SpaceX float, Cerebras drops after breaking deal price"}
+  ],
+  "summary": "Chamath, Jason, Sacks, and Friedberg are joined by Gavin Baker (Atreides Management) and Travis Kalanick (Adams) for a wide-ranging discussion. The episode covers the stunning DSA sweep of NYC congressional primaries, China's rapid catch-up in open-source AI, Micron's blowout earnings, the AI memory crunch hitting consumer hardware, and the economics of distributed compute and datacenters in space. The episode also touches on IPO updates for Anthropic, SpaceX, and Cerebras.",
+  "keyTopics": [
+    "NYC DSA socialist sweep — Mamdani-endorsed candidates win 3 primaries; DSA taking over Democratic party",
+    "China's open-source AI catching up to US models through distillation; OpenAI developing own chip",
+    "Micron's blowout quarter — AI memory demand driving HBM growth, crunch hitting Apple and consumer devices",
+    "Distributed compute economics — datacenters in space, orbital edge computing",
+    "IPO watch: Anthropic at $3T valuation, SpaceX public float, Cerebras drops after breaking deal price",
+    "AI as the great economic leveler — Chamath argues AI democratizes expertise like Google democratized information"
+  ]
+}
