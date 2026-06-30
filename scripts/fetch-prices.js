@@ -27,14 +27,17 @@ tickers.forEach(t => {
         const result = json.chart.result;
         if (result && result[0]) {
           const meta = result[0].meta;
+          const closes = (result[0].indicators.quote[0].close || []).map(v => v !== null ? v : null);
+          // Use second-to-last close as prevClose (last candle is today's trading session)
+          const prevClose = closes.length >= 2 ? closes[closes.length - 2] : (meta.chartPreviousClose || null);
           results.push({
             symbol: t.symbol,
             name: t.name,
             price: meta.regularMarketPrice || null,
-            prevClose: meta.chartPreviousClose || null,
+            prevClose: prevClose,
             currency: meta.currency || 'HKD',
             timestamps: result[0].timestamp || [],
-            closes: (result[0].indicators.quote[0].close || []).map(v => v !== null ? v : null),
+            closes: closes,
             volume: ((result[0].indicators.quote[0].volume || []).filter(v => v !== null).pop()) || null
           });
         } else {
