@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financial Dashboard</title>
+<meta name="theme-color" content="#0f0f1a">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0f1a;color:#e0e0e0;font-family:-apple-system,'Segoe UI',system-ui,sans-serif}
+.app{display:none;max-width:1200px;margin:0 auto;padding:24px}
+body.pw-authed .app{display:block}
+
+/* Pw overlay */
+#pwOverlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center}
+#pwOverlay.hidden{display:none}
+.pw-box{background:#1a1a2e;padding:40px;border-radius:16px;border:1px solid #2a3a5c;text-align:center}
+.pw-box h2{color:#e0e0e0;margin-bottom:8px}
+.pw-box p{color:#8892b0;margin-bottom:20px;font-size:14px}
+.pw-box input{background:#16213e;border:1px solid #2a3a5c;border-radius:8px;padding:12px 16px;color:#e0e0e0;font-size:18px;width:200px;text-align:center;letter-spacing:4px}
+.pw-box input:focus{outline:none;border-color:#4a7cff}
+.pw-box .err{color:#ff6b6b;font-size:13px;margin-top:8px;min-height:20px}
+.pw-box button{margin-top:16px;background:#4a7cff;border:none;border-radius:8px;padding:10px 32px;color:#fff;font-size:14px;cursor:pointer}
+.pw-box button:hover{background:#3a6aee}
+
+/* Header */
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:8px}
+.header h1{font-size:24px;color:#fff}
+.header .sub{color:#8892b0;font-size:13px}
+.header .last-updated{color:#4a5568;font-size:12px}
+
+/* Section titles */
+.section-title{font-size:16px;color:#8892b0;margin:24px 0 12px;padding-bottom:6px;border-bottom:1px solid #2a3a5c}
+
+/* Grids */
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+
+/* Cards */
+.card{background:#1a1a2e;border:1px solid #2a3a5c;border-radius:12px;padding:16px;overflow:hidden}
+.card-sm{background:#1a1a2e;border:1px solid #2a3a5c;border-radius:10px;padding:12px 14px;text-align:center}
+.card-sm .card-label{font-size:11px;color:#4a5568;margin-bottom:2px;text-transform:uppercase;letter-spacing:.5px}
+.card-sm .card-value{font-size:22px;font-weight:700;color:#fff}
+.card-sm .card-chg{font-size:12px;margin-top:1px}
+
+/* Chart area */
+.chart-wrap{position:relative;height:300px;min-height:300px;background:#111827;border-radius:6px}
+
+/* Tab bar */
+.tab-bar{display:flex;gap:2px;margin-bottom:16px;background:#16213e;border-radius:8px;padding:3px;width:fit-content}
+.tab-bar button{background:transparent;border:none;color:#8892b0;padding:8px 20px;border-radius:6px;cursor:pointer;font-size:13px}
+.tab-bar button.active{background:#4a7cff;color:#fff}
+.tab{display:none}
+.tab.active{display:block}
+
+/* Portfolio table */
+.portfolio-wrapper{overflow-x:auto;position:relative}
+.portfolio-table{width:100%;border-collapse:collapse;font-size:13px}
+.portfolio-table th{text-align:left;color:#4a5568;padding:8px 6px;border-bottom:1px solid #2a3a5c;font-weight:500}
+.portfolio-table td{padding:8px 6px;border-bottom:1px solid #1f2937}
+.portfolio-table .right{text-align:right;font-variant-numeric:tabular-nums}
+.portfolio-table th:first-child,.portfolio-table td:first-child{position:sticky;left:0;z-index:2;background:#111827}
+.portfolio-table th:first-child{z-index:3}
+.pnl-summary{display:flex;gap:24px;padding:12px 0;flex-wrap:wrap}
+.pnl-summary .label{font-size:12px;color:#4a5568}
+.pnl-summary .value{font-size:20px;font-weight:700}
+
+/* Portfolio chart grid */
+.ptf-chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ptf-chart-card{border:1px solid #1e2d3d;border-radius:6px;padding:8px}
+.ptf-chart-header{display:flex;justify-content:space-between;font-size:11px;color:#8892b0;padding:0 4px 4px}
+.ptf-chart-canvas-wrap{height:140px;position:relative}
+
+/* News */
+.news-list{list-style:none}
+.news-list li{padding:10px 0;border-bottom:1px solid #1f2937;font-size:13px}
+.news-list li:last-child{border-bottom:none}
+.news-list .summary{color:#e0e0e0}
+.news-list .summary.gray{color:#667}
+.re-chart-wrap{position:relative;height:160px;background:#111827;border-radius:6px}
+.macro-src{font-size:11px;color:#667;margin-top:8px;text-align:center}
+.econ-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px}
+@media(max-width:800px){.econ-grid{grid-template-columns:1fr}}
+.econ-card{padding:12px!important}
+.ec-chart-wrap{width:100%;height:160px;background:#111827;border-radius:6px}
+
+@media(max-width:768px){
+.grid-3{grid-template-columns:1fr}
+.ptf-chart-grid{grid-template-columns:1fr}
+.header h1{font-size:20px}
+}
+
+/* Podcast tab */
+.podcast-episode{background:#1a1a2e;border:1px solid #2a3a5c;border-radius:12px;padding:20px;margin-bottom:16px}
+.podcast-episode .ep-title{font-size:18px;color:#fff;font-weight:600;margin-bottom:4px}
+.podcast-episode .ep-meta{color:#8892b0;font-size:12px;margin-bottom:12px}
+.podcast-episode .ep-meta span{margin-right:16px}
+.podcast-episode .ep-guests{color:#4a7cff;font-size:13px;margin-bottom:12px}
+.podcast-episode .ep-summary{color:#e0e0e0;font-size:13px;line-height:1.6;margin-bottom:16px}
+.podcast-episode .ep-chapters{margin:12px 0}
+.podcast-episode .ep-chapter{display:flex;gap:8px;padding:4px 0;font-size:13px;border-bottom:1px solid #1f2937}
+.podcast-episode .ep-chapter:last-child{border-bottom:none}
+.podcast-episode .ep-ctime{color:#4a7cff;font-family:monospace;white-space:nowrap;min-width:50px}
+.podcast-episode .ep-ctitle{color:#ccc}
+.podcast-episode .ep-topics{margin-top:12px}
+.podcast-episode .ep-topic{display:inline-block;background:#16213e;border:1px solid #2a3a5c;border-radius:6px;padding:4px 10px;margin:3px;font-size:12px;color:#ccc}
+.podcast-episode .ep-link{display:inline-block;margin-top:12px;color:#4a7cff;font-size:13px;text-decoration:none}
+.podcast-episode .ep-link:hover{text-decoration:underline}
+.podcast-loading{color:#8892b0;font-size:14px;text-align:center;padding:40px}
+.podcast-error{color:#ff6b6b;font-size:14px;text-align:center;padding:40px}
+</style>
+</head>
+<body>
+
+<!-- Password Overlay -->
+<div id="pwOverlay">
+  <div class="pw-box">
+    <h2>Lobster Pie</h2>
+    <p>Enter password to access dashboard</p>
+    <input type="password" id="pwInput" maxlength="20" autocomplete="off" placeholder="******">
+    <div class="err" id="pwErr"></div>
+    <button onclick="handleLogin()">Unlock</button>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div class="app">
+  <div class="header">
+    <div>
+      <h1>Financial Dashboard</h1>
+      <div class="sub">Markets - Stocks - HK Real Estate - Macro</div>
+    </div>
+    <div class="last-updated" id="lastUpdated">Loading...</div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <button class="active" onclick="switchTab('markets')">Markets</button>
+    <button onclick="switchTab('stocks')">Stocks</button>
+    <button onclick="switchTab('re')">HK Real Estate</button>
+    <button onclick="switchTab('macro')">Macro</button>
+    <button onclick="switchTab('treasury')">US Treasury</button>
+    <button onclick="switchTab('podcast')">All-in Podcast</button>
+  </div>
+
+  <!-- Markets Tab -->
+  <div class="tab active" id="tabMarkets">
+    <div class="grid-3" id="indexCards">
+      <div class="card-sm" id="idx-hsi"></div>
+      <div class="card-sm" id="idx-sse"></div>
+      <div class="card-sm" id="idx-djia"></div>
+      <div class="card-sm" id="idx-sp500"></div>
+      <div class="card-sm" id="idx-nasdaq"></div>
+      <div class="card-sm" id="idx-crudeoil"></div>
+    </div>
+    <div class="section-title">6-Month Performance</div>
+    <div class="card">
+      <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+        <button class="chart-btn active" onclick="switchChart(0)">HSI</button>
+        <button class="chart-btn" onclick="switchChart(1)">S&P 500</button>
+        <button class="chart-btn" onclick="switchChart(2)">Nasdaq</button>
+        <button class="chart-btn" onclick="switchChart(3)">Shanghai</button>
+        <button class="chart-btn" onclick="switchChart(4)">Oil WTI</button>
+      </div>
+      <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Stocks Tab -->
+  <div class="tab" id="tabStocks">
+    <div class="pnl-summary" id="pnlSummary"></div>
+    <div class="card" style="padding:0">
+      <div class="portfolio-wrapper">
+      <table class="portfolio-table" id="portfolioTable">
+        <thead>
+          <tr>
+            <th>Stock</th>
+            <th>Price</th>
+            <th>1 Day</th>
+            <th>1 Wk</th>
+            <th>1 Mo</th>
+            <th>YTD</th>
+            <th>Currency</th>
+            <th>Volume</th>
+            <th>Mkt Val</th>
+            <th>Div Yield</th>
+            <th>P&amp;L</th>
+            <th>P&amp;L %</th>
+          </tr>
+        </thead>
+        <tbody id="portfolioBody"></tbody>
+        <tfoot id="portfolioFoot"></tfoot>
+      </table>
+    </div>
+    </div>
+    <div class="section-title" style="margin-top:16px">1M Price vs Cost (individual charts)</div>
+    <div class="ptf-chart-grid" id="portfolioCharts"></div>
+    <div class="card" style="margin-top:12px">
+      <h3 style="font-size:14px;color:#8892b0;margin-bottom:4px">Stock Watch News</h3>
+      <ul class="news-list" id="stockNews"></ul>
+    </div>
+  </div>
+
+  <!-- HK Real Estate Tab -->
+  <div class="tab" id="tabRE">
+    <div class="card">
+      <h3 style="font-size:14px;color:#8892b0;margin-bottom:4px">HK Commercial Real Estate</h3>
+      <ul class="news-list" id="reNews"></ul>
+      <div style="margin-top:12px">
+        <div class="re-chart-wrap"><canvas id="reChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Macro Tab -->
+  <div class="tab" id="tabMacro">
+    <div class="section-title" id="macroCurrTitle">Global Trade Settlement Currency Share (SWIFT)</div>
+    <div class="card">
+      <div class="chart-wrap" style="height:280px"><canvas id="settlementChart"></canvas></div>
+      <div style="font-size:11px;color:#667;margin-top:8px;text-align:center">Source: SWIFT Global Currency Tracker (May 2026)</div>
+    </div>
+    <div class="section-title" style="margin-top:16px">SWIFT Currency Share Trend (Since 2010)</div>
+    <div class="card">
+      <div class="chart-wrap" style="height:300px"><canvas id="swiftTrendChart"></canvas></div>
+      <div style="font-size:11px;color:#667;margin-top:8px;text-align:center">Source: SWIFT Monthly Reports (year-end data)</div>
+    </div>
+    <div class="section-title" style="margin-top:16px">Central Bank Reserve Currency Share (5-Year Trend)</div>
+    <div class="card">
+      <div class="chart-wrap" style="height:300px"><canvas id="reserveChart"></canvas></div>
+      <div style="font-size:11px;color:#667;margin-top:8px;text-align:center">Source: IMF COFER Database (Q1 2026)</div>
+    </div>
+    <div class="section-title" style="margin-top:16px">US Treasury Net Purchases by Investor Type ($B per year)</div>
+    <div class="card">
+      <div class="chart-wrap" style="height:320px"><canvas id="ticChart"></canvas></div>
+      <div style="font-size:11px;color:#667;margin-top:8px;text-align:center">Source: FRED / Treasury TIC Data (12-mo rolling sum, USD bn)</div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h3 style="font-size:14px;color:#8892b0;margin-bottom:4px">About the Dollar Dominance Trend</h3>
+      <ul class="news-list" id="dollarNews"></ul>
+    </div>
+  </div>
+
+  <!-- US Treasury Tab -->
+  <div class="tab" id="tabTreasury">
+    <div class="section-title" id="yieldCurveTitle">Yield Curve</div>
+    <div class="card">
+      <div class="chart-wrap" style="height:300px"><canvas id="yieldCurveChart"></canvas></div>
+    </div>
+    <div class="section-title" style="margin-top:16px">Yield History</div>
+    <div class="card">
+      <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+        <button class="chart-btn active" onclick="switchYieldHistory(0)">2 Yr</button>
+        <button class="chart-btn" onclick="switchYieldHistory(1)">10 Yr</button>
+        <button class="chart-btn" onclick="switchYieldHistory(2)">30 Yr</button>
+        <button class="chart-btn" onclick="switchYieldHistory(3)">2s10s</button>
+      </div>
+      <div class="chart-wrap" style="height:250px"><canvas id="yieldHistoryChart"></canvas></div>
+    </div>
+    <div class="section-title" style="margin-top:16px">Treasury Bonds</div>
+    <div class="card" style="padding:0;overflow-x:auto">
+      <table class="portfolio-table" id="treasuryTable">
+        <thead>
+          <tr>
+            <th>Security</th>
+            <th>Cpn</th>
+            <th>Maturity</th>
+            <th>Price</th>
+            <th>Yield</th>
+          </tr>
+        </thead>
+        <tbody id="treasuryBody"></tbody>
+      </table>
+    </div>
+    <div class="section-title" style="margin-top:16px">Inflation & Employment (12 Mo)</div>
+    <div class="econ-grid">
+      <div class="card econ-card">
+        <h4 style="margin:0 0 4px;font-size:12px;color:#8892b0">CPI YoY%</h4>
+        <div class="ec-chart-wrap"><canvas id="cpiChart"></canvas></div>
+      </div>
+      <div class="card econ-card">
+        <h4 style="margin:0 0 4px;font-size:12px;color:#8892b0">Core PCE YoY%</h4>
+        <div class="ec-chart-wrap"><canvas id="pceChart"></canvas></div>
+      </div>
+      <div class="card econ-card">
+        <h4 style="margin:0 0 4px;font-size:12px;color:#8892b0">NFP Change (000s)</h4>
+        <div class="ec-chart-wrap"><canvas id="nfpChart"></canvas></div>
+      </div>
+    </div>
+    <div class="section-title" style="margin-top:16px">Rates News</div>
+    <div class="card">
+      <ul class="news-list" id="ratesNews"></ul>
+    </div>
+  </div>
+
+  <!-- All-in Podcast Tab -->
+  <div class="tab" id="tabPodcast">
+    <div id="podcastContent">
+      <div class="podcast-loading">Loading latest episode...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========== CONFIG ==========
+const CORRECT_PW = '123456';
+
+const PORTFOLIO_STOCKS = [
+  {ticker:'0941.HK',name:'China Mobile',shares:1020000,costPrice:67.34,divYield:6.51},
+  {ticker:'0005.HK',name:'HSBC',shares:400000,costPrice:123.35,divYield:3.97},
+  {ticker:'0939.HK',name:'CCB',shares:8250000,costPrice:5.60,divYield:5.26},
+  {ticker:'0728.HK',name:'China Telecom',shares:9180000,costPrice:3.79,divYield:6.97},
+  {ticker:'0762.HK',name:'China Unicom',shares:4150000,costPrice:5.95,divYield:7.33},
+  {ticker:'0883.HK',name:'CNOOC',shares:1780000,costPrice:11.31,divYield:6.14},
+  {ticker:'0857.HK',name:'CNPC',shares:2500000,costPrice:3.39,divYield:6.54},
+  {ticker:'1398.HK',name:'ICBC',shares:7000000,costPrice:4.97,divYield:5.29},
+  {ticker:'3988.HK',name:'BOC',shares:14200000,costPrice:3.36,divYield:5.00}
+];
+
+const MARKET_TICKERS = ['^HSI','000001.SS','^DJI','^GSPC','^IXIC','CL=F'];
+const MARKET_NAMES = ['HSI','SSE','DJIA','S&P 500','NASDAQ','Crude Oil'];
+const MARKET_IDS = ['hsi','sse','djia','sp500','nasdaq','crudeoil'];
+
+// ========== STATE ==========
+let marketData = [];
+let pricesData = [];
+let reDataHistory = [];
+let newsData = {dollarNews:[],reNews:[],stockNews:[]};
+let mainChart = null;
+let reChart = null;
+let portfolio = [];
+let portfolioCharts = [];
+
+// ========== LOGIN ==========
+async function handleLogin() {
+  const v = document.getElementById('pwInput').value;
+  if (v === CORRECT_PW) {
+    document.getElementById('pwOverlay').classList.add('hidden');
+    document.body.classList.add('pw-authed');
+    await initDashboard();
+  } else {
+    document.getElementById('pwErr').textContent = 'Wrong password';
+    document.getElementById('pwInput').value = '';
+  }
+}
+
+document.getElementById('pwInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') handleLogin();
+});
+
+// ========== LOAD DATA ==========
+async function loadData() {
+  const ts = Date.now();
+  const [mResp, pResp, reResp, nResp] = await Promise.all([
+    fetch('data/market-data.json?' + ts),
+    fetch('data/prices.json?' + ts),
+    fetch('data/real-estate.json?' + ts),
+    fetch('data/news.json?' + ts)
+  ]);
+  marketData = (await mResp.json()).data || [];
+  pricesData = (await pResp.json()).data || [];
+  reDataHistory = await reResp.json() || [];
+  newsData = await nResp.json();
+}
+
+// ========== RENDER INDEX CARDS ==========
+function renderIndexCards() {
+  MARKET_TICKERS.forEach(function(ticker, i) {
+    const m = marketData.find(function(d) { return d.symbol === ticker; });
+    if (!m) return;
+    const el = document.getElementById('idx-' + MARKET_IDS[i]);
+    if (!el) return;
+    const price = parseFloat(m.price);
+    const chg = ((price - parseFloat(m.prevClose)) / parseFloat(m.prevClose)) * 100;
+    const up = chg >= 0;
+    const arrow = up ? '▲' : '▼';
+    const color = up ? '#4ade80' : '#ef4444';
+    const prefix = (ticker === 'CL=F') ? '$' : '';
+    const val = (ticker === 'CL=F')
+      ? '$' + price.toFixed(2)
+      : prefix + price.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0});
+    el.innerHTML = '<div class="card-label">' + MARKET_NAMES[i] + '</div>'
+      + '<div class="card-value">' + val + '</div>'
+      + '<div class="card-chg" style="color:' + color + '">' + arrow + ' ' + Math.abs(chg).toFixed(2) + '%</div>';
+  });
+}
+
+// ========== RENDER MAIN CHART ==========
+function renderMainChart(idx) {
+  const canvas = document.getElementById('mainChart');
+  if (!canvas) return;
+  if (mainChart) mainChart.destroy();
+
+  if (idx >= MARKET_TICKERS.length) return;
+  const ticker = MARKET_TICKERS[idx];
+  const m = marketData.find(function(d) { return d.symbol === ticker; });
+  if (!m || !m.timestamps || !m.timestamps.length) return;
+
+  const labels = m.timestamps.map(function(ts) {
+    return new Date(ts * 1000).toLocaleDateString('en-US', {month:'short',day:'numeric'});
+  });
+  const values = m.closes.map(function(v) { return parseFloat(v); });
+  const lastV = values[values.length - 1];
+  const isOil = ticker === 'CL=F';
+
+  mainChart = new Chart(canvas.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: values,
+        borderColor: '#4a7cff',
+        borderWidth: 1.5,
+        pointRadius: 0,
+        tension: 0.1,
+        fill: true,
+        backgroundColor: 'rgba(74,124,255,0.08)'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {display: false},
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          backgroundColor: '#1a1a2e',
+          titleColor: '#e0e0e0',
+          bodyColor: '#e0e0e0',
+          borderColor: '#4a7cff',
+          borderWidth: 1,
+          padding: 8,
+          callbacks: {
+            label: function(ctx) {
+              var val = parseFloat(ctx.parsed.y);
+              return (isOil ? '$' : '') + val.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {color:'#4a5568', font:{size:9}, maxTicksLimit:10},
+          grid: {display: false}
+        },
+        y: {
+          ticks: {
+            color:'#4a5568', font:{size:9},
+            callback: function(v) {
+              if (isOil) return '$' + v.toFixed(2);
+              if (v >= 10000) return (v/1000).toFixed(1) + 'k';
+              if (v >= 1000) return (v/1000).toFixed(2) + 'k';
+              return v.toFixed(0);
+            }
+          },
+          grid: {color:'#1f2937'}
+        }
+      }
+    },
+    plugins: [{
+      afterDraw: function(chart) {
+        var ctx = chart.ctx;
+        var meta = chart.getDatasetMeta(0);
+        if (!meta || !meta.data || !meta.data.length) return;
+        var pt = meta.data[meta.data.length - 1];
+        if (!pt) return;
+        ctx.save();
+        ctx.resetTransform();
+        ctx.font = 'bold 14px sans-serif';
+        var labelStr = isOil ? '$' + lastV.toFixed(2) : '$' + Number(lastV).toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0});
+        var tw = ctx.measureText(labelStr).width;
+        var boxH = 24;
+        var boxX, textX;
+        var chartW = chart.chartArea ? chart.chartArea.right : canvas.width;
+        if (pt.x + tw + 20 > chartW) {
+          ctx.textAlign = 'right';
+          boxX = pt.x - tw - 14;
+          textX = pt.x - 8;
+        } else {
+          ctx.textAlign = 'left';
+          boxX = pt.x + 6;
+          textX = pt.x + 14;
+        }
+        ctx.fillStyle = '#0f0f1a';
+        ctx.fillRect(boxX, pt.y - 12, tw + 16, boxH);
+        ctx.strokeStyle = '#4a7cff';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(boxX, pt.y - 12, tw + 16, boxH);
+        ctx.fillStyle = '#e0e0e0';
+        ctx.fillText(labelStr, textX, pt.y + 5);
+        ctx.restore();
+      }
+    }]
+  });
+
+  // Update button styles
+  document.querySelectorAll('.chart-btn').forEach(function(b) {
+    b.style.background = '#2a3a5c';
+    b.style.color = '#8892b0';
+  });
+  var btns = document.querySelectorAll('.chart-btn');
+  if (btns[idx]) {
+    btns[idx].style.background = '#4a7cff';
+    btns[idx].style.color = '#fff';
+  }
+}
+
+function switchChart(idx) {
+  renderMainChart(idx);
+}
+
+// ========== RENDER PORTFOLIO ==========
+function computePortfolio() {
+  portfolio = PORTFOLIO_STOCKS.map(function(s) {
+    var p = pricesData.find(function(d) { return d.symbol === s.ticker; });
+    var price = p ? parseFloat(p.price) : s.costPrice;
+    var mktVal = price * s.shares;
+    var costVal = s.costPrice * s.shares;
+    var pnl = mktVal - costVal;
+    var pnlPct = ((price - s.costPrice) / s.costPrice) * 100;
+    var up = pnl >= 0;
+    var bigMove = changePct !== null && Math.abs(changePct) >= 2;
+    var currency = (p && p.currency) ? p.currency : 'HKD';
+    var volume = (p && p.volume) ? p.volume : null;
+
+    // Calculate daily, weekly, monthly, YTD from chart history
+    var changePct = null;
+    var changePct = null;
+    var chg1w = null, chg1m = null, chgYtd = null;
+    if (p && p.timestamps && p.closes && p.closes.length > 1) {
+      var closes = p.closes.map(function(v) { return parseFloat(v); });
+      var timestamps = p.timestamps;
+      var len = closes.length;
+      var latest = closes[len - 1];
+
+      // Daily change: last close vs previous close
+      if (len >= 2 && closes[len - 2] > 0) {
+        changePct = ((latest - closes[len - 2]) / closes[len - 2]) * 100;
+      }
+
+      // 1 week ~5 trading days back
+      var idx1w = Math.max(0, len - 6);
+      if (closes[idx1w] && closes[idx1w] > 0) {
+        chg1w = ((latest - closes[idx1w]) / closes[idx1w]) * 100;
+      }
+
+      // 1 month ~21 trading days back
+      var idx1m = Math.max(0, len - 22);
+      if (closes[idx1m] && closes[idx1m] > 0) {
+        chg1m = ((latest - closes[idx1m]) / closes[idx1m]) * 100;
+      }
+
+      // YTD: find Jan data point
+      var firstThisYear = null;
+      var thisYear = new Date().getFullYear();
+      for (var i = 0; i < timestamps.length; i++) {
+        var d = new Date(timestamps[i] * 1000);
+        if (d.getFullYear() === thisYear) {
+          firstThisYear = i;
+          break;
+        }
+      }
+      if (firstThisYear !== null && closes[firstThisYear] > 0) {
+        chgYtd = ((latest - closes[firstThisYear]) / closes[firstThisYear]) * 100;
+      }
+      // Fallback: if only 2026 data exists in chart, use first point
+      if (firstThisYear === null && closes[0] > 0) {
+        chgYtd = ((latest - closes[0]) / closes[0]) * 100;
+      }
+    }
+
+    // Build chart data
+    var chartData = null;
+    if (p && p.timestamps) {
+      chartData = {
+        labels: p.timestamps.map(function(ts) {
+          return new Date(ts * 1000).toLocaleDateString('en-US', {month:'short',day:'numeric'});
+        }),
+        values: p.closes.map(function(v) { return parseFloat(v); })
+      };
+    }
+    return {
+      ticker: s.ticker,
+      name: s.name,
+      shares: s.shares,
+      costPrice: s.costPrice,
+      divYield: s.divYield,
+      price: price,
+      changePct: changePct,
+      chg1w: chg1w,
+      chg1m: chg1m,
+      chgYtd: chgYtd,
+      bigMove: bigMove,
+      currency: currency,
+      volume: volume,
+      mktVal: mktVal,
+      costVal: costVal,
+      pnl: pnl,
+      pnlPct: pnlPct,
+      up: up,
+      color: up ? '#4ade80' : '#ef4444',
+      arrow: up ? '▲' : '▼',
+      chartData: chartData
+    };
+  });
+}
+
+function renderPortfolioTable() {
+  var tbody = document.getElementById('portfolioBody');
+  if (!tbody) return;
+  var html = '';
+  portfolio.forEach(function(s) {
+    function fmtPct(v, forceSign) {
+      if (v === null || v === undefined) return '-';
+      var c = v >= 0 ? '#4ade80' : '#ef4444';
+      var sgn = forceSign && v >= 0 ? '+' : '';
+      return '<span style="color:' + c + '">' + sgn + v.toFixed(1) + '%</span>';
+    }
+    var dayColor = s.bigMove ? '#f59e0b' : (s.changePct !== null && s.changePct >= 0 ? '#4ade80' : '#ef4444');
+    var dayText = s.changePct !== null ? (s.changePct >= 0 ? '+' : '') + s.changePct.toFixed(1) + '%' : '-';
+    html += '<tr>'
+      + '<td>' + s.name + '</td>'
+      + '<td class="right">$' + s.price.toFixed(2) + '</td>'
+      + '<td class="right" style="color:' + dayColor + ';font-weight:' + (s.bigMove ? '700' : '400') + '">' + dayText + '</td>'
+      + '<td class="right">' + fmtPct(s.chg1w) + '</td>'
+      + '<td class="right">' + fmtPct(s.chg1m) + '</td>'
+      + '<td class="right">' + fmtPct(s.chgYtd, true) + '</td>'
+      + '<td>' + s.currency + '</td>'
+      + '<td class="right">' + (s.volume ? s.volume.toLocaleString('en-US', {maximumFractionDigits:0}) : '-') + '</td>'
+      + '<td class="right">$' + s.mktVal.toLocaleString('en-US', {minimumFractionDigits:0}) + '</td>'
+      + '<td class="right">' + s.divYield + '%</td>'
+      + '<td class="right" style="color:' + s.color + '">' + (s.pnl >= 0 ? '+' : '-') + '$' + Math.abs(s.pnl).toLocaleString('en-US', {minimumFractionDigits:0}) + '</td>'
+      + '<td class="right" style="color:' + s.color + '">' + (s.pnlPct >= 0 ? '+' : '') + s.pnlPct.toFixed(1) + '%</td>'
+      + '</tr>';
+  });
+  tbody.innerHTML = html;
+
+  // P&L summary
+  var totalVal = portfolio.reduce(function(sum, s) { return sum + s.mktVal; }, 0);
+  var totalCost = portfolio.reduce(function(sum, s) { return sum + s.costVal; }, 0);
+  var totalPnl = totalVal - totalCost;
+  var totalPnlPct = (totalPnl / totalCost) * 100;
+  var c = totalPnl >= 0 ? '#4ade80' : '#ef4444';
+  var el = document.getElementById('pnlSummary');
+  if (el) {
+    el.innerHTML = '<span><span class="label">Total Value</span><br><span class="value">$' + totalVal.toLocaleString('en-US', {minimumFractionDigits:0}) + '</span></span>'
+      + '<span><span class="label">P&amp;L</span><br><span class="value" style="color:' + c + '">' + (totalPnl >= 0 ? '+$' : '-$') + Math.abs(totalPnl).toLocaleString('en-US', {minimumFractionDigits:0}) + ' (' + (totalPnlPct >= 0 ? '+' : '') + totalPnlPct.toFixed(1) + '%)</span></span>';
+  }
+  // Total row in table footer
+  var foot = document.getElementById('portfolioFoot');
+  if (foot) {
+    foot.innerHTML = '<tr style="border-top:2px solid #4a7cff;font-weight:700">'
+      + '<td>Total</td>'
+      + '<td class="right"></td>'
+      + '<td class="right"></td>'
+      + '<td class="right"></td>'
+      + '<td class="right"></td>'
+      + '<td class="right"></td>'
+      + '<td class="right"></td>'
+      + '<td class="right"></td>'
+      + '<td class="right">$' + totalVal.toLocaleString('en-US', {minimumFractionDigits:0}) + '</td>'
+      + '<td class="right"></td>'
+      + '<td class="right" style="color:' + c + '">' + (totalPnl >= 0 ? '+$' : '-$') + Math.abs(totalPnl).toLocaleString('en-US', {minimumFractionDigits:0}) + '</td>'
+      + '<td class="right" style="color:' + c + '">' + (totalPnlPct >= 0 ? '+' : '') + totalPnlPct.toFixed(1) + '%</td>'
+      + '</tr>';
+  }
+
+
+}
+
+// ========== PORTFOLIO MINI CHARTS ==========
+function renderPortfolioCharts() {
+  var container = document.getElementById('portfolioCharts');
+  if (!container) return;
+
+  // Destroy old instances
+  portfolioCharts.forEach(function(c) { try { c.destroy(); } catch(e) {} });
+  portfolioCharts = [];
+  container.innerHTML = '';
+
+  portfolio.forEach(function(s) {
+    if (!s.chartData || !s.chartData.labels.length) return;
+
+    var card = document.createElement('div');
+    card.className = 'ptf-chart-card';
+
+    var hdr = document.createElement('div');
+    hdr.className = 'ptf-chart-header';
+    hdr.innerHTML = '<span>' + s.name + ' (' + s.ticker.replace('.HK','') + ')</span><span style="color:' + s.color + '">' + s.pnlPct.toFixed(1) + '%</span>';
+    card.appendChild(hdr);
+
+    var wrap = document.createElement('div');
+    wrap.className = 'ptf-chart-canvas-wrap';
+    var canvas = document.createElement('canvas');
+    wrap.appendChild(canvas);
+    card.appendChild(wrap);
+    container.appendChild(card);
+
+    var costVals = Array(s.chartData.labels.length).fill(s.costPrice);
+
+    var ins = new Chart(canvas.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: s.chartData.labels,
+        datasets: [
+          {
+            label: 'Price',
+            data: s.chartData.values,
+            borderColor: s.up ? '#4ade80' : '#ef4444',
+            borderWidth: 1.5,
+            pointRadius: 0,
+            tension: 0.1,
+            fill: false
+          },
+          {
+            label: 'Cost',
+            data: costVals,
+            borderColor: '#f59e0b',
+            borderWidth: 1,
+            borderDash: [4, 4],
+            pointRadius: 0,
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {display: false},
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+            backgroundColor: '#1a1a2e',
+            titleColor: '#e0e0e0',
+            bodyColor: '#e0e0e0',
+            borderColor: '#4a7cff',
+            borderWidth: 1,
+            padding: 6
+          }
+        },
+        scales: {
+          x: {
+            ticks: {color:'#8892b0', font:{size:9}, maxTicksLimit:6},
+            grid: {color:'#1e2d3d'}
+          },
+          y: {
+            ticks: {
+              color:'#8892b0', font:{size:9},
+              callback: function(v) { return '$' + v.toFixed(0); }
+            },
+            grid: {color:'#1e2d3d'},
+            beginAtZero: false
+          }
+        }
+      }
+    });
+    portfolioCharts.push(ins);
+  });
+}
+
+// ========== NEWS ==========
+function renderNews() {
+  // Dollar reserve
+  var dn = (newsData.dollarNews || []).filter(function(a) {
+    return a.title && !a.title.includes('awaiting') && !a.title.includes('system');
+  });
+  var dollarEl = document.getElementById('dollarNews');
+  if (dollarEl) {
+    if (dn.length) {
+      dollarEl.innerHTML = '<li><span class="summary">' + dn.map(function(a) { return a.title; }).join('; ') + '</span></li>';
+    } else {
+      dollarEl.innerHTML = '<li><span class="summary gray">No relevant news today</span></li>';
+    }
+  }
+
+  // HK real estate
+  var reEl = document.getElementById('reNews');
+  if (reEl) {
+    if (reDataHistory && reDataHistory.kwunTong && reDataHistory.kwunTong.length) {
+      var areas = [
+        {key:'kwunTong', name:'Kwun Tong'},
+        {key:'mongKok', name:'Mong Kok'},
+        {key:'kowloonBay', name:'Kowloon Bay'},
+        {key:'feiNgoShan', name:'Fei Ngo Shan'},
+        {key:'lauFoshan', name:'Lau Fo Shan'}
+      ];
+      var parts = areas.map(function(a) {
+        var d = reDataHistory[a.key] || [];
+        if (!d.length) return '';
+        var last = d[d.length-1].value;
+        var first = d[0].value;
+        var chg = ((last - first) / first * 100).toFixed(1);
+        return a.name + ' $' + last.toLocaleString() + ' psf (' + chg + '% since 2022)';
+      }).filter(function(s) { return s; });
+      var sumText = parts.join('. ');
+      var reArticles = (newsData.reNews || []).slice(0, 3);
+      if (reArticles.length) {
+        sumText += ' | ' + reArticles.map(function(a) { return a.summary || a.title; }).join(' | ');
+      }
+      reEl.innerHTML = '<li><span class="summary">' + sumText + '</span></li>';
+    } else {
+      reEl.innerHTML = '<li><span class="summary gray">No relevant news today</span></li>';
+    }
+  }
+
+  // Stock watch - bullet point format
+  var sn = (newsData.stockNews || []).filter(function(a) {
+    return a.title && !a.title.includes('Yahoo! Finance') && !a.title.includes('SymbolLookup');
+  });
+  var stockEl = document.getElementById('stockNews');
+  if (stockEl) {
+    if (sn.length) {
+      var items = [];
+      sn.forEach(function(a, i) {
+        if (i < 10) items.push(a.title || a.summary);
+      });
+      stockEl.innerHTML = items.map(function(t) { return '<li><span class="summary">' + t + '</span></li>'; }).join('');
+    } else {
+      stockEl.innerHTML = '<li><span class="summary gray">No relevant news today</span></li>';
+    }
+  }
+}
+
+// ========== RE CHART ==========
+function renderREChart() {
+  var canvas = document.getElementById('reChart');
+  if (!canvas) return;
+  if (reChart) reChart.destroy();
+  
+  // 5 districts
+  var allSeries = [
+    { key:'kwunTong', label:'Kwun Tong', color:'#4a7cff' },
+    { key:'mongKok', label:'Mong Kok', color:'#f59e0b' },
+    { key:'kowloonBay', label:'Kowloon Bay', color:'#4ade80' },
+    { key:'feiNgoShan', label:'Fei Ngo Shan', color:'#ef4444' },
+    { key:'lauFoshan', label:'Lau Fo Shan', color:'#a78bfa' }
+  ];
+  
+  var datasets = [];
+  var maxLen = 0;
+  allSeries.forEach(function(s) {
+    var d = reDataHistory[s.key] || [];
+    if (d.length > maxLen) maxLen = d.length;
+  });
+  if (!maxLen) return;
+  
+  var labels = [];
+  allSeries.forEach(function(s) {
+    var d = reDataHistory[s.key] || [];
+    if (labels.length === 0 && d.length) {
+      labels = d.map(function(x) { return x.label || x.date; });
+    }
+    datasets.push({
+      label: s.label,
+      data: d.map(function(x) { return x.value; }),
+      borderColor: s.color,
+      backgroundColor: s.color + '18',
+      borderWidth: 2,
+      pointRadius: 3,
+      tension: 0.3,
+      fill: false
+    });
+  });
+
+  reChart = new Chart(canvas.getContext('2d'), {
+    type: 'line',
+    data: { labels: labels, datasets: datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {labels:{color:'#8892b0', font:{size:11}}},
+        tooltip: {
+          mode:'index',
+          intersect:false,
+          backgroundColor:'#1a1a2e',
+          titleColor:'#e0e0e0',
+          bodyColor:'#e0e0e0',
+          borderColor:'#4a7cff',
+          borderWidth:1,
+          padding:6
+        }
+      },
+      scales: {
+        x: {
+          ticks: {color:'#888', font:{size:9}},
+          grid: {display:false}
+        },
+        y: {
+          ticks: {
+            color:'#4a5568', font:{size:9},
+            callback: function(v) { return '$' + v.toLocaleString(); }
+          },
+          grid: {color:'#1f2937'}
+        }
+      }
+    }
+  });
+}
+
+// ========== ALL-IN PODCAST ==========
+function renderPodcast() {
+  var container = document.getElementById('podcastContent');
+  if (!container) return;
+  fetch('data/allin-podcast.json?' + Date.now())
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (!data || !data.title) {
+      container.innerHTML = '<div class="podcast-error">No episode data available.</div>';
+      return;
+    }
+    var html = '<div class="podcast-episode">';
+    html += '<div class="ep-title">' + escapeHtml(data.title) + '</div>';
+    html += '<div class="ep-meta">';
+    html += '<span>Episode ' + data.episode + '</span>';
+    html += '<span>' + data.date + '</span>';
+    html += '<span>' + data.duration + '</span>';
+    html += '</div>';
+    if (data.guests && data.guests.length) {
+      html += '<div class="ep-guests">Guests: ' + data.guests.join(', ') + '</div>';
+    }
+    if (data.summary) {
+      html += '<div class="ep-summary">' + escapeHtml(data.summary) + '</div>';
+    }
+    if (data.chapters && data.chapters.length) {
+      html += '<div class="section-title">Chapters</div>';
+      html += '<div class="ep-chapters">';
+      data.chapters.forEach(function(ch) {
+        html += '<div class="ep-chapter"><span class="ep-ctime">' + escapeHtml(ch.time) + '</span><span class="ep-ctitle">' + escapeHtml(ch.title) + '</span></div>';
+      });
+      html += '</div>';
+    }
+    if (data.keyTopics && data.keyTopics.length) {
+      html += '<div class="section-title">Key Topics</div>';
+      html += '<div class="ep-topics">';
+      data.keyTopics.forEach(function(t) {
+        html += '<span class="ep-topic">' + escapeHtml(t) + '</span>';
+      });
+      html += '</div>';
+    }
+    if (data.videoUrl) {
+      html += '<a class="ep-link" href="' + escapeHtml(data.videoUrl) + '" target="_blank">Watch on YouTube &rarr;</a>';
+    }
+    html += '</div>';
+    container.innerHTML = html;
+  })
+  .catch(function(err) {
+    container.innerHTML = '<div class="podcast-error">Failed to load podcast data: ' + escapeHtml(err.message) + '</div>';
+  });
+}
+
+function escapeHtml(str) {
+  if (typeof str !== 'string') return String(str);
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ========== TIMESTAMP ==========
+function updateTimestamp() {
+  document.getElementById('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleString('en-US');
+}
+
+// ========== TAB SWITCH ==========
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.tab-bar button').forEach(function(b) { b.classList.remove('active'); });
+  // Map logical names to actual tab IDs
+  var tabIds = { stocks:'Stocks', re:'RE', macro:'Macro', podcast:'Podcast' };
+  var tabId = tabIds[name] || name.charAt(0).toUpperCase() + name.slice(1);
+  var content = document.getElementById('tab' + tabId);
+  if (content) {
+    content.classList.add('active');
+  }
+  // Button labels map for non-matching names
+  var btnMap = { podcast:'all-in podcast' };
+  document.querySelectorAll('.tab-bar button').forEach(function(b) {
+    var btnText = b.textContent.trim().toLowerCase();
+    var mapped = btnMap[name];
+    if (btnText === name || (mapped && btnText === mapped)) {
+      b.classList.add('active');
+    }
+  });
+  if (name === 'treasury') {
+    requestAnimationFrame(function() {
+      setTimeout(renderTreasuryTab, 50);
+    });
+  }
+  if (name === 'stocks') {
+    requestAnimationFrame(function() {
+      setTimeout(renderPortfolioCharts, 50);
+    });
+  }
+  if (name === 'podcast') {
+    renderPodcast();
+  }
+}
+
+// ========== TREASURY ==========
+var yieldCurveChart = null;
+var yieldHistoryChart = null;
+
+function renderYieldCurve() {
+  fetch('data/yield-curve.json?' + Date.now())
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (yieldCurveChart) yieldCurveChart.destroy();
+    var canvas = document.getElementById('yieldCurveChart');
+    if (!canvas) return;
+    var labels = ['1m','2m','3m','6m','1y','2y','3y','5y','7y','10y','20y','30y'];
+    var vals = [data.latest['1 Mo'], data.latest['2 Mo'], data.latest['3 Mo'], data.latest['6 Mo'], data.latest['1 Yr'], data.latest['2 Yr'], data.latest['3 Yr'], data.latest['5 Yr'], data.latest['7 Yr'], data.latest['10 Yr'], data.latest['20 Yr'], data.latest['30 Yr']];
+    yieldCurveChart = new Chart(canvas.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: vals,
+          borderColor: '#f59e0b',
+          backgroundColor: 'rgba(245,158,11,0.1)',
+          borderWidth: 2.5,
+          pointRadius: 4,
+          pointBackgroundColor: '#f59e0b',
+          tension: 0.2,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {display: false},
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+            backgroundColor: '#1a1a2e',
+            titleColor: '#e0e0e0',
+            bodyColor: '#e0e0e0',
+            borderColor: '#f59e0b',
+            borderWidth: 1,
+            padding: 8,
+            callbacks: {
+              label: function(ctx) { return ctx.parsed.y.toFixed(2) + '%'; }
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: {color:'#8892b0', font:{size:10}},
+            grid: {display: false}
+          },
+          y: {
+            ticks: {
+              color:'#4a5568', font:{size:10},
+              callback: function(v) { return v.toFixed(1) + '%'; }
+            },
+            grid: {color:'#1f2937'}
+          }
+        }
+      }
+    });
+
+    // Update section title with latest date
+    var yTitle = document.getElementById('yieldCurveTitle');
+    if (yTitle) yTitle.textContent = 'Yield Curve - ' + data.latestDate;
+  });
+}
+
+function renderYieldHistory(idx) {
+  fetch('data/yield-curve.json?' + Date.now())
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (yieldHistoryChart) yieldHistoryChart.destroy();
+    var canvas = document.getElementById('yieldHistoryChart');
+    if (!canvas) return;
+    var labels = data.history.map(function(d) { return d.date; });
+    var datasets = [];
+    if (idx === 3) {
+      // 2s10s spread
+      var spread = data.history.map(function(d) {
+        var v = d['10 Yr'] !== undefined && d['2 Yr'] !== undefined ? d['10 Yr'] - d['2 Yr'] : null;
+        return v !== null ? parseFloat(v.toFixed(2)) : null;
+      });
+      datasets.push({label:'2s10s Spread', data:spread, borderColor:'#4a7cff', borderWidth:1.5, pointRadius:0, tension:0.1, fill:false});
+    } else {
+      var names = ['2 Yr','10 Yr','30 Yr'];
+      var colors = ['#4ade80','#4a7cff','#f59e0b'];
+      var vals = data.history.map(function(d) {
+        var v = d[names[idx]];
+        return v !== undefined ? v : null;
+      });
+      datasets.push({label:names[idx], data:vals, borderColor:colors[idx], borderWidth:1.5, pointRadius:0, tension:0.1, fill:false});
+    }
+    yieldHistoryChart = new Chart(canvas.getContext('2d'), {
+      type: 'line',
+      data: {labels: labels, datasets: datasets},
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {labels:{color:'#8892b0', font:{size:11}}},
+          tooltip: {
+            mode: 'index', intersect: false,
+            backgroundColor: '#1a1a2e', titleColor: '#e0e0e0', bodyColor: '#e0e0e0', borderColor: '#4a7cff', borderWidth: 1, padding: 6
+          }
+        },
+        scales: {
+          x: {
+            ticks: {color:'#4a5568', font:{size:9}, maxTicksLimit:10},
+            grid: {display: false}
+          },
+          y: {
+            ticks: {
+              color:'#4a5568', font:{size:9},
+              callback: function(v) { return v.toFixed(1) + '%'; }
+            },
+            grid: {color:'#1f2937'}
+          }
+        }
+      }
+    });
+    // Update button styles
+    document.querySelectorAll('#tabTreasury .chart-btn').forEach(function(b) {
+      b.style.background = '#2a3a5c';
+      b.style.color = '#8892b0';
+    });
+    var btns = document.querySelectorAll('#tabTreasury .chart-btn');
+    if (btns[idx]) {
+      btns[idx].style.background = '#4a7cff';
+      btns[idx].style.color = '#fff';
+    }
+  });
+}
+
+function switchYieldHistory(idx) {
+  renderYieldHistory(idx);
+}
+
+function renderTreasuryTable() {
+  var body = document.getElementById('treasuryBody');
+  if (!body) return;
+  // Demo treasury bonds - placeholder for Chef to fill in later
+  var bonds = [
+    {security:'2-Yr Note', cpn:'4.125', maturity:'Jun 2028', price:'99.78', yield:'4.19'},
+    {security:'5-Yr Note', cpn:'4.250', maturity:'Jun 2031', price:'99.54', yield:'4.32'},
+    {security:'10-Yr Bond', cpn:'4.375', maturity:'May 2036', price:'99.22', yield:'4.38'},
+    {security:'30-Yr Bond', cpn:'4.625', maturity:'May 2056', price:'97.89', yield:'4.87'}
+  ];
+  var html = '';
+  bonds.forEach(function(b) {
+    html += '<tr>'
+      + '<td>' + b.security + '</td>'
+      + '<td class="right">' + b.cpn + '%</td>'
+      + '<td>' + b.maturity + '</td>'
+      + '<td class="right">$' + b.price + '</td>'
+      + '<td class="right">' + b.yield + '%</td>'
+      + '</tr>';
+  });
+  body.innerHTML = html;
+}
+
+function renderRatesNews() {
+  var el = document.getElementById('ratesNews');
+  if (!el) return;
+  var items = [
+    'Fed holds rates steady at 4.25-4.50% in June meeting, signals one cut possible in H2 2026',
+    'May CPI comes in at 3.1% YoY, core at 2.8%, both slightly below expectations',
+    'Non-farm payrolls added 185K in May, unemployment steady at 4.0%',
+    'Treasury yield curve steepens as long-end rates rise on supply concerns',
+    'Fed minutes show divide over rate path; some members favor earlier cuts',
+    '10-yr note auction sees solid demand, yield at 4.39% high'
+  ];
+  el.innerHTML = items.map(function(t) { return '<li><span class="summary">' + t + '</span></li>'; }).join('');
+}
+
+function renderTreasuryTab() {
+  renderYieldCurve();
+  renderYieldHistory(0);
+  renderTreasuryTable();
+  renderRatesNews();
+  // Render economic charts from pre-fetched FRED data
+  renderEconCharts();
+}
+
+// ========== ECONOMIC CHARTS (FRED - static JSON) ==========
+// Set default chart background for all charts
+Chart.defaults.plugins.legend.labels.color = '#8892b0';
+
+function renderEconCharts() {
+  var cpiC = document.getElementById('cpiChart');
+  var pceC = document.getElementById('pceChart');
+  var nfpC = document.getElementById('nfpChart');
+  if (!cpiC || !pceC || !nfpC) return;
+  
+  function makeMiniChart(canvas, data, color, isNfp) {
+    if (canvas._chartInst) canvas._chartInst.destroy();
+    var dates = data.dates.map(function(d) { return d.substring(0,7); });
+    canvas._chartInst = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: dates,
+        datasets: [{
+          data: data.values,
+          borderColor: color,
+          backgroundColor: 'rgba(' + 
+            (color === '#4ade80' ? '74,222,128' :
+             color === '#f59e0b' ? '245,158,11' :
+             color === '#4a7cff' ? '74,124,255' :
+             '239,68,68') + ',0.15)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 3,
+          borderWidth: 1.5
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(ctx) {
+                var v = ctx.raw;
+                if (isNfp) return (v >= 0 ? '+' : '') + v.toFixed(0);
+                return v.toFixed(1) + '%';
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            ticks: { color:'#667', font: {size:9} },
+            grid: { color:'#1f2937' }
+          },
+          x: {
+            ticks: { color:'#667', font: {size:8}, maxTicksLimit: 6 },
+            grid: { display: false }
+          }
+        }
+      }
+    });
+  }
+  
+  Promise.all([
+    fetch('data/CPI.json').then(function(r) { return r.json(); }),
+    fetch('data/CorePCE.json').then(function(r) { return r.json(); }),
+    fetch('data/NFP.json').then(function(r) { return r.json(); })
+  ]).then(function(data) {
+    makeMiniChart(cpiC, data[0], '#f59e0b', false);
+    makeMiniChart(pceC, data[1], '#4ade80', false);
+    makeMiniChart(nfpC, data[2], '#4a7cff', true);
+  }).catch(function() {
+    console.warn('Failed to load FRED data files');
+  });
+}
+
+// ========== MACRO CHARTS ==========
+var settlementChart = null;
+var reserveChart = null;
+
+function renderSettlementChart() {
+  var canvas = document.getElementById('settlementChart');
+  if (!canvas) return;
+  if (settlementChart) settlementChart.destroy();
+  settlementChart = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: ['USD', 'EUR', 'GBP', 'JPY', 'CNY', 'Other'],
+      datasets: [{
+        label: 'Share of SWIFT Payments (%)',
+        data: [48.5, 23.2, 7.1, 3.6, 4.7, 12.9],
+        backgroundColor: ['#4a7cff','#4ade80','#6366f1','#f59e0b','#ef4444','#8892b0'],
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) { return ctx.raw.toFixed(1) + '%'; }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 60,
+          ticks: { color:'#667', callback: function(v) { return v + '%'; } },
+          grid: { color:'#1f2937' }
+        },
+        x: {
+          ticks: { color:'#8892b0' },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+// ========== SWIFT TREND CHART (2010-2025) ==========
+var swiftTrendChart = null;
+
+function renderSwiftTrendChart() {
+  var canvas = document.getElementById('swiftTrendChart');
+  if (!canvas) return;
+  if (swiftTrendChart) swiftTrendChart.destroy();
+  
+  fetch('data/SWIFT_Trend.json').then(function(r) { return r.json(); })
+    .then(function(data) {
+      drawSwiftTrend(canvas, data);
+    }).catch(function() {
+      var ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#667';
+      ctx.font = '14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Data unavailable', canvas.width/2, canvas.height/2);
+    });
+}
+
+function drawSwiftTrend(canvas, data) {
+  if (!data || !data.years) return;
+  
+  var colors = {
+    'USD': '#4a7cff',
+    'EUR': '#4ade80',
+    'GBP': '#6366f1',
+    'JPY': '#f59e0b',
+    'CNY': '#ef4444',
+    'Other': '#8892b0'
+  };
+  
+  var labels = data.years.map(function(y) { return String(y); });
+  var datasets = Object.keys(data.currencies).map(function(curr) {
+    var isRmb = (curr === 'CNY');
+    return {
+      label: isRmb ? 'CNY (RMB)' : curr,
+      data: data.currencies[curr],
+      borderColor: colors[curr] || '#666',
+      backgroundColor: colors[curr] ? colors[curr] + '18' : 'rgba(100,100,100,0.1)',
+      fill: false,
+      tension: 0.3,
+      pointRadius: isRmb ? 5 : 3,
+      pointHoverRadius: 6,
+      borderWidth: isRmb ? 3 : 2,
+      borderDash: isRmb ? [] : undefined
+    };
+  });
+  
+  swiftTrendChart = new Chart(canvas, {
+    type: 'line',
+    data: { labels: labels, datasets: datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false
+      },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color:'#8892b0', padding: 12, usePointStyle: true }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) { return ctx.dataset.label + ': ' + ctx.raw.toFixed(1) + '%'; }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { color:'#667', callback: function(v) { return v + '%'; } },
+          grid: { color:'#1f2937' }
+        },
+        x: {
+          ticks: { color:'#8892b0', maxTicksLimit: 16 },
+          grid: { color:'#1f2937' }
+        }
+      }
+    }
+  });
+}
+
+function renderReserveChart() {
+  var canvas = document.getElementById('reserveChart');
+  if (!canvas) return;
+  if (reserveChart) reserveChart.destroy();
+  // IMF COFER data: 5 years Q1 2022 to Q1 2026
+  var years = ['Q1 2022', 'Q1 2023', 'Q1 2024', 'Q1 2025', 'Q1 2026'];
+  
+  // Also render TIC chart
+  renderTICChart();
+  
+  reserveChart = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: years,
+      datasets: [{
+        label: 'USD',
+        data: [58.8, 58.6, 57.4, 56.8, 56.2],
+        borderColor: '#4a7cff',
+        backgroundColor: 'rgba(74,124,255,0.1)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4
+      },{
+        label: 'EUR',
+        data: [20.0, 19.8, 19.6, 19.4, 19.2],
+        borderColor: '#4ade80',
+        backgroundColor: 'rgba(74,222,128,0.08)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4
+      },{
+        label: 'JPY',
+        data: [5.4, 5.6, 5.5, 5.6, 5.5],
+        borderColor: '#f59e0b',
+        backgroundColor: 'rgba(245,158,11,0.08)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4
+      },{
+        label: 'CNY',
+        data: [2.9, 3.0, 3.2, 3.4, 3.6],
+        borderColor: '#ef4444',
+        backgroundColor: 'rgba(239,68,68,0.08)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4
+      },{
+        label: 'GBP',
+        data: [4.9, 4.8, 4.7, 4.6, 4.5],
+        borderColor: '#6366f1',
+        backgroundColor: 'rgba(99,102,241,0.08)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4
+      },{
+        label: 'Gold (of total reserves)',
+        data: [11.5, 12.0, 13.2, 14.5, 15.8],
+        borderColor: '#fbbf24',
+        backgroundColor: 'rgba(251,191,36,0.08)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4,
+        borderDash: [5,3]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false
+      },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color:'#8892b0', padding: 12, usePointStyle: true }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) { return ctx.dataset.label + ': ' + ctx.raw.toFixed(1) + '%'; }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: false,
+          ticks: { color:'#667', callback: function(v) { return v + '%'; } },
+          grid: { color:'#1f2937' }
+        },
+        x: {
+          ticks: { color:'#8892b0' },
+          grid: { color:'#1f2937' }
+        }
+      }
+    }
+  });
+}
+
+// ========== TIC TREASURY FLOWS CHART (4 categories) ==========
+var ticChartInstance = null;
+
+function renderTICChart() {
+  var canvas = document.getElementById('ticChart');
+  if (!canvas) return;
+  if (ticChartInstance) { ticChartInstance.destroy(); ticChartInstance = null; }
+  
+  fetch('data/TIC_Categories.json').then(function(r) { return r.json(); })
+    .then(function(data) {
+      drawTICChart(canvas, data);
+    }).catch(function() {
+      // Fallback: just show empty
+      var ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#667';
+      ctx.font = '14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Data unavailable', canvas.width/2, canvas.height/2);
+    });
+}
+
+function drawTICChart(canvas, data) {
+  if (!data || !data.labels) return;
+  
+  // Colors for the 4 categories
+  var colors = {
+    'Foreign Official': 'rgba(74,124,255,0.75)',
+    'Foreign Private': 'rgba(99,102,241,0.55)',
+    'Federal Reserve': 'rgba(251,191,36,0.65)',
+    'US Domestic': 'rgba(52,211,153,0.55)'
+  };
+  var borderColors = {
+    'Foreign Official': 'rgba(74,124,255,1)',
+    'Foreign Private': 'rgba(99,102,241,1)',
+    'Federal Reserve': 'rgba(251,191,36,1)',
+    'US Domestic': 'rgba(52,211,153,1)'
+  };
+  
+  var labels = data.labels;
+  var catNames = Object.keys(data.categories);
+  var datasets = catNames.map(function(name) {
+    return {
+      label: name,
+      data: data.categories[name],
+      backgroundColor: colors[name] || 'rgba(100,100,100,0.5)',
+      borderColor: borderColors[name] || 'rgba(100,100,100,1)',
+      borderWidth: 1,
+      borderRadius: 2
+    };
+  });
+  
+  ticChartInstance = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: datasets
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false
+      },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color:'#8892b0', padding: 12, usePointStyle: true }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              var v = ctx.raw;
+              if (v === null) return ctx.dataset.label + ': N/A';
+              return ctx.dataset.label + ': ' + (v >= 0 ? '+' : '') + '$' + v.toFixed(1) + 'B';
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          ticks: { color:'#667', callback: function(v) { return '$' + v + 'B'; } },
+          grid: { color:'#1f2937' }
+        },
+        x: {
+          ticks: { color:'#8892b0', maxTicksLimit: 14, maxRotation: 45 },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+// ========== INIT ==========
+async function initDashboard() {
+  await loadData();
+  updateTimestamp();
+  renderIndexCards();
+  
+  computePortfolio();
+  
+  // Main chart on Markets tab (default visible)
+  renderMainChart(0);
+  
+  // Render portfolio table (no charts yet - tab is hidden)
+  renderPortfolioTable();
+  
+  // News + RE chart
+  renderNews();
+  renderREChart();
+  
+  // Macro charts
+  renderSettlementChart();
+  
+  // Podcast tab (preload)
+  renderPodcast();
+  renderSwiftTrendChart();
+  renderReserveChart();
+}
+</script>
+
+</body>
+</html>
