@@ -25,14 +25,16 @@ indices.forEach(t => {
         if (result && result[0]) {
           const meta = result[0].meta;
           const quotes = result[0].indicators.quote[0];
+          const closes = (quotes.close || []).map(v => v !== null ? v : null);
+          const prevClose = closes.length >= 2 ? closes[closes.length - 2] : (meta.chartPreviousClose || null);
           results.push({
             symbol: t.symbol,
             name: t.name,
             price: meta.regularMarketPrice || null,
-            prevClose: meta.chartPreviousClose || null,
+            prevClose: prevClose,
             currency: meta.currency || 'USD',
             timestamps: result[0].timestamp || [],
-            closes: (quotes.close || []).map(v => v !== null ? v : null)
+            closes: closes
           });
         } else {
           results.push({ symbol: t.symbol, name: t.name, error: 'No data' });
