@@ -325,6 +325,7 @@ let marketData = [];
 let pricesData = [];
 let reDataHistory = [];
 let newsData = {dollarNews:[],reNews:[],stockNews:[]};
+let divData = [];
 let mainChart = null;
 let reChart = null;
 let portfolio = [];
@@ -350,16 +351,18 @@ document.getElementById('pwInput').addEventListener('keydown', function(e) {
 // ========== LOAD DATA ==========
 async function loadData() {
   const ts = Date.now();
-  const [mResp, pResp, reResp, nResp] = await Promise.all([
+  const [mResp, pResp, reResp, nResp, dResp] = await Promise.all([
     fetch('data/market-data.json?' + ts),
     fetch('data/prices.json?' + ts),
     fetch('data/real-estate.json?' + ts),
-    fetch('data/news.json?' + ts)
+    fetch('data/news.json?' + ts),
+    fetch('data/div-data.json?' + ts)
   ]);
   marketData = (await mResp.json()).data || [];
   pricesData = (await pResp.json()).data || [];
   reDataHistory = await reResp.json() || [];
   newsData = await nResp.json();
+  divData = (await dResp.json()) || [];
 }
 
 // ========== RENDER INDEX CARDS ==========
@@ -534,7 +537,26 @@ function computePortfolio() {
 
       // Daily change: last close vs previous close
       if (len >= 2 && closes[len - 2] > 0) {
-        changePct = ((latest - closes[len - 2]) / closes[len - 2]) * 100;
+        var rawChangePct = ((latest - closes[len - 2]) / closes[len - 2]) * 100;
+        // Check for ex-dividend adjustment
+        var todayStr = new Date().toISOString().slice(0, 10);
+        var stockDivData = divData.find(function(d) { return d.symbol === s.ticker; });
+        var exDivRecord = null;
+        if (stockDivData && stockDivData.recentDividends) {
+          exDivRecord = stockDivData.recentDividends.find(function(d) { return d.exDate === todayStr; });
+        }
+        if (exDivRecord) {
+          // Adjusted previous close = prev close - dividend amount
+          // This shows true price movement excluding the mechanical dividend drop
+          var adjPrev = closes[len - 2] - exDivRecord.amount;
+          if (adjPrev > 0) {
+            changePct = ((latest / adjPrev) - 1) * 100;
+          } else {
+            changePct = rawChangePct;
+          }
+        } else {
+          changePct = rawChangePct;
+        }
       }
       var bigMove = changePct !== null && Math.abs(changePct) >= 2;
 
@@ -591,6 +613,7 @@ function computePortfolio() {
       chg1m: chg1m,
       chgYtd: chgYtd,
       bigMove: bigMove,
+      exDivAdj: exDivRecord ? exDivRecord.amount : null,
       currency: currency,
       volume: volume,
       mktVal: mktVal,
@@ -617,7 +640,8 @@ function renderPortfolioTable() {
       return '<span style="color:' + c + '">' + sgn + v.toFixed(1) + '%</span>';
     }
     var dayColor = s.bigMove ? '#f59e0b' : (s.changePct !== null && s.changePct >= 0 ? '#4ade80' : '#ef4444');
-    var dayText = s.changePct !== null ? (s.changePct >= 0 ? '+' : '') + s.changePct.toFixed(1) + '%' : '-';
+    var exDivNote = s.exDivAdj ? ' (ex-div)' : '';
+    var dayText = s.changePct !== null ? (s.changePct >= 0 ? '+' : '') + s.changePct.toFixed(1) + '%' + exDivNote : '-';
     html += '<tr>'
       + '<td>' + s.name + '</td>'
       + '<td class="right">$' + s.price.toFixed(2) + '</td>'

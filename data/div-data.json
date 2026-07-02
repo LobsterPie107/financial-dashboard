@@ -1,0 +1,484 @@
+[
+  {
+    "symbol": "0941.HK",
+    "name": "CHINA MOBILE",
+    "dividendYield": 6.62,
+    "dividendRate": 5.04,
+    "trailingAnnualDivYield": 0.06219304,
+    "trailingAnnualDivRate": 4.736,
+    "recentDividends": [
+      {
+        "exDate": "2021-08-25",
+        "amount": 1.63
+      },
+      {
+        "exDate": "2022-05-25",
+        "amount": 2.43
+      },
+      {
+        "exDate": "2022-09-06",
+        "amount": 2.2
+      },
+      {
+        "exDate": "2023-06-07",
+        "amount": 2.21
+      },
+      {
+        "exDate": "2023-09-04",
+        "amount": 2.43
+      },
+      {
+        "exDate": "2024-06-06",
+        "amount": 2.4
+      },
+      {
+        "exDate": "2024-09-02",
+        "amount": 2.6
+      },
+      {
+        "exDate": "2025-06-06",
+        "amount": 2.49
+      },
+      {
+        "exDate": "2025-09-01",
+        "amount": 2.75
+      },
+      {
+        "exDate": "2026-06-05",
+        "amount": 2.52
+      }
+    ],
+    "splits": [],
+    "price": 76.5,
+    "payoutRatio": 0.7611
+  },
+  {
+    "symbol": "0005.HK",
+    "name": "HSBC HOLDINGS",
+    "dividendYield": 3.96,
+    "dividendRate": 5.86,
+    "trailingAnnualDivYield": 0.005070994,
+    "trailingAnnualDivRate": 0.75,
+    "recentDividends": [
+      {
+        "exDate": "2024-03-07",
+        "amount": 2.426355
+      },
+      {
+        "exDate": "2024-05-09",
+        "amount": 2.420133
+      },
+      {
+        "exDate": "2024-08-15",
+        "amount": 0.779073
+      },
+      {
+        "exDate": "2024-11-07",
+        "amount": 0.777313
+      },
+      {
+        "exDate": "2025-03-06",
+        "amount": 2.791007
+      },
+      {
+        "exDate": "2025-05-08",
+        "amount": 0.783972
+      },
+      {
+        "exDate": "2025-08-14",
+        "amount": 0.777678
+      },
+      {
+        "exDate": "2025-11-06",
+        "amount": 0.777722
+      },
+      {
+        "exDate": "2026-03-12",
+        "amount": 3.522942
+      },
+      {
+        "exDate": "2026-05-14",
+        "amount": 0.783188
+      }
+    ],
+    "splits": [],
+    "price": 149.5,
+    "payoutRatio": 0.6191
+  },
+  {
+    "symbol": "0939.HK",
+    "name": "CCB",
+    "dividendYield": 5.38,
+    "dividendRate": 0.43,
+    "trailingAnnualDivYield": 0.04964901,
+    "trailingAnnualDivRate": 0.389,
+    "recentDividends": [
+      {
+        "exDate": "2019-07-02",
+        "amount": 0.348976
+      },
+      {
+        "exDate": "2020-07-02",
+        "amount": 0.349742
+      },
+      {
+        "exDate": "2021-07-07",
+        "amount": 0.390835
+      },
+      {
+        "exDate": "2022-06-29",
+        "amount": 0.42595
+      },
+      {
+        "exDate": "2023-07-06",
+        "amount": 0.421987
+      },
+      {
+        "exDate": "2024-07-04",
+        "amount": 0.438393
+      },
+      {
+        "exDate": "2025-01-02",
+        "amount": 0.213131
+      },
+      {
+        "exDate": "2025-04-30",
+        "amount": 0.221775
+      },
+      {
+        "exDate": "2025-12-03",
+        "amount": 0.204656
+      },
+      {
+        "exDate": "2026-07-02",
+        "amount": 0.234187
+      }
+    ],
+    "splits": [],
+    "price": 7.84,
+    "payoutRatio": 0.30290002
+  },
+  {
+    "symbol": "0728.HK",
+    "name": "CHINA TELECOM",
+    "dividendYield": 7.1,
+    "dividendRate": 0.3,
+    "trailingAnnualDivYield": 0.06370024,
+    "trailingAnnualDivRate": 0.272,
+    "recentDividends": [
+      {
+        "exDate": "2021-05-11",
+        "amount": 0.125
+      },
+      {
+        "exDate": "2022-05-31",
+        "amount": 0.197211
+      },
+      {
+        "exDate": "2022-08-31",
+        "amount": 0.139523
+      },
+      {
+        "exDate": "2023-05-31",
+        "amount": 0.085065
+      },
+      {
+        "exDate": "2023-08-23",
+        "amount": 0.156524
+      },
+      {
+        "exDate": "2024-06-05",
+        "amount": 0.098814
+      },
+      {
+        "exDate": "2024-09-03",
+        "amount": 0.182289
+      },
+      {
+        "exDate": "2025-06-03",
+        "amount": 0.100637
+      },
+      {
+        "exDate": "2025-08-27",
+        "amount": 0.199264
+      },
+      {
+        "exDate": "2026-06-02",
+        "amount": 0.10391
+      }
+    ],
+    "splits": [],
+    "price": 4.35,
+    "payoutRatio": 0.7615
+  },
+  {
+    "symbol": "0762.HK",
+    "name": "CHINA UNICOM",
+    "dividendYield": 7.61,
+    "dividendRate": 0.46,
+    "trailingAnnualDivYield": 0.0,
+    "trailingAnnualDivRate": 0.0,
+    "recentDividends": [
+      {
+        "exDate": "2021-09-02",
+        "amount": 0.14426
+      },
+      {
+        "exDate": "2022-05-19",
+        "amount": 0.11225
+      },
+      {
+        "exDate": "2022-09-01",
+        "amount": 0.19149
+      },
+      {
+        "exDate": "2023-05-23",
+        "amount": 0.12249
+      },
+      {
+        "exDate": "2023-09-04",
+        "amount": 0.22213
+      },
+      {
+        "exDate": "2024-06-05",
+        "amount": 0.14668
+      },
+      {
+        "exDate": "2024-09-04",
+        "amount": 0.27043
+      },
+      {
+        "exDate": "2025-06-04",
+        "amount": 0.1703
+      },
+      {
+        "exDate": "2025-09-02",
+        "amount": 0.31241
+      },
+      {
+        "exDate": "2026-06-03",
+        "amount": 0.15229
+      }
+    ],
+    "splits": [],
+    "price": 6.1,
+    "payoutRatio": 0.649
+  },
+  {
+    "symbol": "0883.HK",
+    "name": "CNOOC",
+    "dividendYield": 6.3,
+    "dividendRate": 1.28,
+    "trailingAnnualDivYield": 0.056594487,
+    "trailingAnnualDivRate": 1.15,
+    "recentDividends": [
+      {
+        "exDate": "2021-09-02",
+        "amount": 0.3
+      },
+      {
+        "exDate": "2022-06-09",
+        "amount": 1.18
+      },
+      {
+        "exDate": "2022-09-06",
+        "amount": 0.7
+      },
+      {
+        "exDate": "2023-06-08",
+        "amount": 0.75
+      },
+      {
+        "exDate": "2023-09-07",
+        "amount": 0.59
+      },
+      {
+        "exDate": "2024-06-13",
+        "amount": 0.66
+      },
+      {
+        "exDate": "2024-09-12",
+        "amount": 0.74
+      },
+      {
+        "exDate": "2025-06-12",
+        "amount": 0.66
+      },
+      {
+        "exDate": "2025-09-11",
+        "amount": 0.73
+      },
+      {
+        "exDate": "2026-06-11",
+        "amount": 0.55
+      }
+    ],
+    "splits": [
+      {
+        "date": "2004-03-17",
+        "ratio": 5.0
+      }
+    ],
+    "price": 20.4,
+    "payoutRatio": 0.4945
+  },
+  {
+    "symbol": "0857.HK",
+    "name": "PETROCHINA",
+    "dividendYield": 6.78,
+    "dividendRate": 0.57,
+    "trailingAnnualDivYield": 0.05542453,
+    "trailingAnnualDivRate": 0.47,
+    "recentDividends": [
+      {
+        "exDate": "2021-09-09",
+        "amount": 0.15653
+      },
+      {
+        "exDate": "2022-06-20",
+        "amount": 0.11311
+      },
+      {
+        "exDate": "2022-09-09",
+        "amount": 0.23338
+      },
+      {
+        "exDate": "2023-06-20",
+        "amount": 0.24277
+      },
+      {
+        "exDate": "2023-09-12",
+        "amount": 0.22907
+      },
+      {
+        "exDate": "2024-06-18",
+        "amount": 0.25287
+      },
+      {
+        "exDate": "2024-09-11",
+        "amount": 0.24033
+      },
+      {
+        "exDate": "2025-06-17",
+        "amount": 0.2727
+      },
+      {
+        "exDate": "2025-09-09",
+        "amount": 0.24105
+      },
+      {
+        "exDate": "2026-06-18",
+        "amount": 0.2873
+      }
+    ],
+    "splits": [],
+    "price": 8.75,
+    "payoutRatio": 0.543
+  },
+  {
+    "symbol": "1398.HK",
+    "name": "ICBC",
+    "dividendYield": 5.45,
+    "dividendRate": 0.35,
+    "trailingAnnualDivYield": 0.04821151,
+    "trailingAnnualDivRate": 0.31,
+    "recentDividends": [
+      {
+        "exDate": "2019-06-25",
+        "amount": 0.284773
+      },
+      {
+        "exDate": "2020-06-22",
+        "amount": 0.287433
+      },
+      {
+        "exDate": "2021-06-28",
+        "amount": 0.319911
+      },
+      {
+        "exDate": "2022-07-04",
+        "amount": 0.343218
+      },
+      {
+        "exDate": "2023-07-06",
+        "amount": 0.329236
+      },
+      {
+        "exDate": "2024-07-08",
+        "amount": 0.335715
+      },
+      {
+        "exDate": "2025-01-02",
+        "amount": 0.155291
+      },
+      {
+        "exDate": "2025-07-03",
+        "amount": 0.180384
+      },
+      {
+        "exDate": "2025-12-04",
+        "amount": 0.15575
+      },
+      {
+        "exDate": "2026-05-04",
+        "amount": 0.19441
+      }
+    ],
+    "splits": [],
+    "price": 6.42,
+    "payoutRatio": 0.3034
+  },
+  {
+    "symbol": "3988.HK",
+    "name": "BANK OF CHINA",
+    "dividendYield": 5.07,
+    "dividendRate": 0.25,
+    "trailingAnnualDivYield": 0.046549946,
+    "trailingAnnualDivRate": 0.226,
+    "recentDividends": [
+      {
+        "exDate": "2019-05-23",
+        "amount": 0.210826
+      },
+      {
+        "exDate": "2020-07-07",
+        "amount": 0.209321
+      },
+      {
+        "exDate": "2021-05-27",
+        "amount": 0.237643
+      },
+      {
+        "exDate": "2022-07-07",
+        "amount": 0.258911
+      },
+      {
+        "exDate": "2023-07-06",
+        "amount": 0.251902
+      },
+      {
+        "exDate": "2024-07-08",
+        "amount": 0.25907
+      },
+      {
+        "exDate": "2025-01-13",
+        "amount": 0.130591
+      },
+      {
+        "exDate": "2025-04-22",
+        "amount": 0.130831
+      },
+      {
+        "exDate": "2025-12-02",
+        "amount": 0.120571
+      },
+      {
+        "exDate": "2026-07-02",
+        "amount": 0.134926
+      }
+    ],
+    "splits": [],
+    "price": 4.81,
+    "payoutRatio": 0.31370002
+  }
+]
