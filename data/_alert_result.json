@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-07-02T08:40:07.060Z",
+  "hasAlerts": true,
+  "alerts": [
+    {
+      "name": "CNPC",
+      "symbol": "0857.HK",
+      "change": 3.1839678341830187,
+      "price": 8.75,
+      "prevClose": 8.479999542236328,
+      "direction": "UP"
+    },
+    {
+      "name": "CCB",
+      "symbol": "0939.HK",
+      "change": -2.8500582840384947,
+      "price": 7.84,
+      "prevClose": 8.069999694824219,
+      "direction": "DOWN"
+    },
+    {
+      "name": "BOC",
+      "symbol": "3988.HK",
+      "change": -3.607210007503266,
+      "price": 4.81,
+      "prevClose": 4.989999771118164,
+      "direction": "DOWN"
+    }
+  ],
+  "nosAlertMsg": null
+}
