@@ -373,7 +373,8 @@ function renderIndexCards() {
     const chg = ((price - parseFloat(m.prevClose)) / parseFloat(m.prevClose)) * 100;
     const up = chg >= 0;
     const arrow = up ? '▲' : '▼';
-    const color = up ? '#4ade80' : '#ef4444';
+    const bigMove = Math.abs(chg) >= 2;
+    const color = bigMove ? '#f59e0b' : (up ? '#4ade80' : '#ef4444');
     const prefix = (ticker === 'CL=F') ? '$' : '';
     const val = (ticker === 'CL=F')
       ? '$' + price.toFixed(2)
@@ -519,12 +520,10 @@ function computePortfolio() {
     var pnl = mktVal - costVal;
     var pnlPct = ((price - s.costPrice) / s.costPrice) * 100;
     var up = pnl >= 0;
-    var bigMove = changePct !== null && Math.abs(changePct) >= 2;
     var currency = (p && p.currency) ? p.currency : 'HKD';
     var volume = (p && p.volume) ? p.volume : null;
 
     // Calculate daily, weekly, monthly, YTD from chart history
-    var changePct = null;
     var changePct = null;
     var chg1w = null, chg1m = null, chgYtd = null;
     if (p && p.timestamps && p.closes && p.closes.length > 1) {
@@ -537,6 +536,7 @@ function computePortfolio() {
       if (len >= 2 && closes[len - 2] > 0) {
         changePct = ((latest - closes[len - 2]) / closes[len - 2]) * 100;
       }
+      var bigMove = changePct !== null && Math.abs(changePct) >= 2;
 
       // 1 week ~5 trading days back
       var idx1w = Math.max(0, len - 6);
