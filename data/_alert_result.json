@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-02T10:23:07.564Z",
+  "timestamp": "2026-07-03T01:30:06.663Z",
   "hasAlerts": true,
   "alerts": [
     {
@@ -9,6 +9,17 @@
       "rawChange": 3.1839678341830187,
       "price": 8.75,
       "prevClose": 8.479999542236328,
+      "direction": "UP",
+      "exDivAdjustment": null,
+      "note": ""
+    },
+    {
+      "name": "CNOOC",
+      "symbol": "0883.HK",
+      "change": 3.3464582450214637,
+      "rawChange": 3.3464582450214637,
+      "price": 21,
+      "prevClose": 20.31999969482422,
       "direction": "UP",
       "exDivAdjustment": null,
       "note": ""
