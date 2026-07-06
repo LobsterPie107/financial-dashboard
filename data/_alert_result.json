@@ -1,18 +1,6 @@
 {
-  "timestamp": "2026-07-03T05:30:04.872Z",
-  "hasAlerts": true,
-  "alerts": [
-    {
-      "name": "CNOOC",
-      "symbol": "0883.HK",
-      "change": 2.94117839553643,
-      "rawChange": 2.94117839553643,
-      "price": 21,
-      "prevClose": 20.399999618530273,
-      "direction": "UP",
-      "exDivAdjustment": null,
-      "note": ""
-    }
-  ],
-  "nosAlertMsg": null
+  "timestamp": "2026-07-06T03:43:22.613Z",
+  "hasAlerts": false,
+  "alerts": [],
+  "nosAlertMsg": "No 2%+ movers this hour."
 }
