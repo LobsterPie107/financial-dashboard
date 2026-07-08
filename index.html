@@ -77,6 +77,8 @@ body.pw-authed .app{display:block}
 .news-list li:last-child{border-bottom:none}
 .news-list .summary{color:#e0e0e0}
 .news-list .summary.gray{color:#667}
+.news-link{color:#60a5fa;font-size:11px;text-decoration:none;margin-left:4px}
+.news-link:hover{text-decoration:underline}
 .re-chart-wrap{position:relative;height:160px;background:#111827;border-radius:6px}
 .macro-src{font-size:11px;color:#667;margin-top:8px;text-align:center}
 .econ-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px}
@@ -792,7 +794,10 @@ function renderNews() {
   var dollarEl = document.getElementById('dollarNews');
   if (dollarEl) {
     if (dn.length) {
-      dollarEl.innerHTML = '<li><span class="summary">' + dn.map(function(a) { return a.title; }).join('; ') + '</span></li>';
+      dollarEl.innerHTML = dn.map(function(a) {
+        var link = a.url ? ' <a href="' + a.url + '" target="_blank" class="news-link">source</a>' : '';
+        return '<li><span class="summary">' + a.title + link + '</span></li>';
+      }).join('');
     } else {
       dollarEl.innerHTML = '<li><span class="summary gray">No relevant news today</span></li>';
     }
@@ -819,10 +824,13 @@ function renderNews() {
       }).filter(function(s) { return s; });
       var sumText = parts.join('. ');
       var reArticles = (newsData.reNews || []).slice(0, 3);
-      if (reArticles.length) {
-        sumText += ' | ' + reArticles.map(function(a) { return a.summary || a.title; }).join(' | ');
-      }
       reEl.innerHTML = '<li><span class="summary">' + sumText + '</span></li>';
+      if (reArticles.length) {
+        reArticles.forEach(function(a) {
+          var link = a.url ? ' <a href="' + a.url + '" target="_blank" class="news-link">source</a>' : '';
+          reEl.innerHTML += '<li><span class="summary">' + (a.summary || a.title) + link + '</span></li>';
+        });
+      }
     } else {
       reEl.innerHTML = '<li><span class="summary gray">No relevant news today</span></li>';
     }
@@ -835,11 +843,10 @@ function renderNews() {
   var stockEl = document.getElementById('stockNews');
   if (stockEl) {
     if (sn.length) {
-      var items = [];
-      sn.forEach(function(a, i) {
-        if (i < 10) items.push(a.title || a.summary);
-      });
-      stockEl.innerHTML = items.map(function(t) { return '<li><span class="summary">' + t + '</span></li>'; }).join('');
+      stockEl.innerHTML = sn.slice(0, 10).map(function(a) {
+        var link = a.url ? ' <a href="' + a.url + '" target="_blank" class="news-link">source</a>' : '';
+        return '<li><span class="summary">' + (a.title || a.summary) + link + '</span></li>';
+      }).join('');
     } else {
       stockEl.innerHTML = '<li><span class="summary gray">No relevant news today</span></li>';
     }
