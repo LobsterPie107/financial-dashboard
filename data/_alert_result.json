@@ -1,6 +1,95 @@
 {
-  "timestamp": "2026-07-07T04:30:53.334Z",
-  "hasAlerts": false,
-  "alerts": [],
-  "nosAlertMsg": "No 2%+ movers this hour."
+  "timestamp": "2026-07-08T02:31:51.772Z",
+  "hasAlerts": true,
+  "alerts": [
+    {
+      "name": "CNOOC",
+      "symbol": "0883.HK",
+      "change": 5.0236947837270085,
+      "rawChange": 5.0236947837270085,
+      "price": 22.16,
+      "prevClose": 21.100000381469727,
+      "direction": "UP",
+      "exDivAdjustment": null,
+      "note": ""
+    },
+    {
+      "name": "BOC",
+      "symbol": "3988.HK",
+      "change": 3.9419050118650296,
+      "rawChange": 3.9419050118650296,
+      "price": 5.01,
+      "prevClose": 4.820000171661377,
+      "direction": "UP",
+      "exDivAdjustment": null,
+      "note": ""
+    },
+    {
+      "name": "CCB",
+      "symbol": "0939.HK",
+      "change": 4.597702168604256,
+      "rawChange": 4.597702168604256,
+      "price": 8.19,
+      "prevClose": 7.829999923706055,
+      "direction": "UP",
+      "exDivAdjustment": null,
+      "note": ""
+    },
+    {
+      "name": "China Mobile",
+      "symbol": "0941.HK",
+      "change": 2.1386888418500183,
+      "rawChange": 2.1386888418500183,
+      "price": 78.8,
+      "prevClose": 77.1500015258789,
+      "direction": "UP",
+      "exDivAdjustment": null,
+      "note": ""
+    },
+    {
+      "name": "China Telecom",
+      "symbol": "0728.HK",
+      "change": 2.2779074386273135,
+      "rawChange": 2.2779074386273135,
+      "price": 4.49,
+      "prevClose": 4.389999866485596,
+      "direction": "UP",
+      "exDivAdjustment": null,
+      "note": ""
+    },
+    {
+      "name": "China Unicom",
+      "symbol": "0762.HK",
+      "change": 2.2653750089021223,
+      "rawChange": 2.2653750089021223,
+      "price": 6.32,
+      "prevClose": 6.179999828338623,
+      "direction": "UP",
+      "exDivAdjustment": null,
+      "note": ""
+    },
+    {
+      "name": "ICBC",
+      "symbol": "1398.HK",
+      "change": 3.698000575437411,
+      "rawChange": 3.698000575437411,
+      "price": 6.73,
+      "prevClose": 6.489999771118164,
+      "direction": "UP",
+      "exDivAdjustment": null,
+      "note": ""
+    },
+    {
+      "name": "CNPC",
+      "symbol": "0857.HK",
+      "change": 3.4675663777090246,
+      "rawChange": 3.4675663777090246,
+      "price": 9.25,
+      "prevClose": 8.9399995803833,
+      "direction": "UP",
+      "exDivAdjustment": null,
+      "note": ""
+    }
+  ],
+  "nosAlertMsg": null
 }
