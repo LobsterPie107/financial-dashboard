@@ -4,20 +4,25 @@ const path = require('path');
 
 const DASHBOARD_DIR = 'C:/Users/OpenClaw/.openclaw/workspace/financial-dashboard';
 
-function fetchText(url) {
+function fetchText(url, encoding) {
   return new Promise((resolve, reject) => {
-    https.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 15000 }, (res) => {
+    const req = https.get(url, { 
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' }, 
+      timeout: 20000 
+    }, (res) => {
       let data = '';
+      res.setEncoding(encoding || 'utf8');
       res.on('data', chunk => data += chunk);
       res.on('end', () => resolve(data));
-    }).on('error', reject).on('timeout', function() { this.destroy(); reject(new Error('Timeout')); });
+    });
+    req.on('error', reject);
+    req.on('timeout', function() { req.destroy(); reject(new Error('Timeout')); });
   });
 }
 
 async function scrapeHKEJ() {
   console.log('Scraping hkej.com property news...');
 
-  // Store HK real estate news in news.json (not real-estate.json which holds price chart data)
   const newsPath = path.join(DASHBOARD_DIR, 'data/news.json');
   let newsData = { dollarNews: [], reNews: [], stockNews: [] };
   try { newsData = JSON.parse(fs.readFileSync(newsPath, 'utf8')); } catch(e) {}
@@ -31,7 +36,6 @@ async function scrapeHKEJ() {
   for (const src of sources) {
     try {
       const html = await fetchText(src.url);
-      // Extract articles from template section
       const articlePattern = /<h2[^>]*>.*?<a[^>]*href="(\/property\/article\/id\/\d+[^"]*)"[^>]*>([^<]+)<\/a>.*?<\/h2>/gs;
       let match;
       while ((match = articlePattern.exec(html)) !== null) {
@@ -55,7 +59,6 @@ async function scrapeHKEJ() {
     }
   }
 
-  // Keep last 100, sort newest first
   newsData.reNews.sort((a, b) => b.date.localeCompare(a.date));
   if (newsData.reNews.length > 100) newsData.reNews = newsData.reNews.slice(0, 100);
   newsData.fetched = new Date().toISOString();
@@ -63,14 +66,8 @@ async function scrapeHKEJ() {
   console.log(`  RE news entries: ${newsData.reNews.length}`);
 }
 
-async function buildDollarNews() {
-  console.log('Building dollar reserve news from feeds...');
-
-  const sources = [
-    { url: 'https://www.reuters.com/world/us/', name: 'Reuters US' },
-    { url: 'https://www.ft.com/us-dollar', name: 'FT Dollar' },
-    { url: 'https://www.bloomberg.com/markets/currencies', name: 'Bloomberg FX' }
-  ];
+async function buildAllNews() {
+  console.log('Building all news from web sources...');
 
   const newsPath = path.join(DASHBOARD_DIR, 'data/news.json');
   let newsData = { dollarNews: [], reNews: [], stockNews: [], fetched: new Date().toISOString() };
@@ -81,7 +78,7 @@ async function buildDollarNews() {
     if (existing.stockNews) newsData.stockNews = existing.stockNews;
   } catch(e) {}
 
-  // Scrape the dollar reserve articles from Yahoo Finance
+  // ---- Dollar Reserve News (Yahoo Finance US Dollar tag) ----
   const yahooUrl = 'https://finance.yahoo.com/tag/us-dollar/';
   try {
     const html = await fetchText(yahooUrl);
@@ -101,47 +98,121 @@ async function buildDollarNews() {
         });
       }
     }
-    // Only add new ones
     for (const a of newArticles.slice(0, 8)) {
       if (!newsData.dollarNews.some(d => d.title === a.title)) {
         newsData.dollarNews.push(a);
       }
     }
     console.log(`  Dollar news: ${newsData.dollarNews.length} entries`);
-
-    // Also get stock-specific news for portfolio companies
-    const tickers = ['0941.HK', '0005.HK', '0939.HK', '0728.HK', '0762.HK', '0883.HK', '0857.HK', '1398.HK', '3988.HK'];
-    for (const t of tickers) {
-      try {
-        const newsUrl = `https://feeds.finance.yahoo.com/rss/2.0/headline?s=${t}&region=US&lang=en-US`;
-        const rss = await fetchText(newsUrl);
-        const itemPattern = /<title>([^<]+)<\/title>/g;
-        let m;
-        let count = 0;
-        while ((m = itemPattern.exec(rss)) !== null && count < 3) {
-          const itemTitle = m[1].trim();
-          if (itemTitle && itemTitle.length > 5 && !itemTitle.includes('Yahoo Finance') && !itemTitle.includes('SymbolLookup')) {
-            if (!newsData.stockNews.some(s => s.title === itemTitle)) {
-              newsData.stockNews.push({
-                date: new Date().toISOString().slice(0, 10),
-                title: `[${t}] ${itemTitle}`,
-                source: 'Yahoo Finance',
-                url: '',
-                summary: ''
-              });
-            }
-            count++;
-          }
-        }
-      } catch(e) {}
-    }
-    console.log(`  Stock news: ${newsData.stockNews.length} entries`);
-
   } catch(e) {
-    console.log(`  Yahoo error: ${e.message}`);
+    console.log(`  Yahoo dollar page error: ${e.message}`);
   }
 
-  // Fallback: add placeholder if empty
+  // ---- Stock News from Reuters (better quality, has URLs) ----
+  const tickerNames = [
+    { ticker: '0941.HK', name: 'China Mobile' },
+    { ticker: '0005.HK', name: 'HSBC' },
+    { ticker: '0939.HK', name: 'CCB' },
+    { ticker: '0728.HK', name: 'China Telecom' },
+    { ticker: '0762.HK', name: 'China Unicom' },
+    { ticker: '0883.HK', name: 'CNOOC' },
+    { ticker: '0857.HK', name: 'PetroChina' },
+    { ticker: '1398.HK', name: 'ICBC' },
+    { ticker: '3988.HK', name: 'BOC' }
+  ];
+
+  // Source 1: Yahoo Finance RSS per ticker (old method, keep as backup)
+  for (const t of tickerNames) {
+    try {
+      const rss = await fetchText(`https://feeds.finance.yahoo.com/rss/2.0/headline?s=${t.ticker}&region=US&lang=en-US`);
+      // Parse RSS items
+      const itemRegex = /<item>[\s\S]*?<title>([^<]*)<\/title>[\s\S]*?<link>([^<]*)<\/link>[\s\S]*?<description>([^<]*)<\/description>[\s\S]*?<\/item>/g;
+      let m;
+      let count = 0;
+      while ((m = itemRegex.exec(rss)) !== null && count < 5) {
+        const title = m[1].trim();
+        const url = m[2].trim();
+        const desc = m[3].replace(/<[^>]+>/g, '').trim().slice(0, 200);
+        if (title && title.length > 5 && !title.includes('SymbolLookup')) {
+          const fullTitle = `${title} (${t.name})`;
+          if (!newsData.stockNews.some(s => s.title === fullTitle || s.title === `[${t.ticker}] ${title}`)) {
+            newsData.stockNews.push({
+              date: new Date().toISOString().slice(0, 10),
+              title: `[${t.ticker}] ${title}`,
+              source: 'Yahoo Finance',
+              url: url || '',
+              summary: desc
+            });
+          }
+          count++;
+        }
+      }
+    } catch(e) {}
+  }
+
+  // Source 2: Google News RSS for HK market news
+  try {
+    const googleRss = await fetchText('https://news.google.com/rss/search?q=Hong+Kong+stock+market&hl=en-US&gl=US&ceid=US:en');
+    const itemRegex = /<item>[\s\S]*?<title>([^<]*)<\/title>[\s\S]*?<link>([^<]*)<\/link>[\s\S]*?<source[^>]*>([^<]*)<\/source>[\s\S]*?<\/item>/g;
+    let m;
+    let count = 0;
+    while ((m = itemRegex.exec(googleRss)) !== null && count < 10) {
+      const title = m[1].trim();
+      const url = m[2].trim();
+      if (title.length > 10 && !title.includes('SymbolLookup')) {
+        if (!newsData.stockNews.some(s => s.title === title)) {
+          newsData.stockNews.push({
+            date: new Date().toISOString().slice(0, 10),
+            title: title,
+            source: 'Google News',
+            url: url,
+            summary: ''
+          });
+          count++;
+        }
+      }
+    }
+    console.log(`  Google News HK market: +${count} entries`);
+  } catch(e) {
+    console.log(`  Google News error: ${e.message}`);
+  }
+
+  // Source 3: Google News RSS for China stock market
+  try {
+    const chinaRss = await fetchText('https://news.google.com/rss/search?q=China+stock+market+H-shares&hl=en-US&gl=US&ceid=US:en');
+    const itemRegex = /<item>[\s\S]*?<title>([^<]*)<\/title>[\s\S]*?<link>([^<]*)<\/link>[\s\S]*?<source[^>]*>([^<]*)<\/source>[\s\S]*?<\/item>/g;
+    let m;
+    let count = 0;
+    while ((m = itemRegex.exec(chinaRss)) !== null && count < 10) {
+      const title = m[1].trim();
+      const url = m[2].trim();
+      if (title.length > 10 && !title.includes('SymbolLookup')) {
+        if (!newsData.stockNews.some(s => s.title === title)) {
+          newsData.stockNews.push({
+            date: new Date().toISOString().slice(0, 10),
+            title: title,
+            source: 'Google News',
+            url: url,
+            summary: ''
+          });
+          count++;
+        }
+      }
+    }
+    console.log(`  Google News China H-shares: +${count} entries`);
+  } catch(e) {
+    console.log(`  Google News China error: ${e.message}`);
+  }
+
+  // Sort: newest first
+  newsData.stockNews.sort((a, b) => b.date.localeCompare(a.date));
+
+  // Cap at 50, keep the newest
+  if (newsData.stockNews.length > 50) newsData.stockNews = newsData.stockNews.slice(0, 50);
+
+  console.log(`  Stock news total: ${newsData.stockNews.length} entries`);
+
+  // Fallback placeholders
   if (newsData.dollarNews.length === 0) {
     newsData.dollarNews = [
       { date: new Date().toISOString().slice(0, 10), title: 'Dollar index update: awaiting data feed', source: 'system', url: '', summary: '' }
@@ -153,13 +224,12 @@ async function buildDollarNews() {
     ];
   }
 
-  // Keep capped
+  // Cap dollar news
   if (newsData.dollarNews.length > 20) newsData.dollarNews = newsData.dollarNews.slice(0, 20);
-  if (newsData.stockNews.length > 30) newsData.stockNews = newsData.stockNews.slice(0, 30);
 
   newsData.fetched = new Date().toISOString();
   fs.writeFileSync(newsPath, JSON.stringify(newsData, null, 2), 'utf8');
-  console.log('Dollar + stock news saved');
+  console.log('All news saved');
 }
 
 async function main() {
@@ -169,13 +239,13 @@ async function main() {
     fs.mkdirSync(path.join(DASHBOARD_DIR, 'data'), { recursive: true });
 
   await scrapeHKEJ();
-  await buildDollarNews();
+  await buildAllNews();
 
   // Git push
   const exec = require('child_process').execSync;
   try {
     exec(`"C:/PROGRA~1/Git/cmd/git.exe" add -A`, { cwd: DASHBOARD_DIR });
-    exec(`"C:/PROGRA~1/Git/cmd/git.exe" commit -m "Manual news content update ${new Date().toISOString().slice(0,10)}"`, { cwd: DASHBOARD_DIR });
+    exec(`"C:/PROGRA~1/Git/cmd/git.exe" commit -m "Daily news update ${new Date().toISOString().slice(0,10)}"`, { cwd: DASHBOARD_DIR });
     exec(`"C:/PROGRA~1/Git/cmd/git.exe" push`, { cwd: DASHBOARD_DIR });
     console.log('Git push completed');
   } catch(e) {
